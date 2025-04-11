@@ -1,20 +1,22 @@
 'use client'
 
-import { ReactNode, useEffect } from 'react'
+import React from 'react'
+import type { ReactNode } from 'react'
 import i18next from 'i18next'
 import { I18nextProvider, initReactI18next } from 'react-i18next'
 import resourcesToBackend from 'i18next-resources-to-backend'
 import { useLanguage } from '@/providers/LanguageProvider/context'
-import { locales, defaultLocale } from '@/i18n'
+import { locales, defaultLocale } from '@/utils/minimal-i18n'
 
 interface I18nClientProviderProps {
   children: ReactNode
 }
 
-const i18nClient = i18next
+// สร้าง i18next instance เพียงครั้งเดียว
+i18next
   .use(initReactI18next)
   .use(
-    resourcesToBackend((language, namespace) => 
+    resourcesToBackend((language: string, namespace: string) => 
       import(`../../public/locales/${language}/${namespace}.json`)
     )
   )
@@ -24,6 +26,9 @@ const i18nClient = i18next
     supportedLngs: locales,
     defaultNS: 'common',
     fallbackNS: 'common',
+    interpolation: {
+      escapeValue: false,
+    },
     react: {
       useSuspense: false,
     },
@@ -32,7 +37,7 @@ const i18nClient = i18next
 export function I18nClientProvider({ children }: I18nClientProviderProps) {
   const { locale } = useLanguage()
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (locale && i18next.language !== locale) {
       i18next.changeLanguage(locale)
     }

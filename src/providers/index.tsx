@@ -3,7 +3,7 @@ import React from 'react'
 import { HeaderThemeProvider } from './HeaderTheme'
 import { ThemeProvider } from './Theme'
 import { LanguageProvider } from './LanguageProvider/context'
-import { I18nClientProvider } from '@/components/I18nClientProvider'
+import { TranslationProvider } from '@/utils/TranslationContext'
 
 export const Providers: React.FC<{
   children: React.ReactNode
@@ -11,9 +11,9 @@ export const Providers: React.FC<{
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <I18nClientProvider>
+        <TranslationProvider>
           <HeaderThemeProvider>{children}</HeaderThemeProvider>
-        </I18nClientProvider>
+        </TranslationProvider>
       </LanguageProvider>
     </ThemeProvider>
   )

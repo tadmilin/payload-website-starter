@@ -1,10 +1,11 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import * as React from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Navbar } from '../../../components/Navbar'
-import { useTranslation } from 'react-i18next'
+import { useTranslation } from '@/utils/TranslationContext'
 import { useLanguage } from '@/providers/LanguageProvider/context'
 
 export default function HomePage() {
@@ -12,7 +13,7 @@ export default function HomePage() {
   const [currentProductCategory, setCurrentProductCategory] = useState(0);
   const [scrolled, setScrolled] = useState(false);
   const { locale } = useLanguage();
-  const { t } = useTranslation('common');
+  const { t } = useTranslation();
   
   // รูปภาพสำหรับสไลด์
   const slides = [

@@ -1,6 +1,13 @@
 import { withPayload } from '@payloadcms/next/withPayload'
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
+import path from 'path'
 
 import redirects from './redirects.js'
+
+// แก้ไขปัญหา __dirname ใน ESM
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
@@ -23,10 +30,8 @@ const nextConfig = {
   },
   reactStrictMode: true,
   redirects,
-  experimental: {
-    appDir: true,
-  },
-  webpack(config) {
+  transpilePackages: ['react-i18next', 'i18next'],
+  webpack: (config) => {
     return config
   },
 }

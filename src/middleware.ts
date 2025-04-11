@@ -1,29 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { locales, defaultLocale } from './i18n'
-
-function getLocale(request: NextRequest) {
-  // ตรวจสอบภาษาจาก cookie ก่อน
-  const cookieLocale = request.cookies.get('locale')?.value
-  if (cookieLocale && locales.includes(cookieLocale)) {
-    return cookieLocale
-  }
-
-  // ถ้าไม่มี cookie ให้ตรวจสอบจาก accept-language header
-  const acceptLanguage = request.headers.get('accept-language')
-  if (acceptLanguage) {
-    const preferredLocale = acceptLanguage
-      .split(',')
-      .map(lang => lang.split(';')[0].trim())
-      .find(lang => locales.includes(lang))
-
-    if (preferredLocale) {
-      return preferredLocale
-    }
-  }
-
-  // ถ้าไม่มีอะไรเลยให้ใช้ภาษาเริ่มต้น
-  return defaultLocale
-}
+import { locales, defaultLocale } from './utils/minimal-i18n'
 
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
@@ -38,18 +14,19 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // ตั้งค่า locale
-  const locale = getLocale(request)
-  const response = NextResponse.next()
-  
-  // บันทึก locale ลงใน cookie ถ้ายังไม่มี
-  if (!request.cookies.has('locale')) {
-    response.cookies.set('locale', locale, { 
-      maxAge: 60 * 60 * 24 * 365, // 1 ปี
-      path: '/' 
-    })
+  // ตรวจสอบ cookie ภาษา
+  const localeCookie = request.cookies.get('locale')
+  const locale = localeCookie?.value
+
+  // ถ้ามี cookie และเป็นภาษาที่รองรับ
+  if (locale && locales.includes(locale)) {
+    // ไม่ต้องทำอะไร เพราะเราใช้ cookie อยู่แล้ว
+    return NextResponse.next()
   }
 
+  // ถ้าไม่มี cookie ให้ตั้งค่าเป็นภาษาเริ่มต้น
+  const response = NextResponse.next()
+  response.cookies.set('locale', defaultLocale)
   return response
 }
 

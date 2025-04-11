@@ -1,7 +1,8 @@
 'use client'
 
+import * as React from 'react'
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { defaultLocale, locales } from '@/i18n'
+import { defaultLocale, locales } from '@/utils/minimal-i18n'
 import { useRouter, usePathname } from 'next/navigation'
 import Cookies from 'js-cookie'
 

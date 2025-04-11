@@ -1,16 +1,17 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import * as React from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useLanguage } from '@/providers/LanguageProvider/context'
 import { LanguageSwitcher } from './LanguageSwitcher'
-import { useTranslation } from 'react-i18next'
+import { useTranslation } from '@/utils/TranslationContext'
 
 export const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { locale } = useLanguage();
-  const { t } = useTranslation('common');
+  const { t } = useTranslation();
 
   // ตรวจจับการเลื่อนหน้าจอเพื่อเปลี่ยนสี nav bar
   useEffect(() => {
