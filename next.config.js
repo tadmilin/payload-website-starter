@@ -19,9 +19,16 @@ const nextConfig = {
         }
       }),
     ],
+    domains: ['images.unsplash.com'],
   },
   reactStrictMode: true,
   redirects,
+  experimental: {
+    appDir: true,
+  },
+  webpack(config) {
+    return config
+  },
 }
 
 export default withPayload(nextConfig, { devBundleServerPackages: false })

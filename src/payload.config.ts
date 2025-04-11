@@ -1,10 +1,16 @@
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
-import { vercelPostgresAdapter } from '@payloadcms/db-vercel-postgres'
+// import { vercelPostgresAdapter } from '@payloadcms/db-vercel-postgres'
+import { postgresAdapter } from '@payloadcms/db-postgres'
+// import { postgresAdapter } from '@payloadcms/db-postgres'
 
 import sharp from 'sharp' // sharp-import
 import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
+import dotenv from 'dotenv'
+
+// Load .env file
+dotenv.config({ path: path.resolve(process.cwd(), 'src/.env') })
 
 import { Categories } from './collections/Categories'
 import { Media } from './collections/Media'
@@ -59,9 +65,13 @@ export default buildConfig({
   },
   // This config helps us configure global or default features that the other editors can inherit
   editor: defaultLexical,
-  db: vercelPostgresAdapter({
+  db: postgresAdapter({
     pool: {
-      connectionString: process.env.POSTGRES_URL || '',
+      user: 'postgres',
+      password: 'Tadmayer123',
+      host: '127.0.0.1',
+      port: 5432,
+      database: 'payload',
     },
   }),
   collections: [Pages, Posts, Media, Categories, Users],
@@ -76,7 +86,7 @@ export default buildConfig({
       token: process.env.BLOB_READ_WRITE_TOKEN || '',
     }),
   ],
-  secret: process.env.PAYLOAD_SECRET,
+  secret: process.env.PAYLOAD_SECRET || 'your_secure_secret_key_here_1234567890',
   sharp,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),

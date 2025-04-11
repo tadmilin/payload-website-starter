@@ -25,18 +25,47 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <InitTheme />
         <link href="/favicon.ico" rel="icon" sizes="32x32" />
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            /* ซ่อนทุกอย่างที่เกี่ยวกับ Payload */
+            nav.payload-nav,
+            header.payload-header,
+            .payload-header,
+            .payload-nav,
+            .admin-bar,
+            div[class*="payload-"],
+            footer.payload-footer,
+            .payload-footer {
+              display: none !important;
+            }
+            
+            /* ซ่อน AdminBar */
+            .admin-bar {
+              display: none !important;
+            }
+            
+            /* ซ่อน Header ของ Payload */
+            header:has(.payload-logo), 
+            header:has([alt="Payload Logo"]) {
+              display: none !important;
+            }
+          `
+        }} />
       </head>
       <body>
         <Providers>
-          <AdminBar
+          {/* ลบ AdminBar ออก */}
+          {/* <AdminBar
             adminBarProps={{
               preview: isEnabled,
             }}
-          />
+          /> */}
 
-          <Header />
+          {/* ลบ Header ของเดิมออก */}
+          {/* <Header /> */}
           {children}
-          <Footer />
+          {/* ลบ Footer ของเดิมออก */}
+          {/* <Footer /> */}
         </Providers>
       </body>
     </html>
