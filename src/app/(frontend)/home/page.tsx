@@ -46,7 +46,7 @@ export default function HomePage() {
   }, [slides.length]);
 
   // ฟังก์ชันเลื่อนสไลด์สินค้า
-  const navigateProduct = (direction) => {
+  const navigateProduct = (direction: 'next' | 'prev') => {
     if (direction === 'next') {
       setCurrentProductCategory((prev) => 
         prev === productCategories.length - 1 ? 0 : prev + 1
