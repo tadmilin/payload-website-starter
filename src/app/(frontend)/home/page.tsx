@@ -4,11 +4,15 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Navbar } from '../../../components/Navbar'
+import { useTranslation } from 'react-i18next'
+import { useLanguage } from '@/providers/LanguageProvider/context'
 
 export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [currentProductCategory, setCurrentProductCategory] = useState(0);
   const [scrolled, setScrolled] = useState(false);
+  const { locale } = useLanguage();
+  const { t } = useTranslation('common');
   
   // รูปภาพสำหรับสไลด์
   const slides = [
@@ -90,17 +94,17 @@ export default function HomePage() {
         <div className="container mx-auto px-6 h-full flex items-center relative z-10">
           <div className="w-full max-w-3xl">
             <h1 className="text-4xl md:text-6xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-200">
-              พลังงานโซลาร์เซลล์<br />เพื่อทุกบ้าน
+              {t('solar_title')}
             </h1>
             <p className="text-xl text-white/90 mb-8 max-w-xl">
-              เริ่มต้นประหยัดค่าไฟและรักษาสิ่งแวดล้อมด้วยระบบโซลาร์เซลล์คุณภาพสูง รับประกันนาน 25 ปี
+              {t('solar_desc')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/simulator" className="bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-white font-medium py-3 px-8 rounded-md shadow-lg transform hover:-translate-y-1 transition-all duration-300 text-center">
-                เริ่มจำลองการติดตั้ง
+                {t('start_simulation')}
               </Link>
               <Link href="/shop" className="bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30 font-medium py-3 px-8 rounded-md shadow-lg transform hover:-translate-y-1 transition-all duration-300 text-center">
-                ดูสินค้าของเรา
+                {t('view_products')}
               </Link>
             </div>
           </div>
@@ -128,7 +132,7 @@ export default function HomePage() {
           <div className="flex flex-col md:flex-row items-center justify-between mb-10 md:mb-16">
             <div className="md:w-1/2 text-left md:pr-10 mb-8 md:mb-0">
               <h2 className="text-2xl md:text-3xl font-light text-white mb-2">
-                SOLARLAA <span className="font-semibold">ช่วยประหยัดค่าไฟฟ้า</span>
+                SOLARLAA <span className="font-semibold">{t('energy_saving_stats')}</span>
               </h2>
               <div className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-300 to-yellow-500 mb-4">
                 12,188,044 บาท
@@ -143,7 +147,7 @@ export default function HomePage() {
               
               <div className="grid grid-cols-2 gap-4 sm:gap-6">
                 <div className="bg-black/30 backdrop-blur-sm p-5 rounded-lg border border-gray-700">
-                  <div className="text-sm font-medium text-gray-400 mb-2">ผลิตไฟฟ้ารวม</div>
+                  <div className="text-sm font-medium text-gray-400 mb-2">{t('total_electricity')}</div>
                   <div className="flex justify-center md:justify-start">
                     <div className="flex gap-1">
                       {[0,3,9,4,9].map((num, i) => (
@@ -155,7 +159,7 @@ export default function HomePage() {
                 </div>
                 
                 <div className="bg-black/30 backdrop-blur-sm p-5 rounded-lg border border-gray-700">
-                  <div className="text-sm font-medium text-gray-400 mb-2">ใช้ไฟฟ้ารวม</div>
+                  <div className="text-sm font-medium text-gray-400 mb-2">{t('total_consumption')}</div>
                   <div className="flex justify-center md:justify-start">
                     <div className="flex gap-1">
                       {[0,3,4,3,1].map((num, i) => (
@@ -167,7 +171,7 @@ export default function HomePage() {
                 </div>
                 
                 <div className="bg-black/30 backdrop-blur-sm p-5 rounded-lg border border-gray-700">
-                  <div className="text-sm font-medium text-gray-400 mb-2">โครงการทั้งหมด</div>
+                  <div className="text-sm font-medium text-gray-400 mb-2">{t('total_projects')}</div>
                   <div className="flex justify-center md:justify-start">
                     <div className="flex gap-1">
                       {[0,3,8].map((num, i) => (
@@ -179,7 +183,7 @@ export default function HomePage() {
                 </div>
                 
                 <div className="bg-black/30 backdrop-blur-sm p-5 rounded-lg border border-gray-700">
-                  <div className="text-sm font-medium text-gray-400 mb-2">กำลังผลิตทั้งหมด</div>
+                  <div className="text-sm font-medium text-gray-400 mb-2">{t('total_capacity')}</div>
                   <div className="flex justify-center md:justify-start">
                     <div className="flex gap-1">
                       {[0,6,3,9,5].map((num, i) => (

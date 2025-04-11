@@ -2,10 +2,15 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useLanguage } from '@/providers/LanguageProvider/context'
+import { LanguageSwitcher } from './LanguageSwitcher'
+import { useTranslation } from 'react-i18next'
 
 export const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { locale } = useLanguage();
+  const { t } = useTranslation('common');
 
   // ตรวจจับการเลื่อนหน้าจอเพื่อเปลี่ยนสี nav bar
   useEffect(() => {
@@ -40,25 +45,23 @@ export const Navbar: React.FC = () => {
           {/* เมนู */}
           <div className="hidden md:flex items-center space-x-8">
             <Link href="/" className="text-white font-medium hover:text-yellow-400 transition-colors">
-              หน้าแรก
+              {t('home')}
             </Link>
             <Link href="/simulator" className="text-white font-medium hover:text-yellow-400 transition-colors">
-              จำลองการติดตั้ง
+              {t('simulator')}
             </Link>
             <Link href="/shop" className="text-white font-medium hover:text-yellow-400 transition-colors">
-              ซื้อสินค้า
+              {t('shop')}
             </Link>
             <Link href="/monitor" className="text-white font-medium hover:text-yellow-400 transition-colors">
-              ระบบติดตามผล
+              {t('monitor')}
             </Link>
             <div className="pl-6 border-l border-white/30">
               <Link href="/login" className="bg-yellow-500 hover:bg-yellow-400 text-black font-medium py-2 px-4 rounded-full transition-colors mr-4">
-                Login
+                {t('login')}
               </Link>
               <span className="text-white/70">|</span>
-              <button className="text-white hover:text-yellow-400 transition-colors ml-4 font-medium">
-                TH/EN
-              </button>
+              <LanguageSwitcher className="ml-4" />
             </div>
           </div>
           
@@ -80,24 +83,22 @@ export const Navbar: React.FC = () => {
           <div className="md:hidden bg-gradient-to-b from-black/90 to-black/80 backdrop-blur-lg mt-4 p-4 rounded-xl border border-yellow-500/20 shadow-lg">
             <div className="flex flex-col space-y-4">
               <Link href="/" className="text-white font-medium hover:text-yellow-400 transition-colors">
-                หน้าแรก
+                {t('home')}
               </Link>
               <Link href="/simulator" className="text-white font-medium hover:text-yellow-400 transition-colors">
-                จำลองการติดตั้ง
+                {t('simulator')}
               </Link>
               <Link href="/shop" className="text-white font-medium hover:text-yellow-400 transition-colors">
-                ซื้อสินค้า
+                {t('shop')}
               </Link>
               <Link href="/monitor" className="text-white font-medium hover:text-yellow-400 transition-colors">
-                ระบบติดตามผล
+                {t('monitor')}
               </Link>
               <div className="pt-4 border-t border-white/30 flex items-center justify-between">
                 <Link href="/login" className="bg-yellow-500 hover:bg-yellow-400 text-black font-medium py-2 px-4 rounded-full transition-colors">
-                  Login
+                  {t('login')}
                 </Link>
-                <button className="text-white hover:text-yellow-400 transition-colors font-medium">
-                  TH/EN
-                </button>
+                <LanguageSwitcher />
               </div>
             </div>
           </div>
