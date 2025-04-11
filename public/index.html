@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SolarLaa | พลังงานแสงอาทิตย์เพื่อทุกคน</title>
+  <meta name="description" content="บริการติดตั้งโซลาร์เซลล์คุณภาพสูง ประหยัดค่าไฟอย่างยั่งยืน">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Prompt', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    
+    body {
+      min-height: 100vh;
+      color: white;
+      overflow-x: hidden;
+    }
+    
+    .bg-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=1974&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
+      z-index: -2;
+      transform: scale(1.05);
+      animation: subtle-zoom 20s infinite alternate ease-in-out;
+    }
+    
+    @keyframes subtle-zoom {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.1); }
+    }
+    
+    .cloud-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url('/images/solar-windmill.jpg');
+      background-size: 300px;
+      background-repeat: repeat;
+      opacity: 0.15;
+      mix-blend-mode: overlay;
+      z-index: -1;
+    }
+    
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5));
+      z-index: -1;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    header {
+      padding: 20px 0;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 10;
+    }
+    
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 2rem;
+      font-weight: 700;
+      color: transparent;
+      background: linear-gradient(to right, #fcd34d, #f59e0b);
+      background-clip: text;
+      -webkit-background-clip: text;
+      display: flex;
+      align-items: center;
+      letter-spacing: -0.5px;
+    }
+    
+    .logo span {
+      margin-right: 10px;
+    }
+    
+    .content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+      padding-top: 40px;
+    }
+    
+    .hero {
+      margin-bottom: 60px;
+      animation: fade-in-up 1s ease-out forwards;
+    }
+    
+    @keyframes fade-in-up {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    h1 {
+      font-size: 4rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+      background: linear-gradient(to right, #fcd34d, #f59e0b);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 2px 10px rgba(252, 211, 77, 0.1);
+    }
+    
+    .hero p {
+      font-size: 1.25rem;
+      max-width: 700px;
+      margin: 0 auto 2.5rem;
+      opacity: 0.95;
+      line-height: 1.6;
+    }
+    
+    .cta-button {
+      display: inline-block;
+      background: linear-gradient(to right, #f59e0b, #d97706);
+      color: white;
+      text-decoration: none;
+      padding: 1.1rem 2.5rem;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 1.1rem;
+      transition: all 0.3s;
+      box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.5);
+      transform: translateY(0);
+    }
+    
+    .cta-button:hover {
+      background: linear-gradient(to right, #d97706, #b45309);
+      transform: translateY(-3px);
+      box-shadow: 0 15px 30px -5px rgba(245, 158, 11, 0.6);
+    }
+    
+    .feature-cards {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      margin-bottom: 60px;
+      width: 100%;
+      max-width: 1100px;
+      animation: fade-in-up 1s ease-out 0.3s forwards;
+      opacity: 0;
+    }
+    
+    .feature-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      padding: 2.5rem;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(120deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 80%);
+      z-index: 0;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+    
+    .emoji {
+      font-size: 3.5rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .feature-card h2 {
+      font-size: 1.75rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+      color: #fcd34d;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .feature-card p {
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.7;
+      font-size: 1.1rem;
+      position: relative;
+      z-index: 1;
+    }
+    
+    @media (min-width: 768px) {
+      h1 {
+        font-size: 5rem;
+      }
+      .feature-cards {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-image"></div>
+  <div class="cloud-overlay"></div>
+  <div class="overlay"></div>
+  
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <span>☀️</span> SolarLaa
+        </div>
+      </div>
+    </div>
+  </header>
+  
+  <div class="content">
+    <div class="container">
+      <section class="hero">
+        <h1>SolarLaa</h1>
+        <p>ลดค่าไฟฟ้าด้วยระบบโซลาร์เซลล์คุณภาพสูง ติดตั้งง่าย ดูแลระยะยาว คุ้มค่าการลงทุน</p>
+        <a href="/home" class="cta-button">เริ่มต้นใช้งาน SolarLaa</a>
+      </section>
+
+      <div class="feature-cards">
+        <div class="feature-card">
+          <div class="emoji">☀️</div>
+          <h2>ติดตั้งโซลาร์เซลล์</h2>
+          <p>เรามีบริการติดตั้งโซลาร์เซลล์คุณภาพสูง รับประกันผลงาน มีทีมงานมืออาชีพ พร้อมให้คำแนะนำการใช้งานและการบำรุงรักษาระยะยาว</p>
+        </div>
+        <div class="feature-card">
+          <div class="emoji">💰</div>
+          <h2>ประหยัดค่าไฟในระยะยาว</h2>
+          <p>ลงทุนครั้งเดียว ประหยัดค่าไฟไปได้หลายสิบปี ช่วยลดค่าใช้จ่ายในระยะยาว และยังเป็นมิตรกับสิ่งแวดล้อม ลดการปล่อยก๊าซเรือนกระจก</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html> 
