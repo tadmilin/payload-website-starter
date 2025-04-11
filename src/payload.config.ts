@@ -1,7 +1,6 @@
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
-// import { vercelPostgresAdapter } from '@payloadcms/db-vercel-postgres'
+import { vercelPostgresAdapter } from '@payloadcms/db-vercel-postgres'
 import { postgresAdapter } from '@payloadcms/db-postgres'
-// import { postgresAdapter } from '@payloadcms/db-postgres'
 
 import sharp from 'sharp' // sharp-import
 import path from 'path'
@@ -25,6 +24,24 @@ import { getServerSideURL } from './utilities/getURL'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+
+// เลือกว่าจะใช้ vercel postgres adapter หรือ standard postgres adapter
+const isVercelEnv = Boolean(process.env.VERCEL) || false;
+const dbAdapter = isVercelEnv
+  ? vercelPostgresAdapter({})
+  : postgresAdapter({
+      pool: {
+        connectionString: process.env.DATABASE_URL || process.env.POSTGRES_URL,
+        // ถ้าไม่มี environment variable ให้ใช้ค่า default สำหรับ local development
+        ...(!(process.env.DATABASE_URL || process.env.POSTGRES_URL) && {
+          user: 'postgres',
+          password: 'Tadmayer123',
+          host: '127.0.0.1',
+          port: 5432,
+          database: 'payload',
+        }),
+      },
+    });
 
 export default buildConfig({
   admin: {
@@ -65,15 +82,7 @@ export default buildConfig({
   },
   // This config helps us configure global or default features that the other editors can inherit
   editor: defaultLexical,
-  db: postgresAdapter({
-    pool: {
-      user: 'postgres',
-      password: 'Tadmayer123',
-      host: '127.0.0.1',
-      port: 5432,
-      database: 'payload',
-    },
-  }),
+  db: dbAdapter,
   collections: [Pages, Posts, Media, Categories, Users],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer],
