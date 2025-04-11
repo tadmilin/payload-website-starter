@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Navbar } from '@/components/Navbar'
+import { Navbar } from '../../../components/Navbar'
 
 export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
