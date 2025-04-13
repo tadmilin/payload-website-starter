@@ -45,6 +45,8 @@
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-slot": "^1.0.2",
+    "@react-three/drei": "^10.0.6",
+    "@react-three/fiber": "^9.1.2",
     "@types/js-cookie": "^3.0.6",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -65,8 +67,10 @@
     "react-hook-form": "7.45.4",
     "react-i18next": "^13.0.2",
     "sharp": "0.32.6",
+    "suncalc": "^1.9.0",
     "tailwind-merge": "^2.3.0",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "three": "^0.175.0"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
@@ -77,6 +81,7 @@
     "@types/node": "22.5.4",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.2",
+    "@types/suncalc": "^1.9.2",
     "autoprefixer": "^10.4.19",
     "copyfiles": "^2.4.1",
     "cross-env": "^7.0.3",
