@@ -7,17 +7,17 @@
   "scripts": {
     "build": "next build",
     "postbuild": "next-sitemap --config next-sitemap.config.cjs",
-    "ci": "payload migrate && next build",
-    "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
-    "dev:prod": "cross-env NODE_OPTIONS=--no-deprecation rm -rf .next && next build && npm start",
-    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
-    "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
-    "ii": "cross-env NODE_OPTIONS=--no-deprecation pnpm --ignore-workspace install",
-    "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
-    "lint:fix": "cross-env NODE_OPTIONS=--no-deprecation next lint --fix",
-    "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
-    "reinstall": "cross-env NODE_OPTIONS=--no-deprecation rm -rf node_modules && rm pnpm-lock.yaml && pnpm --ignore-workspace install",
-    "start": "cross-env NODE_OPTIONS=--no-deprecation next start"
+    "ci": "next build",
+    "dev": "next dev",
+    "dev:prod": "rm -rf .next && next build && next start",
+    "generate:importmap": "payload generate:importmap",
+    "generate:types": "payload generate:types",
+    "ii": "pnpm --ignore-workspace install",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "payload": "payload",
+    "reinstall": "rm -rf node_modules && rm package-lock.json && npm install",
+    "start": "next start"
   },
   "babel": {
     "presets": [
