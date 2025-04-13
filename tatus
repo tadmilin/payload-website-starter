@@ -1,0 +1,27 @@
+[33m2ec7f52[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m fix: add @payload-config path to tsconfig
+[33m9c48433[m fix: update to use Next.js middleware for rate limiting
+[33m3bfd2c2[m chore: update vercel configuration
+[33m7ae6ef5[m chore: update build configuration
+[33m7c1a4bd[m feat: setup express server configuration
+[33me3cfd03[m chore: add express dependencies
+[33m75702e0[m fix: update rate limit config to use enable method
+[33m55a8101[m fix: update rate limit config
+[33mdc83f82[m fix: update Payload type import in Pages collection
+[33m5abb818[m fix: add Payload types and dependencies
+[33m7a8aca5[m fix: allow public access to frontend
+[33mdb23e9b[m fix: use React.createElement for Media component
+[33me305d5f[m fix: handle undefined index in DirectionInput component
+[33m971e7e2[m Merge branch 'simulator'
+[33m326e4ba[m chore: remove .env from git tracking
+[33m716a1dd[m[33m ([m[1;31morigin/simulator[m[33m, [m[1;32msimulator[m[33m)[m simulator draft
+[33m62aeff5[m แก้ไขปัญหา React hooks ใน i18n และเปลี่ยนมาใช้ระบบแปลภาษาแบบ custom
+[33ma2a536f[m เพิ่มระบบหลายภาษา (i18n) แบบสลับได้ระหว่างไทย/อังกฤษ
+[33med1f32f[m แก้ไขการเชื่อมต่อฐานข้อมูลให้รองรับทั้ง local development และ Vercel
+[33m9dec30c[m ปรับปรุงโครงสร้าง Navbar component เพื่อแก้ไขปัญหาการ import
+[33m3fe4a35[m แก้ไขปัญหา Navbar component โดยใช้ไฟล์ Navbar.tsx โดยตรง
+[33m78f8614[m แก้ไข TypeScript error สำหรับพารามิเตอร์ direction
+[33mf288033[m แก้ไขปัญหา import Navbar component เพื่อให้ deploy บน Vercel ได้
+[33me621c9c[m เปลี่ยนการ import Navbar เป็น relative path
+[33m8c9f461[m แก้ไขปัญหา path alias และซ่อมแซม tsconfig.json
+[33m70c4ab0[m ปรับปรุงดีไซน์ landing page และ homepage ให้ดูสวยงามและโดดเด่นยิ่งขึ้น
+[33mab82f42[m Initial commit

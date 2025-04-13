@@ -59,6 +59,24 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
       : {}),
   })
 
+  // แปลงข้อมูล posts.docs ให้เป็นรูปแบบที่ถูกต้องตาม CardPostData
+  const formattedPosts = posts.docs.map(post => {
+    return {
+      title: post.title,
+      slug: post.slug,
+      meta: post.meta,
+      categories: post.categories ? post.categories.map(cat => {
+        if (typeof cat === 'object' && cat !== null) {
+          return {
+            id: cat.id || '',
+            title: cat.title || '',
+          }
+        }
+        return cat
+      }) : []
+    }
+  })
+
   return (
     <div className="pt-24 pb-24">
       <PageClient />
@@ -73,7 +91,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
       </div>
 
       {posts.totalDocs > 0 ? (
-        <CollectionArchive posts={posts.docs as CardPostData[]} />
+        <CollectionArchive posts={formattedPosts as CardPostData[]} />
       ) : (
         <div className="container">No results found.</div>
       )}

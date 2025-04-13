@@ -34,6 +34,7 @@ const nextConfig = {
   webpack: (config) => {
     return config
   },
+  serverExternalPackages: ['payload']
 }
 
 export default withPayload(nextConfig, { devBundleServerPackages: false })
