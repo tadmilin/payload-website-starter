@@ -27,8 +27,11 @@ build/**
 dist/**
 payload/dist/**
 
+.idea
+
 # Payload default media upload directory
 public/media/
 
 public/robots.txt
 public/sitemap*.xml
+.junie
