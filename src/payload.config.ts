@@ -84,7 +84,7 @@ export default buildConfig({
   editor: defaultLexical,
   db: dbAdapter,
   collections: [Pages, Posts, Media, Categories, Users],
-  cors: [getServerSideURL()].filter(Boolean),
+  cors: ['*'], // อนุญาตให้เข้าถึงจากทุก domain
   globals: [Header, Footer],
   plugins: [
     ...plugins,
@@ -114,5 +114,17 @@ export default buildConfig({
       },
     },
     tasks: [],
+  },
+  graphQL: {
+    disable: false,
+    schemaOutputFile: path.resolve(__dirname, 'generated-schema.graphql'),
+  },
+  routes: {
+    admin: '/admin', // แยก admin route ออกมา
+  },
+  rateLimit: {
+    trustProxy: true,
+    window: 2 * 60 * 1000, // 2 minutes
+    max: 2400, // limit each IP per windowMs
   },
 })
