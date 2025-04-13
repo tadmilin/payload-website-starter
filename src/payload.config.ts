@@ -122,9 +122,4 @@ export default buildConfig({
   routes: {
     admin: '/admin', // แยก admin route ออกมา
   },
-  rateLimit: {
-    trustProxy: true,
-    window: 2 * 60 * 1000, // 2 minutes
-    max: 2400, // limit each IP per windowMs
-  },
 })
