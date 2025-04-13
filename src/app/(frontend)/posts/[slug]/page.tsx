@@ -16,23 +16,30 @@ import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 
 export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const posts = await payload.find({
-    collection: 'posts',
-    draft: false,
-    limit: 1000,
-    overrideAccess: false,
-    pagination: false,
-    select: {
-      slug: true,
-    },
-  })
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const posts = await payload.find({
+      collection: 'posts',
+      draft: false,
+      limit: 1000,
+      overrideAccess: false,
+      pagination: false,
+      select: {
+        slug: true,
+      },
+    })
 
-  const params = posts.docs.map(({ slug }) => {
-    return { slug }
-  })
+    const params = posts.docs
+      .filter((doc) => doc.slug !== undefined && doc.slug !== null)
+      .map(({ slug }) => {
+        return { slug: slug || '' }
+      })
 
-  return params
+    return params || []
+  } catch (error) {
+    console.error('Error in generateStaticParams:', error)
+    return []
+  }
 }
 
 type Args = {
