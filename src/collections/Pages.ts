@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload/types'
+import { CollectionConfig } from 'payload/types'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
@@ -8,5 +8,16 @@ export const Pages: CollectionConfig = {
   access: {
     read: () => true, // อนุญาตให้อ่านได้โดยไม่ต้อง authenticate
   },
+  fields: [
+    {
+      name: 'title',
+      type: 'text',
+      required: true,
+    },
+    {
+      name: 'content',
+      type: 'richText',
+    }
+  ],
   // ... rest of the config
 } 
