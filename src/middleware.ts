@@ -1,7 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { locales, defaultLocale } from './utils/minimal-i18n'
 
+// อะเรย์สำหรับเก็บข้อมูล IP และการเข้าถึง
+const ipRequests: {
+  [key: string]: {
+    count: number;
+    lastReset: number;
+  }
+} = {}
+
+// ระยะเวลาในการรีเซ็ตนับใหม่ (2 นาที)
+const WINDOW_MS = 2 * 60 * 1000
+// จำนวนคำขอสูงสุดต่อ IP
+const MAX_REQUESTS = 2400
+
 export function middleware(request: NextRequest) {
+  // Rate limiting
+  const ip = request.ip || 'unknown'
+  
+  // สร้างข้อมูลใหม่ถ้ายังไม่มี
+  if (!ipRequests[ip]) {
+    ipRequests[ip] = {
+      count: 0,
+      lastReset: Date.now(),
+    }
+  }
+  
+  // ตรวจสอบว่าถึงเวลารีเซ็ตหรือไม่
+  const now = Date.now()
+  if (now - ipRequests[ip].lastReset > WINDOW_MS) {
+    ipRequests[ip].count = 0
+    ipRequests[ip].lastReset = now
+  }
+  
+  // เพิ่มจำนวนคำขอ
+  ipRequests[ip].count++
+  
+  // ตรวจสอบว่าเกินกำหนดหรือไม่
+  if (ipRequests[ip].count > MAX_REQUESTS) {
+    return new NextResponse('Too many requests', {
+      status: 429,
+      headers: {
+        'Retry-After': Math.ceil(WINDOW_MS / 1000).toString(),
+      },
+    })
+  }
+
+  // i18n logic
   const pathname = request.nextUrl.pathname
   
   // ไม่ใช้กับไฟล์ static หรือ API
