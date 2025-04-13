@@ -1,10 +1,31 @@
-build
-dist / media
+# Dependencies
 node_modules
-.DS_Store
 .env
+
+# Build outputs
 .next
+dist
+build
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local env files
+.env*.local
+
+# Vercel
 .vercel
+
+# Media
+public/media/*
+!public/media/.gitkeep
+
+# Payload
+build/**
+dist/**
+payload/dist/**
 
 # Payload default media upload directory
 public/media/
