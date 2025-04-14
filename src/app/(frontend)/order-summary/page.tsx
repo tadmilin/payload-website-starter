@@ -121,7 +121,17 @@ export default function OrderSummaryPage() {
                   ขอคำปรึกษาฟรี
                 </Link>
                 <div className="px-4 py-2 text-xs text-white/70 border-t border-gray-700">
-                  ภาษา: <span className="font-medium">TH/EN</span>
+                  <button 
+                    className="text-sm text-white hover:text-yellow-400 transition-colors font-medium"
+                    onClick={() => {
+                      document.dispatchEvent(
+                        new CustomEvent('toggle-language', { detail: {} })
+                      );
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    เปลี่ยนภาษา: TH/EN
+                  </button>
                 </div>
               </div>
             )}
@@ -222,7 +232,7 @@ export default function OrderSummaryPage() {
 
         {/* Action Buttons */}
         <div className="space-y-3 mt-6">
-          <Link href="/order-summary" className="block w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 text-center rounded-md">
+          <Link href="/order-final" className="block w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 text-center rounded-md">
             Continue to Order Summary
           </Link>
           <button className="block w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 text-center rounded-md">

@@ -11,6 +11,18 @@ export const LanguageSwitcherClient = () => {
     try {
       const savedLang = localStorage.getItem('language') || 'th'
       setLang(savedLang)
+      
+      // เพิ่ม event listener สำหรับเปลี่ยนภาษาจากภายนอก
+      const handleToggleEvent = () => {
+        handleLanguageToggle();
+      };
+      
+      document.addEventListener('toggle-language', handleToggleEvent);
+      
+      // ลบ event listener เมื่อ component unmount
+      return () => {
+        document.removeEventListener('toggle-language', handleToggleEvent);
+      };
     } catch (error) {
       console.error('Error in LanguageSwitcherClient:', error)
     }

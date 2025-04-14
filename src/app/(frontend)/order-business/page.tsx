@@ -72,7 +72,7 @@ export default function OrderBusinessPage() {
 
           <h1 className="text-2xl font-semibold text-gray-800 mb-2">Business Solar Estimate</h1>
           <p className="text-gray-600 text-sm mb-6">
-            Enter your business address and electric bill. We'll calculate a rough cost — free, fast, no pressure
+            Enter your business address and electric bill. We&apos;ll calculate a rough cost — free, fast, no pressure
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
