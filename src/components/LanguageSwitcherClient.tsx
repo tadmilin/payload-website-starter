@@ -59,6 +59,7 @@ export const LanguageSwitcherClient = () => {
     <button 
       onClick={handleLanguageToggle}
       className="flex items-center gap-1 py-1.5 px-3 rounded-full bg-gray-900 dark:bg-gray-800 text-white hover:bg-black dark:hover:bg-gray-700 transition-colors border-2 border-gray-700 dark:border-gray-600"
+      suppressHydrationWarning={true}
     >
       <Globe className="w-4 h-4" />
       <span className="text-sm font-medium">{lang === 'th' ? 'TH/EN' : 'EN/TH'}</span>

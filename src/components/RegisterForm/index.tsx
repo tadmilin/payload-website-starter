@@ -67,6 +67,7 @@ export const RegisterForm = () => {
             onChange={(e) => setFirstName(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
             required
+            suppressHydrationWarning={true}
           />
         </div>
         <div>
@@ -81,6 +82,7 @@ export const RegisterForm = () => {
             onChange={(e) => setLastName(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
             required
+            suppressHydrationWarning={true}
           />
         </div>
       </div>
@@ -97,6 +99,7 @@ export const RegisterForm = () => {
           onChange={(e) => setEmail(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
           required
+          suppressHydrationWarning={true}
         />
       </div>
 
@@ -112,6 +115,7 @@ export const RegisterForm = () => {
           onChange={(e) => setPassword(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
           required
+          suppressHydrationWarning={true}
         />
       </div>
 
@@ -127,6 +131,7 @@ export const RegisterForm = () => {
           onChange={(e) => setConfirmPassword(e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
           required
+          suppressHydrationWarning={true}
         />
       </div>
 
@@ -145,6 +150,7 @@ export const RegisterForm = () => {
         type="submit"
         disabled={loading}
         className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        suppressHydrationWarning={true}
       >
         {loading ? (
           <span className="lang-th">กำลังสมัครสมาชิก...</span>

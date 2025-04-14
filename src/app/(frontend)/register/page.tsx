@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react'
 import { RegisterForm } from '@/components/RegisterForm'
 import Link from 'next/link'
@@ -30,9 +32,4 @@ export default function RegisterPage() {
       </div>
     </div>
   )
-}
-
-export const metadata = {
-  title: 'สมัครสมาชิก',
-  description: 'สมัครสมาชิกเพื่อใช้งานเว็บไซต์',
 } 

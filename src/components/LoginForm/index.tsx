@@ -47,17 +47,16 @@ export const LoginForm: React.FC = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-lg text-sm">
+        <div className="bg-red-900/20 text-red-400 p-4 rounded-md text-sm border border-red-900/50">
           {error}
         </div>
       )}
       
       <div className="space-y-2">
-        <label htmlFor="email" className="block text-sm font-medium text-gray-900 dark:text-gray-100">
-          <span className="lang-th">อีเมล</span>
-          <span className="lang-en">Email</span>
+        <label htmlFor="email" className="block text-sm font-medium text-white/90">
+          อีเมล
         </label>
         <input
           id="email"
@@ -65,62 +64,52 @@ export const LoginForm: React.FC = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 dark:text-white bg-white dark:bg-gray-900"
+          placeholder="your.email@example.com"
+          className="w-full px-4 py-3 bg-[#162431] border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-white"
+          suppressHydrationWarning={true}
         />
       </div>
       
       <div className="space-y-2">
-        <label htmlFor="password" className="block text-sm font-medium text-gray-900 dark:text-gray-100">
-          <span className="lang-th">รหัสผ่าน</span>
-          <span className="lang-en">Password</span>
-        </label>
+        <div className="flex items-center justify-between">
+          <label htmlFor="password" className="block text-sm font-medium text-white/90">
+            รหัสผ่าน
+          </label>
+          <Link 
+            href="/forgot-password" 
+            className="text-blue-400 hover:text-blue-300 text-xs font-medium transition-colors"
+          >
+            ลืมรหัสผ่าน?
+          </Link>
+        </div>
         <input
           id="password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-gray-900 dark:text-white bg-white dark:bg-gray-900"
+          placeholder="••••••••"
+          className="w-full px-4 py-3 bg-[#162431] border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-white"
+          suppressHydrationWarning={true}
         />
-      </div>
-      
-      <div className="text-right text-sm">
-        <Link 
-          href="/forgot-password" 
-          className="text-blue-600 dark:text-blue-400 hover:underline font-bold"
-        >
-          <span className="lang-th">ลืมรหัสผ่าน?</span>
-          <span className="lang-en">Forgot password?</span>
-        </Link>
       </div>
       
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-70"
+        className="w-full bg-[#0078ff] hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-md transition-colors flex items-center justify-center disabled:opacity-70 mt-2"
+        suppressHydrationWarning={true}
       >
-        {loading ? (
-          <>
-            <span className="lang-th">กำลังเข้าสู่ระบบ...</span>
-            <span className="lang-en">Logging in...</span>
-          </>
-        ) : (
-          <>
-            <span className="lang-th">เข้าสู่ระบบ</span>
-            <span className="lang-en">Login</span>
-          </>
-        )}
+        {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
       </button>
       
-      <div className="text-center text-sm text-gray-800 dark:text-gray-200">
-        <span className="lang-th">ยังไม่มีบัญชี?</span>
-        <span className="lang-en">Don&apos;t have an account?</span>{' '}
+      <div className="pt-2 text-center text-sm text-gray-400">
+        ยังไม่มีบัญชี?{' '}
         <Link 
           href="/register" 
-          className="text-blue-600 dark:text-blue-400 hover:underline font-bold"
+          className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
         >
-          <span className="lang-th">สมัครสมาชิก</span>
-          <span className="lang-en">Register</span>
+          สมัครสมาชิก
         </Link>
       </div>
     </form>
