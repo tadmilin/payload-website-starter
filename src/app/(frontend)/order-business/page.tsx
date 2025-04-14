@@ -1,31 +1,62 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Navbar } from '../../../components/Navbar'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 export default function OrderBusinessPage() {
-  const [businessAddress, setBusinessAddress] = useState('');
-  const [electricBill, setElectricBill] = useState('');
-  const [selectedSize, setSelectedSize] = useState('');
-  const [usage, setUsage] = useState('');
-  const router = useRouter();
+  const router = useRouter()
+  const [businessAddress, setBusinessAddress] = useState('')
+  const [electricBill, setElectricBill] = useState('')
+  const [selectedSize, setSelectedSize] = useState('')
+  const [usage, setUsage] = useState('')
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    // ปิดเมนูเมื่อคลิกนอกพื้นที่เมนู
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    // เราสามารถใส่ validation ได้ตรงนี้ถ้าต้องการ
-    router.push('/order-summary');
-  };
+    e.preventDefault()
+    router.push('/order-summary')
+  }
+
+  // ฟังก์ชันเลือกขนาดพื้นที่
+  const selectSize = (size, event) => {
+    if (event) event.preventDefault() // ป้องกันการส่งฟอร์ม
+    setSelectedSize(size)
+  }
+
+  // ฟังก์ชันเลือกระดับการใช้งาน
+  const selectUsage = (usageLevel, event) => {
+    if (event) event.preventDefault() // ป้องกันการส่งฟอร์ม
+    setUsage(usageLevel)
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
       {/* Navbar - แก้ไขสีให้เป็นสีดำเฉพาะหน้านี้ */}
-      <div className="fixed top-0 left-0 w-full z-50">
+      <div className="fixed top-0 left-0 w-full z-50 bg-[#01121f] border-b border-white/10">
         <div className="px-4 py-3 flex justify-between items-center">
           {/* โลโก้ */}
-          <div className="text-black font-bold">
+          <div className="text-white font-bold">
             <Link href="/" className="flex items-center">
               <span className="text-lg mr-1">☀️</span>
               <span className="text-sm tracking-wider">SOLARLAA</span>
@@ -33,13 +64,101 @@ export default function OrderBusinessPage() {
           </div>
           
           {/* ปุ่ม Menu */}
-          <div className="relative">
-            <Link 
-              href="/home"
+          <div className="relative" ref={menuRef}>
+            <button 
+              onClick={toggleMenu}
               className="px-5 py-1.5 bg-[#233544] text-white text-xs font-medium rounded-sm"
             >
               Menu
-            </Link>
+            </button>
+            
+            {isMenuOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-[#233544] rounded-sm shadow-lg py-1 z-50">
+                <Link 
+                  href="/"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  หน้าหลัก
+                </Link>
+                <Link 
+                  href="/จำลองการติดตั้ง"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  จำลองการติดตั้ง
+                </Link>
+                <Link 
+                  href="/ร้านค้า"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ร้านค้า
+                </Link>
+                <Link 
+                  href="/ติดตามระบบ"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ติดตามระบบ
+                </Link>
+                <Link 
+                  href="/สำหรับบ้าน"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  สำหรับบ้าน
+                </Link>
+                <Link 
+                  href="/สำหรับธุรกิจ"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  สำหรับธุรกิจ
+                </Link>
+                <Link 
+                  href="/เกี่ยวกับเรา"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  เกี่ยวกับเรา
+                </Link>
+                <Link 
+                  href="/ติดต่อเรา"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ติดต่อเรา
+                </Link>
+                <Link 
+                  href="/เข้าสู่ระบบ"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  เข้าสู่ระบบ
+                </Link>
+                <Link 
+                  href="/ขอคำปรึกษาฟรี"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554]"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ขอคำปรึกษาฟรี
+                </Link>
+                <div className="px-4 py-2 text-xs text-white/70 border-t border-gray-700">
+                  <button 
+                    className="text-sm text-white hover:text-yellow-400 transition-colors font-medium"
+                    onClick={() => {
+                      document.dispatchEvent(
+                        new CustomEvent('toggle-language', { detail: {} })
+                      );
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    เปลี่ยนภาษา: TH/EN
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -119,7 +238,10 @@ export default function OrderBusinessPage() {
                   className={`p-3 border rounded-md text-center ${
                     selectedSize === 'small' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
                   }`}
-                  onClick={() => setSelectedSize('small')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSelectedSize('small');
+                  }}
                 >
                   <div className="font-medium mb-1">พื้นที่ขนาดเล็ก</div>
                   <div className="text-sm text-gray-600">น้อยกว่า 100 ตร.ม.</div>
@@ -128,7 +250,10 @@ export default function OrderBusinessPage() {
                   className={`p-3 border rounded-md text-center ${
                     selectedSize === 'medium' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
                   }`}
-                  onClick={() => setSelectedSize('medium')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSelectedSize('medium');
+                  }}
                 >
                   <div className="font-medium mb-1">พื้นที่ขนาดกลาง</div>
                   <div className="text-sm text-gray-600">100-500 ตร.ม.</div>
@@ -137,7 +262,10 @@ export default function OrderBusinessPage() {
                   className={`p-3 border rounded-md text-center ${
                     selectedSize === 'large' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
                   }`}
-                  onClick={() => setSelectedSize('large')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSelectedSize('large');
+                  }}
                 >
                   <div className="font-medium mb-1">พื้นที่ขนาดใหญ่</div>
                   <div className="text-sm text-gray-600">500-1,000 ตร.ม.</div>
@@ -146,7 +274,10 @@ export default function OrderBusinessPage() {
                   className={`p-3 border rounded-md text-center ${
                     selectedSize === 'xlarge' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
                   }`}
-                  onClick={() => setSelectedSize('xlarge')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSelectedSize('xlarge');
+                  }}
                 >
                   <div className="font-medium mb-1">พื้นที่ขนาดใหญ่มาก</div>
                   <div className="text-sm text-gray-600">มากกว่า 1,000 ตร.ม.</div>
@@ -165,7 +296,10 @@ export default function OrderBusinessPage() {
                   className={`p-3 border rounded-md text-center ${
                     usage === 'low' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
                   }`}
-                  onClick={() => setUsage('low')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setUsage('low');
+                  }}
                 >
                   <div className="font-medium mb-1">ต่ำ</div>
                   <div className="text-sm text-gray-600">น้อยกว่า 15,000 บาท/เดือน</div>
@@ -174,7 +308,10 @@ export default function OrderBusinessPage() {
                   className={`p-3 border rounded-md text-center ${
                     usage === 'medium' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
                   }`}
-                  onClick={() => setUsage('medium')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setUsage('medium');
+                  }}
                 >
                   <div className="font-medium mb-1">ปานกลาง</div>
                   <div className="text-sm text-gray-600">15,000-50,000 บาท/เดือน</div>
@@ -183,7 +320,10 @@ export default function OrderBusinessPage() {
                   className={`p-3 border rounded-md text-center ${
                     usage === 'high' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
                   }`}
-                  onClick={() => setUsage('high')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setUsage('high');
+                  }}
                 >
                   <div className="font-medium mb-1">สูง</div>
                   <div className="text-sm text-gray-600">50,000-100,000 บาท/เดือน</div>
@@ -192,7 +332,10 @@ export default function OrderBusinessPage() {
                   className={`p-3 border rounded-md text-center ${
                     usage === 'very-high' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
                   }`}
-                  onClick={() => setUsage('very-high')}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setUsage('very-high');
+                  }}
                 >
                   <div className="font-medium mb-1">สูงมาก</div>
                   <div className="text-sm text-gray-600">มากกว่า 100,000 บาท/เดือน</div>
