@@ -7,7 +7,7 @@ export default function Home() {
   const router = useRouter()
   
   useEffect(() => {
-    router.push('/')
+    router.push('/home')
   }, [router])
   
   return <div>กำลังโหลด...</div>
