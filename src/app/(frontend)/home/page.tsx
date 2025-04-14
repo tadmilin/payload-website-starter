@@ -1,22 +1,138 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
-import { Navbar } from '../../../components/Navbar'
-import { useTranslation } from '@/utils/TranslationContext'
+import { useTranslation } from 'react-i18next'
 
 export default function HomePage() {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef(null);
   const { t } = useTranslation();
-
+  
   useEffect(() => {
     setIsLoaded(true);
+    
+    // ปิดเมนูเมื่อคลิกนอกพื้นที่เมนู
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-[#01121f] text-white overflow-hidden">
       {/* Navbar */}
-      <Navbar />
+      <div className="fixed top-0 left-0 w-full z-50 bg-[#01121f] border-b border-white/10">
+        <div className="px-4 py-3 flex justify-between items-center">
+          {/* โลโก้ */}
+          <div className="text-white font-bold">
+            <Link href="/" className="flex items-center">
+              <span className="text-lg mr-1">☀️</span>
+              <span className="text-sm tracking-wider">SOLARLAA</span>
+            </Link>
+          </div>
+          
+          {/* ปุ่ม Menu */}
+          <div className="relative" ref={menuRef}>
+            <button 
+              onClick={toggleMenu}
+              className="px-5 py-1.5 bg-[#233544] text-white text-xs font-medium rounded-sm"
+            >
+              Menu
+            </button>
+            
+            {isMenuOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-[#233544] rounded-sm shadow-lg z-50">
+                <Link 
+                  href="/"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  หน้าหลัก
+                </Link>
+                <Link 
+                  href="/จำลองการติดตั้ง"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  จำลองการติดตั้ง
+                </Link>
+                <Link 
+                  href="/ร้านค้า"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ร้านค้า
+                </Link>
+                <Link 
+                  href="/ติดตามระบบ"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ติดตามระบบ
+                </Link>
+                <Link 
+                  href="/สำหรับบ้าน"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  สำหรับบ้าน
+                </Link>
+                <Link 
+                  href="/สำหรับธุรกิจ"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  สำหรับธุรกิจ
+                </Link>
+                <Link 
+                  href="/เกี่ยวกับเรา"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  เกี่ยวกับเรา
+                </Link>
+                <Link 
+                  href="/ติดต่อเรา"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ติดต่อเรา
+                </Link>
+                <Link 
+                  href="/เข้าสู่ระบบ"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  เข้าสู่ระบบ
+                </Link>
+                <Link 
+                  href="/ขอคำปรึกษาฟรี"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554]"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ขอคำปรึกษาฟรี
+                </Link>
+                <div className="px-4 py-2 text-xs text-white/70 border-t border-gray-700">
+                  ภาษา: <span className="font-medium">TH/EN</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* Main Content - 4 equal sections stacked vertically */}
       <div className="flex flex-col">
@@ -24,7 +140,7 @@ export default function HomePage() {
         <section className={`relative h-screen w-full transition-all duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <div 
             className="absolute inset-0 bg-cover bg-center"
-            style={{
+            style={{ 
               backgroundImage: "linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(1,18,31,0.6)), url('/images/1.png')",
               backgroundPosition: "center",
               backgroundSize: "cover"
@@ -39,8 +155,8 @@ export default function HomePage() {
               <p className={`text-sm text-white/90 transition-all duration-1000 delay-300 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
                 Fast calculation, seamless installation
               </p>
-            </div>
-
+        </div>
+        
             <div className="w-full mb-8">
               <Link 
                 href="/consultation" 
@@ -49,8 +165,8 @@ export default function HomePage() {
                 Free Online Consultation
               </Link>
             </div>
-          </div>
-        </section>
+        </div>
+      </section>
 
         {/* For Your Home Section */}
         <section className={`relative h-screen w-full transition-all duration-1000 delay-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
@@ -87,10 +203,10 @@ export default function HomePage() {
                 >
                   Learn more
                 </Link>
-              </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
         {/* For Business Section */}
         <section className={`relative h-screen w-full transition-all duration-1000 delay-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
@@ -124,10 +240,10 @@ export default function HomePage() {
                 >
                   Learn more
                 </Link>
-              </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
         {/* We are SOLARLAA Section */}
         <section className={`relative h-screen w-full transition-all duration-1000 delay-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
@@ -138,13 +254,13 @@ export default function HomePage() {
               backgroundPosition: "center",
               backgroundSize: "cover"
             }}
-          ></div>
+                  ></div>
 
           <div className="relative z-10 h-full flex flex-col items-center justify-between text-center px-6">
             <div className="mt-32">
               <h2 className="text-3xl font-semibold mb-1">
                 We are<br />SOLARLAA
-              </h2>
+          </h2>
               <p className="text-sm text-white/90">
                 Trusted by 579+ communities across Thailand
               </p>
@@ -157,11 +273,11 @@ export default function HomePage() {
               >
                 Get to know us
               </Link>
-            </div>
           </div>
-        </section>
-      </div>
-
+        </div>
+      </section>
+          </div>
+          
       {/* Footer */}
       <footer className={`text-center text-white/70 text-xs py-4 border-t border-white/10 transition-all duration-1000 delay-700 ${isLoaded ? 'opacity-100' : 'opacity-0'} mt-auto`}>
         <p className="mb-4">SOLARLAA. All right reserved. © 2025</p>

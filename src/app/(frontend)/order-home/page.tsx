@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import { Navbar } from '../../../components/Navbar'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -60,49 +59,80 @@ export default function OrderHomePage() {
             </button>
             
             {isMenuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-[#233544] rounded-sm shadow-lg py-1 z-50">
+              <div className="absolute right-0 mt-2 w-48 bg-[#233544] rounded-sm shadow-lg z-50">
                 <Link 
-                  href="/home" 
-                  className="block px-4 py-2 text-sm text-white hover:bg-[#344554]"
+                  href="/"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   หน้าหลัก
                 </Link>
                 <Link 
-                  href="/for-home" 
-                  className="block px-4 py-2 text-sm text-white hover:bg-[#344554]"
+                  href="/จำลองการติดตั้ง"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  จำลองการติดตั้ง
+                </Link>
+                <Link 
+                  href="/ร้านค้า"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ร้านค้า
+                </Link>
+                <Link 
+                  href="/ติดตามระบบ"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ติดตามระบบ
+                </Link>
+                <Link 
+                  href="/สำหรับบ้าน"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   สำหรับบ้าน
                 </Link>
                 <Link 
-                  href="/for-business" 
-                  className="block px-4 py-2 text-sm text-white hover:bg-[#344554]"
+                  href="/สำหรับธุรกิจ"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   สำหรับธุรกิจ
                 </Link>
                 <Link 
-                  href="/about-us" 
-                  className="block px-4 py-2 text-sm text-white hover:bg-[#344554]"
+                  href="/เกี่ยวกับเรา"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   เกี่ยวกับเรา
                 </Link>
                 <Link 
-                  href="/contact" 
-                  className="block px-4 py-2 text-sm text-white hover:bg-[#344554]"
+                  href="/ติดต่อเรา"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   ติดต่อเรา
                 </Link>
                 <Link 
-                  href="/consultation" 
-                  className="block px-4 py-2 text-sm text-white hover:bg-[#344554] font-medium"
+                  href="/เข้าสู่ระบบ"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  เข้าสู่ระบบ
+                </Link>
+                <Link 
+                  href="/ขอคำปรึกษาฟรี"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554]"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   ขอคำปรึกษาฟรี
                 </Link>
+                <div className="px-4 py-2 text-xs text-white/70 border-t border-gray-700">
+                  ภาษา: <span className="font-medium">TH/EN</span>
+                </div>
               </div>
             )}
           </div>
