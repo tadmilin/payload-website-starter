@@ -70,20 +70,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body>
         <Providers>
-          {/* เพิ่ม ClientProviders สำหรับแสดงผล LanguageDetector */}
-          <ClientProviders />
-          {/* ลบ AdminBar ออก */}
-          {/* <AdminBar
-            adminBarProps={{
-              preview: isEnabled,
-            }}
-          /> */}
-
-          {/* ลบ Header ของเดิมออก */}
-          {/* <Header /> */}
+          {/* ลบ ClientProviders ออกเพื่อแก้ปัญหา html ซ้อนกัน */}
           {children}
-          {/* ลบ Footer ของเดิมออก */}
-          {/* <Footer /> */}
         </Providers>
       </body>
     </html>

@@ -82,7 +82,7 @@ export default function OrderBusinessPage() {
                   หน้าหลัก
                 </Link>
                 <Link 
-                  href="/จำลองการติดตั้ง"
+                  href="http://localhost:3001/simulator"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -148,9 +148,9 @@ export default function OrderBusinessPage() {
                   <button 
                     className="text-sm text-white hover:text-yellow-400 transition-colors font-medium"
                     onClick={() => {
-                      document.dispatchEvent(
-                        new CustomEvent('toggle-language', { detail: {} })
-                      );
+                      const event = new CustomEvent('toggle-language', { detail: {} });
+                      document.dispatchEvent(event);
+                      console.log('Language toggle event dispatched');
                       setIsMenuOpen(false);
                     }}
                   >

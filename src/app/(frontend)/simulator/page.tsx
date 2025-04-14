@@ -18,9 +18,9 @@ export default function SimulatorPage() {
           </h1>
 
           <div className="bg-white p-8 rounded-lg shadow-sm">
-            <p className="text-gray-700 mb-6">
+            <div className="text-gray-700 mb-6">
               <DesignTool />
-            </p>
+            </div>
           </div>
         </div>
       </div>

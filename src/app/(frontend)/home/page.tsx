@@ -34,7 +34,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen bg-[#01121f] text-white overflow-hidden">
       {/* Navbar */}
-      <div className="fixed top-0 left-0 w-full z-50 bg-[#01121f] border-b border-white/10">
+      <div className="fixed top-0 left-0 w-full z-50">
         <div className="px-4 py-3 flex justify-between items-center">
           {/* โลโก้ */}
           <div className="text-white font-bold">
@@ -63,7 +63,7 @@ export default function HomePage() {
                   หน้าหลัก
                 </Link>
                 <Link 
-                  href="/จำลองการติดตั้ง"
+                  href="http://localhost:3001/simulator"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >

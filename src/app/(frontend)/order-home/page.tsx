@@ -38,7 +38,7 @@ export default function OrderHomePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      {/* Navbar - แก้ไขสีให้เป็นสีดำเฉพาะหน้านี้ */}
+      {/* Navbar - ลบ background ออก */}
       <div className="fixed top-0 left-0 w-full z-50">
         <div className="px-4 py-3 flex justify-between items-center">
           {/* โลโก้ */}
@@ -68,7 +68,7 @@ export default function OrderHomePage() {
                   หน้าหลัก
                 </Link>
                 <Link 
-                  href="/จำลองการติดตั้ง"
+                  href="http://localhost:3001/simulator"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -131,7 +131,17 @@ export default function OrderHomePage() {
                   ขอคำปรึกษาฟรี
                 </Link>
                 <div className="px-4 py-2 text-xs text-white/70 border-t border-gray-700">
-                  ภาษา: <span className="font-medium">TH/EN</span>
+                  <button 
+                    className="text-sm text-white hover:text-yellow-400 transition-colors font-medium"
+                    onClick={() => {
+                      const event = new CustomEvent('toggle-language', { detail: {} });
+                      document.dispatchEvent(event);
+                      console.log('Language toggle event dispatched');
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    เปลี่ยนภาษา: TH/EN
+                  </button>
                 </div>
               </div>
             )}
