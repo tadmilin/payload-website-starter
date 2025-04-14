@@ -113,7 +113,7 @@ export default function HomePage() {
             <div className="w-full mb-8">
               <div className="flex space-x-4 w-full">
                 <Link 
-                  href="/order-business" 
+                  href="/order-home" 
                   className="flex-1 bg-[#0078ff] hover:bg-blue-600 text-white font-medium py-3 px-6 rounded text-center"
                 >
                   Order Now
