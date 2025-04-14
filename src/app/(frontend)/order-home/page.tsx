@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Navbar } from '../../../components/Navbar'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -9,7 +9,27 @@ import { useRouter } from 'next/navigation'
 export default function OrderHomePage() {
   const [address, setAddress] = useState('');
   const [electricBill, setElectricBill] = useState('');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef(null);
   const router = useRouter();
+
+  useEffect(() => {
+    // ปิดเมนูเมื่อคลิกนอกพื้นที่เมนู
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -31,13 +51,60 @@ export default function OrderHomePage() {
           </div>
           
           {/* ปุ่ม Menu */}
-          <div className="relative">
-            <Link 
-              href="/home"
+          <div className="relative" ref={menuRef}>
+            <button 
+              onClick={toggleMenu}
               className="px-5 py-1.5 bg-[#233544] text-white text-xs font-medium rounded-sm"
             >
               Menu
-            </Link>
+            </button>
+            
+            {isMenuOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-[#233544] rounded-sm shadow-lg py-1 z-50">
+                <Link 
+                  href="/home" 
+                  className="block px-4 py-2 text-sm text-white hover:bg-[#344554]"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  หน้าหลัก
+                </Link>
+                <Link 
+                  href="/for-home" 
+                  className="block px-4 py-2 text-sm text-white hover:bg-[#344554]"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  สำหรับบ้าน
+                </Link>
+                <Link 
+                  href="/for-business" 
+                  className="block px-4 py-2 text-sm text-white hover:bg-[#344554]"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  สำหรับธุรกิจ
+                </Link>
+                <Link 
+                  href="/about-us" 
+                  className="block px-4 py-2 text-sm text-white hover:bg-[#344554]"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  เกี่ยวกับเรา
+                </Link>
+                <Link 
+                  href="/contact" 
+                  className="block px-4 py-2 text-sm text-white hover:bg-[#344554]"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ติดต่อเรา
+                </Link>
+                <Link 
+                  href="/consultation" 
+                  className="block px-4 py-2 text-sm text-white hover:bg-[#344554] font-medium"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ขอคำปรึกษาฟรี
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>
