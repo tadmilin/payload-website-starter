@@ -9,6 +9,8 @@ import { useRouter } from 'next/navigation'
 export default function OrderBusinessPage() {
   const [businessAddress, setBusinessAddress] = useState('');
   const [electricBill, setElectricBill] = useState('');
+  const [selectedSize, setSelectedSize] = useState('');
+  const [usage, setUsage] = useState('');
   const router = useRouter();
 
   const handleSubmit = (e) => {
@@ -104,6 +106,97 @@ export default function OrderBusinessPage() {
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-500 text-sm">
                   /month
                 </div>
+              </div>
+            </div>
+
+            <div className="mb-4">
+              <h2 className="text-lg font-bold mb-2">ขนาดพื้นที่ที่ต้องการติดตั้ง</h2>
+              <p className="text-sm text-gray-600 mb-3">
+                โปรดเลือกขนาดพื้นที่สำหรับธุรกิจของคุณที่ต้องการติดตั้งแผงโซลาร์เซลล์
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  className={`p-3 border rounded-md text-center ${
+                    selectedSize === 'small' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+                  }`}
+                  onClick={() => setSelectedSize('small')}
+                >
+                  <div className="font-medium mb-1">พื้นที่ขนาดเล็ก</div>
+                  <div className="text-sm text-gray-600">น้อยกว่า 100 ตร.ม.</div>
+                </button>
+                <button
+                  className={`p-3 border rounded-md text-center ${
+                    selectedSize === 'medium' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+                  }`}
+                  onClick={() => setSelectedSize('medium')}
+                >
+                  <div className="font-medium mb-1">พื้นที่ขนาดกลาง</div>
+                  <div className="text-sm text-gray-600">100-500 ตร.ม.</div>
+                </button>
+                <button
+                  className={`p-3 border rounded-md text-center ${
+                    selectedSize === 'large' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+                  }`}
+                  onClick={() => setSelectedSize('large')}
+                >
+                  <div className="font-medium mb-1">พื้นที่ขนาดใหญ่</div>
+                  <div className="text-sm text-gray-600">500-1,000 ตร.ม.</div>
+                </button>
+                <button
+                  className={`p-3 border rounded-md text-center ${
+                    selectedSize === 'xlarge' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+                  }`}
+                  onClick={() => setSelectedSize('xlarge')}
+                >
+                  <div className="font-medium mb-1">พื้นที่ขนาดใหญ่มาก</div>
+                  <div className="text-sm text-gray-600">มากกว่า 1,000 ตร.ม.</div>
+                </button>
+              </div>
+            </div>
+
+            {/* Usage */}
+            <div className="mb-5">
+              <h2 className="text-lg font-bold mb-2">การใช้ไฟฟ้าของคุณ</h2>
+              <p className="text-sm text-gray-600 mb-3">
+                ค่าไฟฟ้าโดยประมาณต่อเดือนของธุรกิจของคุณ
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  className={`p-3 border rounded-md text-center ${
+                    usage === 'low' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+                  }`}
+                  onClick={() => setUsage('low')}
+                >
+                  <div className="font-medium mb-1">ต่ำ</div>
+                  <div className="text-sm text-gray-600">น้อยกว่า 15,000 บาท/เดือน</div>
+                </button>
+                <button
+                  className={`p-3 border rounded-md text-center ${
+                    usage === 'medium' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+                  }`}
+                  onClick={() => setUsage('medium')}
+                >
+                  <div className="font-medium mb-1">ปานกลาง</div>
+                  <div className="text-sm text-gray-600">15,000-50,000 บาท/เดือน</div>
+                </button>
+                <button
+                  className={`p-3 border rounded-md text-center ${
+                    usage === 'high' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+                  }`}
+                  onClick={() => setUsage('high')}
+                >
+                  <div className="font-medium mb-1">สูง</div>
+                  <div className="text-sm text-gray-600">50,000-100,000 บาท/เดือน</div>
+                </button>
+                <button
+                  className={`p-3 border rounded-md text-center ${
+                    usage === 'very-high' ? 'border-blue-500 bg-blue-50' : 'border-gray-300'
+                  }`}
+                  onClick={() => setUsage('very-high')}
+                >
+                  <div className="font-medium mb-1">สูงมาก</div>
+                  <div className="text-sm text-gray-600">มากกว่า 100,000 บาท/เดือน</div>
+                </button>
               </div>
             </div>
 

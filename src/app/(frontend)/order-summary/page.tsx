@@ -3,11 +3,8 @@
 import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 
 export default function OrderSummaryPage() {
-  const router = useRouter()
-
   return (
     <div className="flex flex-col min-h-screen bg-white">
       {/* Navbar */}

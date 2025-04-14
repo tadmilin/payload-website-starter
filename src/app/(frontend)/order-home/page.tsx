@@ -70,7 +70,7 @@ export default function OrderHomePage() {
 
           <h1 className="text-2xl font-semibold text-gray-800 mb-2">Free Solar Estimate</h1>
           <p className="text-gray-600 text-sm mb-6">
-            Enter your address and electric bill. We'll calculate a rough cost — free, fast, no pressure
+            Enter your address and electric bill. We&apos;ll calculate a rough cost — free, fast, no pressure
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -107,7 +107,7 @@ export default function OrderHomePage() {
               </div>
             </div>
 
-            <button
+            <button 
               type="submit"
               className="w-full bg-[#89b4fa] hover:bg-[#74a0f1] text-white font-medium py-3.5 px-4 rounded transition-colors"
             >
