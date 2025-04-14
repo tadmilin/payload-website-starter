@@ -9,10 +9,22 @@ export const LanguageSwitcher: React.FC<{ className?: string }> = ({ className =
   const { toggleLocale: toggleTranslation } = useTranslation()
 
   const handleToggle = () => {
-    toggleLocale()
-    // เปลี่ยนภาษาของ translation provider ด้วย
-    toggleTranslation()
+    try {
+      console.log('LanguageSwitcher: Toggling language...')
+      toggleLocale()
+      console.log('LanguageSwitcher: Language toggled to', locale === 'th' ? 'en' : 'th')
+      
+      // เปลี่ยนภาษาของ translation provider ด้วย
+      toggleTranslation()
+      console.log('LanguageSwitcher: Translation toggled')
+    } catch (error) {
+      console.error('LanguageSwitcher Error:', error)
+    }
   }
+
+  React.useEffect(() => {
+    console.log('LanguageSwitcher mounted, current locale:', locale)
+  }, [locale])
 
   return (
     <button 

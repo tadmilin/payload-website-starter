@@ -102,6 +102,16 @@ html[data-theme='light'] {
   opacity: initial;
 }
 
+/* ข้อความเฉพาะภาษาไทย */
+html[data-lang="th"] .lang-en {
+  display: none !important;
+}
+
+/* ข้อความเฉพาะภาษาอังกฤษ */
+html[data-lang="en"] .lang-th {
+  display: none !important;
+}
+
 :root {
   --primary: #21a871;
   --primary-dark: #1a865a;

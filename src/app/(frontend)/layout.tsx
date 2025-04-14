@@ -10,6 +10,7 @@ import { Footer } from '@/Footer/Component'
 import { Header } from '@/Header/Component'
 import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
+import { ClientProviders } from '@/app/providers'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { draftMode } from 'next/headers'
 
@@ -21,9 +22,23 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const { isEnabled } = await draftMode()
 
   return (
-    <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
+    <html className={cn(GeistSans.variable, GeistMono.variable)} lang="th" suppressHydrationWarning>
       <head>
         <InitTheme />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                var savedLang = localStorage.getItem('language');
+                if (!savedLang) {
+                  localStorage.setItem('language', 'th');
+                }
+                document.documentElement.lang = savedLang || 'th';
+                document.documentElement.setAttribute('data-lang', savedLang || 'th');
+              } catch (e) {}
+            `,
+          }}
+        />
         <link href="/favicon.ico" rel="icon" sizes="32x32" />
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
         <style dangerouslySetInnerHTML={{
@@ -55,6 +70,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body>
         <Providers>
+          {/* เพิ่ม ClientProviders สำหรับแสดงผล LanguageDetector */}
+          <ClientProviders />
           {/* ลบ AdminBar ออก */}
           {/* <AdminBar
             adminBarProps={{

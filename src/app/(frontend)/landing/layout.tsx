@@ -8,6 +8,7 @@ export default function LandingLayout({ children }: { children: React.ReactNode 
     <>
       <style dangerouslySetInnerHTML={{
         __html: `
+          /* ซ่อนทุกอย่างที่เกี่ยวกับ Payload */
           nav.payload-nav,
           footer.payload-footer {
             display: none !important;
