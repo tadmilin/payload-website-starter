@@ -16,9 +16,9 @@ const DefaultLanguageSetterComponent = dynamic(
 
 export function ClientProviders() {
   return (
-    <>
+    <React.Fragment>
       <DefaultLanguageSetterComponent />
       <LanguageDetectorComponent />
-    </>
+    </React.Fragment>
   )
 } 

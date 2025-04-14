@@ -70,7 +70,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body>
         <Providers>
-          {/* ลบ ClientProviders ออกเพื่อแก้ปัญหา html ซ้อนกัน */}
           {children}
         </Providers>
       </body>

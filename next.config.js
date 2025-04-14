@@ -34,7 +34,6 @@ const nextConfig = {
   webpack: (config) => {
     return config
   },
-  serverComponentsExternalPackages: ['payload'],
   experimental: {
     esmExternals: true
   }

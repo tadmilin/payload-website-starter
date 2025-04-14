@@ -37,7 +37,7 @@ export default function OrderHomePage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-white">
+    <div className="flex flex-col min-h-screen bg-[#01121f] text-white overflow-hidden">
       {/* Navbar - ลบ background ออก */}
       <div className="fixed top-0 left-0 w-full z-50">
         <div className="px-4 py-3 flex justify-between items-center">
