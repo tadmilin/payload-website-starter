@@ -62,7 +62,7 @@ export default function HomePage() {
                   หน้าหลัก
                 </Link>
                 <Link 
-                  href="http://localhost:3001/simulator"
+                  href="/simulator"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >

@@ -37,7 +37,7 @@ export default function OrderHomePage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#01121f] text-white overflow-hidden">
+    <div className="flex flex-col min-h-screen bg-white text-black">
       {/* Navbar - ลบ background ออก */}
       <div className="fixed top-0 left-0 w-full z-50">
         <div className="px-4 py-3 flex justify-between items-center">
@@ -68,7 +68,7 @@ export default function OrderHomePage() {
                   หน้าหลัก
                 </Link>
                 <Link 
-                  href="http://localhost:3001/simulator"
+                  href="/simulator"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -152,7 +152,7 @@ export default function OrderHomePage() {
       {/* Main Content */}
       <div className="flex flex-col md:flex-row pt-[60px]">
         {/* Image Column - Hidden on mobile, shown on larger screens */}
-        <div className="hidden md:block md:w-1/2 lg:w-3/5 relative" style={{ height: 'calc(100vh - 120px)' }}>
+        <div className="hidden md:block md:w-1/2 lg:w-3/5 relative" style={{ height: 'calc(100vh - 60px)' }}>
           <Image 
             src="/images/5.png" 
             alt="Solar House" 
@@ -163,9 +163,9 @@ export default function OrderHomePage() {
         </div>
 
         {/* Form Column */}
-        <div className="w-full md:w-1/2 lg:w-2/5 max-w-md mx-auto md:mx-0 px-6 md:px-8 py-6 flex flex-col justify-center" style={{ height: 'calc(100vh - 120px)' }}>
-          {/* Image for mobile only */}
-          <div className="relative w-full h-64 md:hidden mb-6">
+        <div className="w-full md:w-1/2 lg:w-2/5 max-w-md mx-auto md:mx-0 px-6 md:px-8 py-6 flex flex-col justify-center" style={{ height: 'calc(100vh - 60px)' }}>
+          {/* Image for mobile only - ทำให้ใหญ่ขึ้น */}
+          <div className="relative w-full h-80 md:hidden mb-6">
             <Image 
               src="/images/5.png" 
               alt="Solar House" 
@@ -223,19 +223,6 @@ export default function OrderHomePage() {
           </form>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="text-center text-white/70 text-xs py-4 border-t border-white/10 bg-[#01121f] mt-auto">
-        <p className="mb-4">SOLARLAA. All right reserved. © 2025</p>
-        <div className="px-6">
-          <Link 
-            href="/consultation" 
-            className="block w-full bg-[#232f3e] text-white py-2 px-4 rounded text-center"
-          >
-            Schedule a Free Consultation Today
-          </Link>
-        </div>
-      </footer>
     </div>
   )
 } 
