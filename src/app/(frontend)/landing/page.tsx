@@ -1,14 +1,32 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
 
 export default function LandingPage() {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef(null);
 
   useEffect(() => {
     setIsLoaded(true);
+
+    // ปิดเมนูเมื่อคลิกนอกพื้นที่เมนู
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-[#01121f] text-white overflow-hidden">
@@ -22,9 +40,61 @@ export default function LandingPage() {
             </span>
           </div>
         </div>
-        <button className="px-5 py-1.5 bg-[#233544] text-white text-xs font-medium rounded-sm">
-          Menu
-        </button>
+        <div className="relative" ref={menuRef}>
+          <button 
+            onClick={toggleMenu}
+            className="px-5 py-1.5 bg-[#233544] text-white text-xs font-medium rounded-sm"
+          >
+            Menu
+          </button>
+          
+          {isMenuOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-[#233544] rounded-sm shadow-lg py-1 z-50">
+              <Link 
+                href="/home" 
+                className="block px-4 py-2 text-sm text-white hover:bg-[#344554]"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                หน้าหลัก
+              </Link>
+              <Link 
+                href="/for-home" 
+                className="block px-4 py-2 text-sm text-white hover:bg-[#344554]"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                สำหรับบ้าน
+              </Link>
+              <Link 
+                href="/for-business" 
+                className="block px-4 py-2 text-sm text-white hover:bg-[#344554]"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                สำหรับธุรกิจ
+              </Link>
+              <Link 
+                href="/about-us" 
+                className="block px-4 py-2 text-sm text-white hover:bg-[#344554]"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                เกี่ยวกับเรา
+              </Link>
+              <Link 
+                href="/contact" 
+                className="block px-4 py-2 text-sm text-white hover:bg-[#344554]"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                ติดต่อเรา
+              </Link>
+              <Link 
+                href="/consultation" 
+                className="block px-4 py-2 text-sm text-white hover:bg-[#344554] font-medium"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                ขอคำปรึกษาฟรี
+              </Link>
+            </div>
+          )}
+        </div>
       </header>
 
       {/* Main Content - 4 equal sections stacked vertically */}
