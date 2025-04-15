@@ -1,0 +1,564 @@
+'use client'
+
+import React, { useState, useRef, useEffect } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+
+// กำหนดค่าเริ่มต้นให้เป็นภาษาอังกฤษ
+const defaultLang = 'en';
+
+export default function TrackSystemPage() {
+  const router = useRouter();
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [currentLang, setCurrentLang] = useState(defaultLang);
+  const [trackingId, setTrackingId] = useState('');
+  const [trackingResult, setTrackingResult] = useState(null);
+  const [isTracking, setIsTracking] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [stageLabels, setStageLabels] = useState(null);
+  
+  const translations = {
+    th: {
+      menu: 'เมนู',
+      homePage: 'หน้าหลัก',
+      simulator: 'จำลองการติดตั้ง',
+      shop: 'ร้านค้า',
+      trackSystem: 'ติดตามระบบ',
+      aboutUs: 'เกี่ยวกับเรา',
+      contactUs: 'ติดต่อเรา',
+      login: 'เข้าสู่ระบบ',
+      freeConsultation: 'ขอคำปรึกษาฟรี',
+      changeLanguage: 'เปลี่ยนภาษา: TH/EN',
+      
+      // เนื้อหาหน้าติดตามระบบ
+      trackingTitle: 'ติดตามสถานะการติดตั้ง',
+      trackingDesc: 'ตรวจสอบสถานะการติดตั้งระบบโซลาร์เซลล์ของคุณได้ทุกที่ทุกเวลา',
+      trackingIdLabel: 'กรอกรหัสติดตาม',
+      trackingIdPlaceholder: 'กรุณากรอกรหัสติดตาม',
+      trackingButton: 'ติดตาม',
+      noTrackingResult: 'ไม่พบข้อมูล กรุณาตรวจสอบรหัสติดตามอีกครั้ง',
+      orderInfo: 'ข้อมูลการสั่งซื้อ',
+      installationInfo: 'ข้อมูลการติดตั้ง',
+      orderNumber: 'หมายเลขคำสั่งซื้อ',
+      orderDate: 'วันที่สั่งซื้อ',
+      productInfo: 'ข้อมูลสินค้า',
+      installationStatus: 'สถานะการติดตั้ง',
+      installationDate: 'วันที่ติดตั้ง',
+      installationAddress: 'ที่อยู่ติดตั้ง',
+      installationTeam: 'ทีมติดตั้ง',
+      contactSupport: 'ติดต่อฝ่ายสนับสนุน',
+      installationStages: 'ขั้นตอนการติดตั้ง',
+      stage1: 'ยืนยันคำสั่งซื้อ',
+      stage2: 'เตรียมอุปกรณ์',
+      stage3: 'นัดหมายติดตั้ง',
+      stage4: 'กำลังติดตั้ง',
+      stage5: 'ติดตั้งเสร็จสิ้น',
+      completed: 'เสร็จสิ้น',
+      inProgress: 'กำลังดำเนินการ',
+      pending: 'รอดำเนินการ',
+      contactUsTitle: 'มีข้อสงสัย?',
+      contactUsDesc: 'หากคุณมีข้อสงสัยเกี่ยวกับการติดตั้งหรือต้องการข้อมูลเพิ่มเติม โปรดติดต่อเรา',
+      contactUsButton: 'ติดต่อเรา',
+      copyright: '© 2024 SOLARLAA. All rights reserved.'
+    },
+    en: {
+      menu: 'Menu',
+      homePage: 'Home',
+      simulator: 'Simulator',
+      shop: 'Shop',
+      trackSystem: 'Track Your Installation',
+      aboutUs: 'About Us',
+      contactUs: 'Contact Us',
+      login: 'Login',
+      freeConsultation: 'Free Consultation',
+      changeLanguage: 'Switch to Thai',
+      
+      // Track system page content
+      trackingTitle: 'Track Your Solar Installation',
+      trackingDesc: 'Check the status of your solar panel installation. Enter your tracking ID to see the progress and estimated completion date.',
+      trackingIdLabel: 'Tracking ID',
+      trackingIdPlaceholder: 'Enter your tracking ID',
+      trackingButton: 'Track Now',
+      noTrackingResult: 'No tracking information found for the provided ID. Please verify your tracking ID and try again.',
+      orderInfo: 'Order Information',
+      orderNumber: 'Order Number',
+      orderDate: 'Order Date',
+      productInfo: 'Product Information',
+      installationStatus: 'Status',
+      installationDate: 'Installation Date',
+      installationAddress: 'Installation Address',
+      installationTeam: 'Installation Team',
+      contactSupport: 'Contact Support',
+      installationStages: 'Installation Progress',
+      pending: 'Pending',
+      inProgress: 'In Progress',
+      completed: 'Completed',
+      contactUsTitle: 'Need Help Tracking Your Installation?',
+      contactUsDesc: 'Our customer support team is ready to assist you with any questions regarding your solar installation.',
+      contactUsButton: 'Contact Support',
+      copyright: '© 2023 Solarlaa. All rights reserved.',
+    }
+  };
+  
+  const tr = (key) => {
+    return translations[currentLang]?.[key] || translations.en[key];
+  };
+  
+  const [isMounted, setIsMounted] = useState(false);
+  
+  useEffect(() => {
+    setStageLabels({
+      stage1: {
+        th: translations.th.stage1,
+        en: 'Order Confirmed'
+      },
+      stage2: {
+        th: translations.th.stage2,
+        en: 'Equipment Preparation'
+      },
+      stage3: {
+        th: translations.th.stage3,
+        en: 'Installation Scheduled'
+      },
+      stage4: {
+        th: translations.th.stage4,
+        en: 'Installation in Progress'
+      },
+      stage5: {
+        th: translations.th.stage5,
+        en: 'Installation Completed'
+      }
+    });
+    
+    if (typeof window !== 'undefined') {
+      const storedLang = localStorage.getItem('language') || 'en';
+      setCurrentLang(storedLang);
+      document.documentElement.lang = storedLang;
+      document.documentElement.setAttribute('data-lang', storedLang);
+    }
+    
+    setIsLoaded(true);
+    setIsMounted(true);
+    
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  if (!isMounted) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleLanguageToggle = () => {
+    const newLang = currentLang === 'en' ? 'th' : 'en';
+    
+    localStorage.setItem('language', newLang);
+    
+    document.documentElement.lang = newLang;
+    document.documentElement.setAttribute('data-lang', newLang);
+    
+    setCurrentLang(newLang);
+    
+    document.cookie = `locale=${newLang};path=/;max-age=31536000`;
+    document.cookie = `NEXT_LOCALE=${newLang};path=/;max-age=31536000`;
+    
+    console.log('เปลี่ยนภาษาเป็น:', newLang);
+    
+    setIsMenuOpen(false);
+  };
+
+  const handleTrackingSubmit = (e) => {
+    e.preventDefault();
+    setIsTracking(true);
+    
+    setTimeout(() => {
+      if (trackingId && stageLabels) {
+        setTrackingResult({
+          orderNumber: 'SOL-2024-' + trackingId,
+          orderDate: '2024-07-15',
+          productInfo: 'Solar Kit 5kW - Premium Package',
+          installationStatus: 'inProgress',
+          installationDate: '2024-07-30',
+          installationAddress: '123 Solar Street, Bangkok, Thailand',
+          installationTeam: 'Team Alpha',
+          stages: [
+            { id: 1, name: stageLabels.stage1[currentLang] || stageLabels.stage1.en, status: 'completed' },
+            { id: 2, name: stageLabels.stage2[currentLang] || stageLabels.stage2.en, status: 'completed' },
+            { id: 3, name: stageLabels.stage3[currentLang] || stageLabels.stage3.en, status: 'inProgress' },
+            { id: 4, name: stageLabels.stage4[currentLang] || stageLabels.stage4.en, status: 'pending' },
+            { id: 5, name: stageLabels.stage5[currentLang] || stageLabels.stage5.en, status: 'pending' }
+          ]
+        });
+      } else {
+        setTrackingResult(null);
+      }
+      setIsTracking(false);
+    }, 1500);
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen bg-white text-gray-900">
+      {!isLoaded ? (
+        <div className="flex justify-center items-center h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+        </div>
+      ) : (
+        <>
+          <header className="sticky top-0 left-0 w-full z-50 bg-white shadow-sm">
+            <div className="px-4 py-3 flex justify-between items-center">
+              <div className="text-black font-bold">
+                <Link href="/" className="flex items-center">
+                  <span className="text-lg mr-1">☀️</span>
+                  <span className="text-sm tracking-wider">SOLARLAA</span>
+                </Link>
+              </div>
+              
+              <div className="relative" ref={menuRef}>
+                <button 
+                  onClick={toggleMenu}
+                  className="px-5 py-1.5 bg-[#233544] text-white text-xs font-medium rounded-sm"
+                >
+                  {tr('menu')}
+                </button>
+                
+                {/* Menu backdrop */}
+                {isMenuOpen && (
+                  <div
+                    className="fixed inset-0 bg-black/20 backdrop-blur-sm z-20"
+                    onClick={() => setIsMenuOpen(false)}
+                  />
+                )}
+
+                {/* Menu */}
+                <div
+                  className={`fixed right-0 top-0 h-screen w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-30 ${
+                    isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+                  }`}
+                >
+                  <div className="p-6 space-y-6">
+                    <div className="flex justify-between items-center">
+                      <h2 className="text-xl font-semibold">{tr('menu')}</h2>
+                      <button
+                        onClick={() => setIsMenuOpen(false)}
+                        className="text-gray-500 hover:text-gray-700"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-6 w-6"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                    <nav className="space-y-4">
+                      <Link
+                        href="/"
+                        className="block py-2 hover:text-primary-500"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {tr('homePage')}
+                      </Link>
+                      <Link
+                        href="/simulator"
+                        className="block py-2 hover:text-primary-500"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {tr('simulator')}
+                      </Link>
+                      <Link
+                        href="/shop"
+                        className="block py-2 hover:text-primary-500"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {tr('shop')}
+                      </Link>
+                      <Link
+                        href="/track-system"
+                        className="block py-2 text-primary-500 font-medium"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {tr('trackSystem')}
+                      </Link>
+                      <Link
+                        href="/about-us"
+                        className="block py-2 hover:text-primary-500"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {tr('aboutUs')}
+                      </Link>
+                      <Link
+                        href="/contact-us"
+                        className="block py-2 hover:text-primary-500"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {tr('contactUs')}
+                      </Link>
+                      <Link
+                        href="/login"
+                        className="block py-2 hover:text-primary-500"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {tr('login')}
+                      </Link>
+                      <button
+                        onClick={handleLanguageToggle}
+                        className="block w-full text-left py-2 hover:text-primary-500"
+                      >
+                        {tr('changeLanguage')}
+                      </button>
+                    </nav>
+                    <Link
+                      href="/contact-us"
+                      className="block mt-6 bg-primary-500 text-white py-2 px-4 rounded-lg text-center hover:bg-primary-600 transition duration-300"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {tr('freeConsultation')}
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <main className="flex-grow">
+            {/* Hero Section */}
+            <section className="relative bg-gradient-to-r from-blue-900 to-[#01121f] py-16 md:py-20">
+              <div className="container mx-auto px-4">
+                <div className="flex flex-col items-center text-center mb-12">
+                  <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">{tr('trackingTitle')}</h1>
+                  <div className="h-1 w-24 bg-yellow-400 mb-8"></div>
+                  <p className="text-blue-100 max-w-2xl text-lg">{tr('trackingDesc')}</p>
+                </div>
+              </div>
+              
+              <div className="absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-slate-50 to-transparent"></div>
+            </section>
+
+            {/* Tracking Form Section */}
+            <section className="bg-slate-50 py-16">
+              <div className="container mx-auto px-4">
+                <div className="max-w-xl mx-auto">
+                  <form onSubmit={handleTrackingSubmit} className="bg-white p-8 rounded-lg shadow-md">
+                    <div className="mb-6">
+                      <label 
+                        htmlFor="trackingId" 
+                        className="block text-gray-700 font-medium mb-2"
+                      >
+                        {tr('trackingIdLabel')}
+                      </label>
+                      <input 
+                        type="text" 
+                        id="trackingId" 
+                        value={trackingId}
+                        onChange={(e) => setTrackingId(e.target.value)}
+                        className="w-full px-4 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors"
+                        placeholder={tr('trackingIdPlaceholder')}
+                      />
+                    </div>
+                    <button 
+                      type="submit" 
+                      className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors flex justify-center items-center"
+                      disabled={isTracking}
+                    >
+                      {isTracking ? (
+                        <span className="inline-block w-5 h-5 border-t-2 border-r-2 border-white rounded-full animate-spin mr-2"></span>
+                      ) : null}
+                      {tr('trackingButton')}
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </section>
+
+            {/* Results Section */}
+            {trackingResult && (
+              <section className="bg-white py-16">
+                <div className="container mx-auto px-4">
+                  <div className="max-w-4xl mx-auto">
+                    <div className="mb-12">
+                      <h2 className="text-2xl font-bold mb-8 border-b pb-4">{tr('orderInfo')}</h2>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <p className="text-gray-600">
+                            <span className="font-medium text-gray-800">{tr('orderNumber')}:</span> {trackingResult.orderNumber}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-600">
+                            <span className="font-medium text-gray-800">{tr('orderDate')}:</span> {trackingResult.orderDate}
+                          </p>
+                        </div>
+                        <div className="md:col-span-2">
+                          <p className="text-gray-600">
+                            <span className="font-medium text-gray-800">{tr('productInfo')}:</span> {trackingResult.productInfo}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-12">
+                      <h2 className="text-2xl font-bold mb-8 border-b pb-4">{tr('installationInfo')}</h2>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <p className="text-gray-600">
+                            <span className="font-medium text-gray-800">{tr('installationStatus')}:</span> 
+                            <span className={`ml-2 px-3 py-1 rounded-full text-xs font-medium ${
+                              trackingResult.installationStatus === 'completed' ? 'bg-green-100 text-green-800' :
+                              trackingResult.installationStatus === 'inProgress' ? 'bg-blue-100 text-blue-800' :
+                              'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {trackingResult.installationStatus === 'completed' && (
+                                <span>{tr('completed')}</span>
+                              )}
+                              {trackingResult.installationStatus === 'inProgress' && (
+                                <span>{tr('inProgress')}</span>
+                              )}
+                              {trackingResult.installationStatus === 'pending' && (
+                                <span>{tr('pending')}</span>
+                              )}
+                            </span>
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-600">
+                            <span className="font-medium text-gray-800">{tr('installationDate')}:</span> {trackingResult.installationDate}
+                          </p>
+                        </div>
+                        <div className="md:col-span-2">
+                          <p className="text-gray-600">
+                            <span className="font-medium text-gray-800">{tr('installationAddress')}:</span> {trackingResult.installationAddress}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-600">
+                            <span className="font-medium text-gray-800">{tr('installationTeam')}:</span> {trackingResult.installationTeam}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-12">
+                      <h2 className="text-2xl font-bold mb-8 border-b pb-4">{tr('installationStages')}</h2>
+                      
+                      <div className="relative">
+                        <div className="absolute left-8 top-0 h-full w-1 bg-gray-200"></div>
+                        
+                        <div className="space-y-8">
+                          {trackingResult.stages.map((stage) => (
+                            <div key={stage.id} className="relative flex items-start">
+                              <div className={`absolute left-8 -translate-x-1/2 w-6 h-6 rounded-full ${
+                                stage.status === 'completed' ? 'bg-green-500' :
+                                stage.status === 'inProgress' ? 'bg-blue-500' :
+                                'bg-gray-300'
+                              } flex items-center justify-center`}>
+                                {stage.status === 'completed' && (
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                )}
+                              </div>
+                              <div className="ml-12">
+                                <h3 className="text-lg font-medium">{stage.name}</h3>
+                                <p className={`text-sm ${
+                                  stage.status === 'completed' ? 'text-green-600' :
+                                  stage.status === 'inProgress' ? 'text-blue-600' :
+                                  'text-gray-500'
+                                }`}>
+                                  {stage.status === 'completed' && (
+                                    <span>{tr('completed')}</span>
+                                  )}
+                                  {stage.status === 'inProgress' && (
+                                    <span>{tr('inProgress')}</span>
+                                  )}
+                                  {stage.status === 'pending' && (
+                                    <span>{tr('pending')}</span>
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="text-center mt-8">
+                      <Link href="/contact-us" className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-colors">
+                        {tr('contactSupport')}
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
+            
+            {/* No Results Message */}
+            {trackingId && !trackingResult && !isTracking && (
+              <section className="bg-white py-16">
+                <div className="container mx-auto px-4">
+                  <div className="max-w-4xl mx-auto text-center">
+                    <div className="mb-8">
+                      <div className="inline-block p-6 rounded-full bg-yellow-100 mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                      </div>
+                      <p className="text-xl">{tr('noTrackingResult')}</p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* Contact Us Section */}
+            <section className="bg-gray-50 py-16">
+              <div className="container mx-auto px-4">
+                <div className="max-w-3xl mx-auto text-center">
+                  <h2 className="text-3xl font-bold mb-4">{tr('contactUsTitle')}</h2>
+                  <p className="text-gray-600 mb-8">{tr('contactUsDesc')}</p>
+                  <Link href="/contact-us" className="inline-block bg-yellow-400 hover:bg-yellow-500 text-black font-medium py-3 px-8 rounded-lg transition-colors">
+                    {tr('contactUsButton')}
+                  </Link>
+                </div>
+              </div>
+            </section>
+          </main>
+
+          <footer className="bg-slate-100 py-8">
+            <div className="container mx-auto px-4">
+              <div className="text-center text-gray-600">
+                <p>{tr('copyright')}</p>
+              </div>
+            </div>
+          </footer>
+        </>
+      )}
+    </div>
+  );
+} 

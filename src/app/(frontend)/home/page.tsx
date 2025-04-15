@@ -189,7 +189,7 @@ export default function HomePage() {
                   {tr('shop')}
                 </Link>
                 <Link 
-                  href="/ติดตามระบบ"
+                  href="/track-system"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -217,7 +217,7 @@ export default function HomePage() {
                   {tr('login')}
                 </Link>
                 <Link 
-                  href="/ขอคำปรึกษาฟรี"
+                  href="/consultation"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554]"
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -271,7 +271,7 @@ export default function HomePage() {
             <div className="w-full mb-8">
               <Link 
                 href="/consultation" 
-                className="btn-primary w-full block"
+                className="inline-block w-full py-3 bg-[#0078FF] text-white text-center font-medium rounded-md"
                 suppressHydrationWarning
               >
                 {tr('freeOnlineConsultation')}
@@ -313,14 +313,14 @@ export default function HomePage() {
               <div className="flex space-x-4 w-full">
                 <Link 
                   href="/order-home" 
-                  className="btn-primary flex-1"
+                  className="flex-1 py-3 bg-[#0078FF] text-white text-center font-medium rounded-md"
                   suppressHydrationWarning
                 >
                   {tr('orderNow')}
                 </Link>
                 <Link 
                   href="/learn-home" 
-                  className="btn-secondary flex-1"
+                  className="flex-1 py-3 bg-white text-gray-900 text-center font-medium rounded-md"
                   suppressHydrationWarning
                 >
                   {tr('learnMore')}
@@ -356,14 +356,14 @@ export default function HomePage() {
               <div className="flex space-x-4 w-full">
                 <Link 
                   href="/order-business" 
-                  className="btn-primary flex-1"
+                  className="flex-1 py-3 bg-[#0078FF] text-white text-center font-medium rounded-md"
                   suppressHydrationWarning
                 >
                   {tr('orderNow')}
                 </Link>
                 <Link 
                   href="/learn-business" 
-                  className="btn-secondary flex-1"
+                  className="flex-1 py-3 bg-white text-gray-900 text-center font-medium rounded-md"
                   suppressHydrationWarning
                 >
                   {tr('learnMore')}
@@ -407,7 +407,7 @@ export default function HomePage() {
             <div className="w-full mb-8">
               <Link 
                 href="/about-us" 
-                className="btn-secondary w-full block"
+                className="block w-full py-3 bg-white text-gray-900 text-center font-medium rounded-md"
                 suppressHydrationWarning
               >
                 {tr('getToKnowUs')}
@@ -423,7 +423,7 @@ export default function HomePage() {
         <div className="px-6">
           <Link 
             href="/consultation" 
-            className="btn-primary block w-full"
+            className="block w-full py-3 bg-[#0078FF] text-white text-center font-medium rounded-md"
             suppressHydrationWarning
           >
             {tr('scheduleConsultationToday')}

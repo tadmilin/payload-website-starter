@@ -182,7 +182,7 @@ export default function AboutUsPage() {
                   {tr('shop')}
                 </Link>
                 <Link 
-                  href="/ติดตามระบบ"
+                  href="/track-system"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                   suppressHydrationWarning
