@@ -17,10 +17,13 @@ export default async function FrontendLayout({ children }: { children: React.Rea
   return (
     <>
       <FrontendClientScripts />
-      <ClientProviders />
-      <Providers>
-        {children}
-      </Providers>
+      <ClientProviders>
+        <Providers>
+          <div className="frontend-content">
+            {children}
+          </div>
+        </Providers>
+      </ClientProviders>
     </>
   )
 }

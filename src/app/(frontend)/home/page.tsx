@@ -13,6 +13,12 @@ export default function HomePage() {
   useEffect(() => {
     setIsLoaded(true);
     
+    // ตั้งค่าภาษาเริ่มต้นเป็น EN
+    if (typeof window !== 'undefined' && !localStorage.getItem('language')) {
+      localStorage.setItem('language', 'en');
+      document.documentElement.setAttribute('data-lang', 'en');
+    }
+    
     // ปิดเมนูเมื่อคลิกนอกพื้นที่เมนู
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -28,6 +34,113 @@ export default function HomePage() {
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+  
+  const handleLanguageToggle = () => {
+    const currentLang = localStorage.getItem('language') || 'en';
+    const newLang = currentLang === 'en' ? 'th' : 'en';
+    
+    // บันทึกลงใน localStorage
+    localStorage.setItem('language', newLang);
+    
+    // อัพเดต DOM
+    document.documentElement.setAttribute('data-lang', newLang);
+    
+    // สร้างและส่ง Custom Event
+    const event = new CustomEvent('toggle-language', { 
+      detail: { language: newLang } 
+    });
+    document.dispatchEvent(event);
+    
+    // อัพเดต cookies
+    document.cookie = `locale=${newLang};path=/;max-age=31536000`;
+    document.cookie = `NEXT_LOCALE=${newLang};path=/;max-age=31536000`;
+    
+    console.log('เปลี่ยนภาษาเป็น:', newLang);
+    
+    // ปิดเมนู
+    setIsMenuOpen(false);
+    
+    // รีโหลดหน้าหลังจากส่ง event สักครู่ (เพื่อให้คอมโพเนนต์อื่นได้รับ event ก่อน)
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
+  };
+
+  // เพิ่มฟังก์ชันตรวจสอบภาษาปัจจุบัน
+  const getCurrentLanguage = () => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('language') || 'en';
+    }
+    return 'en';
+  };
+  
+  // แปลข้อความตามภาษาที่เลือก
+  const translations = {
+    th: {
+      solarMadeSimple: 'โซลาร์เซลล์ที่เข้าใจง่าย',
+      fastCalculation: 'คำนวณรวดเร็ว ติดตั้งไร้รอยต่อ',
+      freeOnlineConsultation: 'ขอคำปรึกษาออนไลน์ฟรี',
+      forYourHome: 'สำหรับบ้านของคุณ',
+      scheduleConsultation: 'นัดหมายรับคำปรึกษาฟรีออนไลน์',
+      orderNow: 'สั่งซื้อเดี๋ยวนี้',
+      learnMore: 'เรียนรู้เพิ่มเติม',
+      forBusinessTitle: 'สำหรับธุรกิจ',
+      weAre: 'เราคือ',
+      solarlaa: 'SOLARLAA',
+      trustedBy: 'ผู้ให้บริการโซลาร์เซลล์ที่ไว้วางใจโดย 579+ ชุมชนทั่วประเทศไทย',
+      getToKnowUs: 'รู้จักเรามากขึ้น',
+      aboutUsButton: 'เกี่ยวกับเรา',
+      menu: 'เมนู',
+      changeLanguage: 'เปลี่ยนภาษา: TH/EN',
+      homePage: 'หน้าหลัก',
+      simulator: 'จำลองการติดตั้ง',
+      shop: 'ร้านค้า',
+      trackSystem: 'ติดตามระบบ',
+      forHome: 'สำหรับบ้าน',
+      forBusiness: 'สำหรับธุรกิจ',
+      aboutUs: 'เกี่ยวกับเรา',
+      contactUs: 'ติดต่อเรา',
+      login: 'เข้าสู่ระบบ',
+      freeConsultation: 'ขอคำปรึกษาฟรี',
+      allRightsReserved: 'สงวนลิขสิทธิ์',
+      scheduleConsultationToday: 'นัดหมายรับคำปรึกษาฟรีวันนี้'
+    },
+    en: {
+      solarMadeSimple: 'Solar made simple',
+      fastCalculation: 'Fast calculation, seamless installation',
+      freeOnlineConsultation: 'Free Online Consultation',
+      forYourHome: 'For Your Home',
+      scheduleConsultation: 'Schedule a Free Online Consultation',
+      orderNow: 'Order Now',
+      learnMore: 'Learn more',
+      forBusinessTitle: 'For Business',
+      weAre: 'We are',
+      solarlaa: 'SOLARLAA',
+      trustedBy: 'Trusted by 579+ communities across Thailand',
+      getToKnowUs: 'Get to know us',
+      aboutUsButton: 'About Us',
+      menu: 'Menu',
+      changeLanguage: 'Change Language: EN/TH',
+      homePage: 'Home',
+      simulator: 'Installation Simulator',
+      shop: 'Shop',
+      trackSystem: 'Track System',
+      forHome: 'For Home',
+      forBusiness: 'For Business',
+      aboutUs: 'About Us',
+      contactUs: 'Contact Us',
+      login: 'Login',
+      freeConsultation: 'Free Consultation',
+      allRightsReserved: 'All rights reserved',
+      scheduleConsultationToday: 'Schedule a Free Consultation Today'
+    }
+  };
+  
+  // ช่วยการแปลข้อความ
+  const tr = (key) => {
+    const lang = getCurrentLanguage();
+    return translations[lang]?.[key] || translations.en[key];
   };
 
   return (
@@ -48,8 +161,9 @@ export default function HomePage() {
             <button 
               onClick={toggleMenu}
               className="px-5 py-1.5 bg-[#233544] text-white text-xs font-medium rounded-sm"
+              suppressHydrationWarning
             >
-              Menu
+              {tr('menu')}
             </button>
             
             {isMenuOpen && (
@@ -59,82 +173,63 @@ export default function HomePage() {
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  หน้าหลัก
+                  {tr('homePage')}
                 </Link>
                 <Link 
                   href="/simulator"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  จำลองการติดตั้ง
+                  {tr('simulator')}
                 </Link>
                 <Link 
-                  href="/ร้านค้า"
+                  href="/shop"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  ร้านค้า
+                  {tr('shop')}
                 </Link>
                 <Link 
                   href="/ติดตามระบบ"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  ติดตามระบบ
+                  {tr('trackSystem')}
                 </Link>
                 <Link 
-                  href="/สำหรับบ้าน"
+                  href="/about-us"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  สำหรับบ้าน
+                  {tr('aboutUs')}
                 </Link>
                 <Link 
-                  href="/สำหรับธุรกิจ"
+                  href="/contact-us"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  สำหรับธุรกิจ
-                </Link>
-                <Link 
-                  href="/เกี่ยวกับเรา"
-                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  เกี่ยวกับเรา
-                </Link>
-                <Link 
-                  href="/ติดต่อเรา"
-                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  ติดต่อเรา
+                  {tr('contactUs')}
                 </Link>
                 <Link 
                   href="/login"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  เข้าสู่ระบบ
+                  {tr('login')}
                 </Link>
                 <Link 
                   href="/ขอคำปรึกษาฟรี"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554]"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  ขอคำปรึกษาฟรี
+                  {tr('freeConsultation')}
                 </Link>
                 <div className="px-4 py-2 text-xs text-white/70 border-t border-gray-700">
                   <button 
                     className="text-sm text-white hover:text-yellow-400 transition-colors font-medium"
-                    onClick={() => {
-                      document.dispatchEvent(
-                        new CustomEvent('toggle-language', { detail: {} })
-                      );
-                      setIsMenuOpen(false);
-                    }}
+                    onClick={handleLanguageToggle}
                   >
-                    เปลี่ยนภาษา: TH/EN
+                    {tr('changeLanguage')}
                   </button>
                 </div>
               </div>
@@ -158,43 +253,60 @@ export default function HomePage() {
 
           <div className="relative z-10 h-full flex flex-col items-center justify-between text-center px-6">
             <div className="mt-32">
-              <h1 className={`text-3xl font-semibold mb-1 transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-                Solar made simple
+              <h1 
+                className={`font-semibold mb-2 transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
+                style={{ width: '390px', height: '48px', fontSize: '40px', lineHeight: '1.2' }}
+                suppressHydrationWarning
+              >
+                {tr('solarMadeSimple')}
               </h1>
-              <p className={`text-sm text-white/90 transition-all duration-1000 delay-300 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-                Fast calculation, seamless installation
+              <p 
+                className={`text-white/90 transition-all duration-1000 delay-300 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
+                style={{ width: '390px', height: '22px', fontSize: '18px', lineHeight: '1.2' }}
+                suppressHydrationWarning
+              >
+                {tr('fastCalculation')}
               </p>
-        </div>
+            </div>
         
             <div className="w-full mb-8">
               <Link 
                 href="/consultation" 
-                className={`w-full bg-[#0078ff] hover:bg-blue-600 text-white font-medium py-3 px-6 rounded text-center block transition-all duration-1000 delay-500 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
+                className="btn-primary w-full block"
+                suppressHydrationWarning
               >
-                Free Online Consultation
+                {tr('freeOnlineConsultation')}
               </Link>
             </div>
-        </div>
-      </section>
+          </div>
+        </section>
 
         {/* For Your Home Section */}
         <section className={`relative h-screen w-full transition-all duration-1000 delay-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <div 
-            className="absolute inset-0 bg-cover bg-center"
+            className="absolute inset-0 bg-cover"
             style={{
-              backgroundImage: "linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url('/images/2.png')",
-              backgroundPosition: "center",
+              backgroundImage: "linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.2)), url('/images/2.png')",
+              backgroundPosition: "center bottom",
               backgroundSize: "cover"
             }}
           ></div>
 
           <div className="relative z-10 h-full flex flex-col items-center justify-between text-center px-6">
             <div className="mt-32">
-              <h2 className="text-3xl font-semibold mb-1">
-                For Your Home
+              <h2 
+                className="font-semibold mb-2"
+                style={{ width: '390px', height: '48px', fontSize: '40px', lineHeight: '1.2' }}
+                suppressHydrationWarning
+              >
+                {tr('forYourHome')}
               </h2>
-              <p className="text-sm text-white/90">
-                Schedule a Free Online Consultation
+              <p 
+                className="text-white/90"
+                style={{ width: '390px', height: '22px', fontSize: '18px', lineHeight: '1.2' }}
+                suppressHydrationWarning
+              >
+                {tr('scheduleConsultation')}
               </p>
             </div>
             
@@ -202,103 +314,123 @@ export default function HomePage() {
               <div className="flex space-x-4 w-full">
                 <Link 
                   href="/order-home" 
-                  className="flex-1 bg-[#0078ff] hover:bg-blue-600 text-white font-medium py-3 px-6 rounded text-center"
+                  className="btn-primary flex-1"
+                  suppressHydrationWarning
                 >
-                  Order Now
+                  {tr('orderNow')}
                 </Link>
                 <Link 
                   href="/learn-home" 
-                  className="flex-1 bg-white hover:bg-gray-100 text-gray-800 font-medium py-3 px-6 rounded text-center"
+                  className="btn-secondary flex-1"
+                  suppressHydrationWarning
                 >
-                  Learn more
+                  {tr('learnMore')}
                 </Link>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
         {/* For Business Section */}
         <section className={`relative h-screen w-full transition-all duration-1000 delay-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <div 
-            className="absolute inset-0 bg-cover bg-center"
+            className="absolute inset-0 bg-cover"
             style={{
-              backgroundImage: "linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url('/images/3.png')",
-              backgroundPosition: "center",
+              backgroundImage: "linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.2)), url('/images/3.png')",
+              backgroundPosition: "center bottom",
               backgroundSize: "cover"
             }}
           ></div>
 
           <div className="relative z-10 h-full flex flex-col items-center justify-between text-center px-6">
             <div className="mt-32">
-              <h2 className="text-3xl font-semibold mb-1">
-                For Business
+              <h2 
+                className="font-semibold mb-2"
+                style={{ width: '390px', height: '48px', fontSize: '40px', lineHeight: '1.2' }}
+                suppressHydrationWarning
+              >
+                {tr('forBusinessTitle')}
               </h2>
             </div>
             
             <div className="w-full mb-8">
               <div className="flex space-x-4 w-full">
                 <Link 
-                  href="/order-home" 
-                  className="flex-1 bg-[#0078ff] hover:bg-blue-600 text-white font-medium py-3 px-6 rounded text-center"
+                  href="/order-business" 
+                  className="btn-primary flex-1"
+                  suppressHydrationWarning
                 >
-                  Order Now
+                  {tr('orderNow')}
                 </Link>
                 <Link 
                   href="/learn-business" 
-                  className="flex-1 bg-white hover:bg-gray-100 text-gray-800 font-medium py-3 px-6 rounded text-center"
+                  className="btn-secondary flex-1"
+                  suppressHydrationWarning
                 >
-                  Learn more
+                  {tr('learnMore')}
                 </Link>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
         {/* We are SOLARLAA Section */}
         <section className={`relative h-screen w-full transition-all duration-1000 delay-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <div 
-            className="absolute inset-0 bg-cover bg-center"
+            className="absolute inset-0 bg-cover"
             style={{
-              backgroundImage: "linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url('/images/4.png')",
-              backgroundPosition: "center",
+              backgroundImage: "linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.2)), url('/images/4.png')",
+              backgroundPosition: "center bottom",
               backgroundSize: "cover"
             }}
-                  ></div>
+          ></div>
 
           <div className="relative z-10 h-full flex flex-col items-center justify-between text-center px-6">
             <div className="mt-32">
-              <h2 className="text-3xl font-semibold mb-1">
-                We are<br />SOLARLAA
-          </h2>
-              <p className="text-sm text-white/90">
-                Trusted by 579+ communities across Thailand
+              <h2 
+                className="font-semibold mb-1"
+                style={{ width: '390px', height: '88px', fontSize: '40px', lineHeight: '1.2' }}
+                suppressHydrationWarning
+              >
+                <span suppressHydrationWarning>{tr('weAre')}</span><br />
+                <span suppressHydrationWarning>{tr('solarlaa')}</span>
+              </h2>
+              <div style={{ height: '4px' }}></div>
+              <p 
+                className="text-white/90"
+                style={{ width: '390px', height: '22px', fontSize: '18px', lineHeight: '1.2' }}
+                suppressHydrationWarning
+              >
+                {tr('trustedBy')}
               </p>
             </div>
             
             <div className="w-full mb-8">
               <Link 
                 href="/about-us" 
-                className="w-full bg-white hover:bg-gray-100 text-gray-800 font-medium py-3 px-6 rounded text-center block"
+                className="btn-secondary w-full block"
+                suppressHydrationWarning
               >
-                Get to know us
+                {tr('getToKnowUs')}
               </Link>
+            </div>
           </div>
-        </div>
-      </section>
-          </div>
+        </section>
+      </div>
           
       {/* Footer */}
       <footer className={`text-center text-white/70 text-xs py-4 border-t border-white/10 transition-all duration-1000 delay-700 ${isLoaded ? 'opacity-100' : 'opacity-0'} mt-auto`}>
-        <p className="mb-4">SOLARLAA. All right reserved. © 2025</p>
+        <p className="mb-4" suppressHydrationWarning>SOLARLAA. {tr('allRightsReserved')} © 2025</p>
         <div className="px-6">
           <Link 
             href="/consultation" 
-            className="block w-full bg-[#232f3e] text-white py-2 px-4 rounded text-center"
+            className="btn-primary block w-full"
+            suppressHydrationWarning
           >
-            Schedule a Free Consultation Today
+            {tr('scheduleConsultationToday')}
           </Link>
         </div>
       </footer>
     </div>
   )
-} 
+}

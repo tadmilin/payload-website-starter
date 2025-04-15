@@ -5,23 +5,50 @@ import { Globe } from 'lucide-react'
 
 export const LanguageSwitcherClient = () => {
   const [lang, setLang] = useState<string>('th')
+  const [mounted, setMounted] = useState(false)
 
   // โหลดข้อมูลจาก localStorage เมื่อคอมโพเนนต์ถูกโหลด
   useEffect(() => {
     try {
-      const savedLang = localStorage.getItem('language') || 'th'
-      setLang(savedLang)
-      
-      // เพิ่ม event listener สำหรับเปลี่ยนภาษาจากภายนอก
-      const handleToggleEvent = () => {
-        handleLanguageToggle();
+      // ฟังก์ชั่นอัพเดตภาษาจาก localStorage
+      const updateLanguageFromStorage = () => {
+        const savedLang = localStorage.getItem('language') || 'th';
+        setLang(savedLang);
+        
+        // อัพเดต DOM ให้ตรงกับภาษาที่บันทึกไว้
+        document.documentElement.lang = savedLang;
+        document.documentElement.setAttribute('data-lang', savedLang);
       };
       
-      document.addEventListener('toggle-language', handleToggleEvent);
+      // เรียกใช้ฟังก์ชั่นเมื่อคอมโพเนนต์ถูกโหลด
+      updateLanguageFromStorage();
+      setMounted(true);
       
-      // ลบ event listener เมื่อ component unmount
+      // ฟังก์ชั่นรับ event toggle-language
+      const handleToggleEvent = (event: CustomEvent) => {
+        const newLang = event.detail?.language;
+        if (newLang) {
+          setLang(newLang);
+          console.log('LanguageSwitcherClient: ได้รับการเปลี่ยนภาษาเป็น', newLang);
+        }
+      };
+      
+      // ฟังก์ชั่นรับการเปลี่ยนแปลงใน localStorage
+      const handleStorageChange = (event: StorageEvent) => {
+        if (event.key === 'language' && event.newValue) {
+          setLang(event.newValue);
+          console.log('LanguageSwitcherClient: localStorage เปลี่ยนเป็น', event.newValue);
+        }
+      };
+      
+      // เพิ่ม event listeners
+      document.addEventListener('toggle-language', handleToggleEvent as EventListener);
+      window.addEventListener('storage', handleStorageChange);
+      
+      // ลบ event listeners เมื่อ component unmount
       return () => {
-        document.removeEventListener('toggle-language', handleToggleEvent);
+        document.removeEventListener('toggle-language', handleToggleEvent as EventListener);
+        window.removeEventListener('storage', handleStorageChange);
       };
     } catch (error) {
       console.error('Error in LanguageSwitcherClient:', error)
@@ -46,13 +73,29 @@ export const LanguageSwitcherClient = () => {
       // บันทึกลงใน cookie สำหรับระบบอื่น
       document.cookie = `locale=${newLang};path=/;max-age=31536000`
       
-      // รีโหลดหน้าเพื่อให้การเปลี่ยนแปลงมีผลทันที
-      window.location.reload()
+      // ส่ง event เพื่อให้ส่วนอื่นๆ ทราบว่ามีการเปลี่ยนภาษา
+      const event = new CustomEvent('toggle-language', {
+        detail: { language: newLang }
+      });
+      document.dispatchEvent(event);
       
-      console.log('Language switched to:', newLang)
+      // อัพเดต Context language ผ่าน cookie
+      document.cookie = `NEXT_LOCALE=${newLang};path=/;max-age=31536000`
+      
+      console.log('เปลี่ยนภาษาเป็น:', newLang)
+      
+      // รอสักครู่เพื่อให้ event ถูกประมวลผลก่อนรีโหลดหน้า
+      setTimeout(() => {
+        window.location.reload();
+      }, 50);
     } catch (error) {
       console.error('Error toggling language:', error)
     }
+  }
+
+  // รอให้คอมโพเนนต์ถูกโหลดบน client-side ก่อนแสดงผล
+  if (!mounted) {
+    return null;
   }
 
   return (
@@ -62,7 +105,9 @@ export const LanguageSwitcherClient = () => {
       suppressHydrationWarning={true}
     >
       <Globe className="w-4 h-4" />
-      <span className="text-sm font-medium">{lang === 'th' ? 'TH/EN' : 'EN/TH'}</span>
+      <span className="text-sm font-medium" suppressHydrationWarning={true}>
+        {lang === 'th' ? 'TH/EN' : 'EN/TH'}
+      </span>
     </button>
   )
 } 

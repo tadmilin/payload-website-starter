@@ -1,18 +1,19 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import Image from 'next/image'
+import { useTranslation } from 'react-i18next'
 
-export default function OrderHomePage() {
-  const [address, setAddress] = useState('');
-  const [electricBill, setElectricBill] = useState('');
+export default function ContactUsPage() {
+  const [isLoaded, setIsLoaded] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
-  const router = useRouter();
-
+  const { t } = useTranslation();
+  
   useEffect(() => {
+    setIsLoaded(true);
+    
     // ตั้งค่าภาษาเริ่มต้นเป็น TH
     if (typeof window !== 'undefined' && !localStorage.getItem('language')) {
       localStorage.setItem('language', 'th');
@@ -69,15 +70,9 @@ export default function OrderHomePage() {
     }, 100);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // เราสามารถใส่ validation ได้ตรงนี้ถ้าต้องการ
-    router.push('/order-summary');
-  };
-
   return (
-    <div className="flex flex-col min-h-screen bg-white text-black">
-      {/* Navbar - ลบ background ออก */}
+    <div className="flex flex-col min-h-screen bg-white text-gray-900">
+      {/* Navbar */}
       <div className="fixed top-0 left-0 w-full z-50">
         <div className="px-4 py-3 flex justify-between items-center">
           {/* โลโก้ */}
@@ -151,7 +146,7 @@ export default function OrderHomePage() {
                 </Link>
                 <Link 
                   href="/contact-us"
-                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
+                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700 bg-[#344554]"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   ติดต่อเรา
@@ -184,81 +179,104 @@ export default function OrderHomePage() {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex flex-col md:flex-row pt-[60px]">
-        {/* Image Column - Hidden on mobile, shown on larger screens */}
-        <div className="hidden md:block md:w-1/2 lg:w-3/5 relative" style={{ height: 'calc(100vh - 60px)' }}>
-          <Image 
-            src="/images/5.png" 
-            alt="Solar House" 
-            fill 
-            style={{ objectFit: 'contain' }}
-            priority
-          />
+      {/* หน้าติดต่อเรา */}
+      <div className="container mx-auto px-4 pt-20 pb-12">
+        {/* ส่วนหัว */}
+        <div className="mb-12 text-center">
+          <h1 className="text-4xl font-bold mb-4">ติดต่อเรา</h1>
+          <p className="text-gray-600 max-w-2xl mx-auto">มีคำถามเกี่ยวกับระบบโซลาร์เซลล์หรือต้องการข้อมูลเพิ่มเติม? ทีมงานของเรายินดีให้คำปรึกษาและช่วยเหลือคุณ</p>
         </div>
-
-        {/* Form Column */}
-        <div className="w-full md:w-1/2 lg:w-2/5 max-w-md mx-auto md:mx-0 px-6 md:px-8 py-6 flex flex-col justify-center" style={{ height: 'calc(100vh - 60px)' }}>
-          {/* Image for mobile only - ทำให้ใหญ่ขึ้น */}
-          <div className="relative w-full h-80 md:hidden mb-6">
-            <Image 
-              src="/images/5.png" 
-              alt="Solar House" 
-              fill 
-              style={{ objectFit: 'contain' }}
-              priority
-            />
-          </div>
-
-          <h1 className="text-2xl font-semibold text-gray-800 mb-2">Free Solar Estimate</h1>
-          <p className="text-gray-600 text-sm mb-6">
-            Enter your address and electric bill. We&apos;ll calculate a rough cost — free, fast, no pressure
-          </p>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label htmlFor="homeAddress" className="block text-sm font-medium text-gray-700 mb-1">
-                Home Address
-              </label>
-              <input
-                type="text"
-                id="homeAddress"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder=""
-              />
-            </div>
-
-            <div>
-              <label htmlFor="electricBill" className="block text-sm font-medium text-gray-700 mb-1">
-                Average Electric Bill
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  id="electricBill"
-                  value={electricBill}
-                  onChange={(e) => setElectricBill(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-sm focus:outline-none focus:ring-1 focus:ring-blue-500 pr-16"
-                  placeholder=""
-                />
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-500 text-sm">
-                  /month
+        
+        {/* ข้อมูลการติดต่อ */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
+          <div className="bg-gray-50 p-8 rounded-lg shadow-sm">
+            <h2 className="text-2xl font-semibold mb-4">ข้อมูลติดต่อ</h2>
+            
+            <div className="space-y-4">
+              <div className="flex items-start">
+                <div className="bg-blue-100 p-2 rounded-full mr-4 mt-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-800">โทรศัพท์</h3>
+                  <p className="text-gray-600">02-123-4567</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <div className="bg-blue-100 p-2 rounded-full mr-4 mt-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-800">อีเมล</h3>
+                  <p className="text-gray-600">info@solarlaa.com</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start">
+                <div className="bg-blue-100 p-2 rounded-full mr-4 mt-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-800">ที่อยู่</h3>
+                  <p className="text-gray-600">123 อาคารโซลาร์ ชั้น 15, ถนนสีลม, กรุงเทพฯ 10500</p>
                 </div>
               </div>
             </div>
-
-            <button 
-              type="submit"
-              className="w-full bg-[#89b4fa] hover:bg-[#74a0f1] text-white font-medium py-3.5 px-4 rounded transition-colors"
-              suppressHydrationWarning
-            >
-              Next
-            </button>
-          </form>
+          </div>
+          
+          <div className="bg-gray-50 p-8 rounded-lg shadow-sm">
+            <h2 className="text-2xl font-semibold mb-4">เวลาทำการ</h2>
+            
+            <div className="space-y-4">
+              <div className="flex justify-between border-b border-gray-200 pb-2">
+                <span className="font-medium">วันจันทร์ - วันศุกร์</span>
+                <span>8:30 - 17:30 น.</span>
+              </div>
+              <div className="flex justify-between border-b border-gray-200 pb-2">
+                <span className="font-medium">วันเสาร์</span>
+                <span>9:00 - 15:00 น.</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-medium">วันอาทิตย์และวันหยุดนักขัตฤกษ์</span>
+                <span>ปิดทำการ</span>
+              </div>
+            </div>
+            
+            <div className="mt-8">
+              <h3 className="font-medium text-gray-800 mb-2">ช่องทางโซเชียลมีเดีย</h3>
+              <div className="flex space-x-4">
+                <a href="#" className="bg-blue-600 text-white p-2 rounded-full">FB</a>
+                <a href="#" className="bg-blue-400 text-white p-2 rounded-full">TW</a>
+                <a href="#" className="bg-pink-600 text-white p-2 rounded-full">IG</a>
+                <a href="#" className="bg-red-600 text-white p-2 rounded-full">YT</a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="bg-[#01121f] text-white py-4 mt-auto">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-sm text-gray-400">© 2024 SOLARLAA</p>
+          <div className="mt-2">
+            <Link 
+              href="/ขอคำปรึกษาฟรี"
+              className="text-sm text-blue-400 hover:text-blue-300"
+            >
+              ขอคำปรึกษาฟรี
+            </Link>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 } 

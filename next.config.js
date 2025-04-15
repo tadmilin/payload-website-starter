@@ -35,7 +35,9 @@ const nextConfig = {
     return config
   },
   experimental: {
-    esmExternals: true
+    esmExternals: true,
+    cpus: 1,
+    memoryBasedWorkersCount: true,
   }
 }
 
