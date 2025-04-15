@@ -42,7 +42,7 @@ export default function AboutUsPage() {
       success: 'ความสำเร็จ',
       successStory: 'ตลอดระยะเวลาที่ผ่านมา เราได้ติดตั้งระบบโซลาร์เซลล์ไปแล้วมากกว่า 5,000 ระบบทั่วประเทศ ช่วยให้ลูกค้าประหยัดค่าไฟฟ้าและลดการปล่อยคาร์บอนไดออกไซด์รวมกว่า 12,000 ตันต่อปี',
       installationStats: 'สถิติการติดตั้งระบบของเรา',
-      systemsInstalled: 'ระบบที่ติดตั้ง',
+      systemInstalledStat: 'ระบบที่ติดตั้ง',
       carbonReduced: 'ตันคาร์บอนที่ลดได้ต่อปี',
       districtsNationwide: 'เขต/อำเภอทั่วประเทศ',
       getFreeConsultation: 'ขอคำปรึกษาฟรี',
@@ -77,7 +77,7 @@ export default function AboutUsPage() {
       success: 'Success',
       successStory: 'Throughout our journey, we have installed more than 5,000 solar systems nationwide, helping customers save on electricity bills and reduce carbon dioxide emissions by more than 12,000 tons per year',
       installationStats: 'Our Installation Statistics',
-      systemsInstalled: 'Systems Installed',
+      systemInstalledStat: 'Systems Installed',
       carbonReduced: 'Tons of Carbon Reduced per Year',
       districtsNationwide: 'Districts Nationwide',
       getFreeConsultation: 'Get Free Consultation',
@@ -369,7 +369,7 @@ export default function AboutUsPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="bg-[#122535] p-6 rounded-lg text-center">
                   <div className="text-5xl font-bold mb-2 text-yellow-400">5,000+</div>
-                  <div className="text-lg text-gray-300" suppressHydrationWarning>{tr('systemsInstalled')}</div>
+                  <div className="text-lg text-gray-300" suppressHydrationWarning>{tr('systemInstalledStat')}</div>
                 </div>
                 
                 <div className="bg-[#122535] p-6 rounded-lg text-center">
