@@ -8,20 +8,96 @@ import { useTranslation } from 'react-i18next'
 export default function AboutUsPage() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [currentLang, setCurrentLang] = useState('en');
   const menuRef = useRef(null);
   const { t } = useTranslation();
+  
+  const translations = {
+    th: {
+      menu: 'เมนู',
+      homePage: 'หน้าหลัก',
+      simulator: 'จำลองการติดตั้ง',
+      shop: 'ร้านค้า',
+      trackSystem: 'ติดตามระบบ',
+      aboutUs: 'เกี่ยวกับเรา',
+      contactUs: 'ติดต่อเรา',
+      login: 'เข้าสู่ระบบ',
+      freeConsultation: 'ขอคำปรึกษาฟรี',
+      changeLanguage: 'เปลี่ยนภาษา: TH/EN',
+      
+      // เนื้อหาเกี่ยวกับเรา
+      cleanEnergyNetwork: 'เครือข่ายพลังงานสะอาด<br/>ทั่วประเทศไทย',
+      solarlaaBuildNetwork: 'SOLARLAA สร้างเครือข่ายพลังงานสะอาดครอบคลุมทุกภูมิภาค มุ่งมั่นขยายการใช้งานอย่างต่อเนื่องเพื่ออนาคตที่ยั่งยืน',
+      districtsAll: 'เขต/อำเภอ<br/>ทั่วประเทศไทย',
+      systemsInstalled: 'ระบบ<br/>ที่ติดตั้งแล้ว',
+      carbonReduction: 'ตันคาร์บอน<br/>ที่ลดได้ต่อปี',
+      startWithUs: 'เริ่มต้น<br/>กับเรา',
+      coverThailand: 'ครอบคลุมทั่วประเทศไทย',
+      proudToInstall: 'เราภูมิใจที่ได้ติดตั้งระบบโซลาร์เซลล์ให้ลูกค้ากว่า 10,000 ครัวเรือนและธุรกิจทั่วประเทศ ด้วยทีมงานคุณภาพและบริการหลังการขายที่เป็นเลิศ',
+      ourStory: 'เรื่องราวของเรา',
+      beginning: 'การเริ่มต้น',
+      beginningStory: 'SOLARLAA ก่อตั้งขึ้นในปี 2018 ด้วยวิสัยทัศน์ที่จะทำให้พลังงานแสงอาทิตย์เป็นทางเลือกหลักสำหรับทุกบ้านและธุรกิจในประเทศไทย',
+      growth: 'การเติบโต',
+      growthStory: 'เริ่มต้นจากทีมวิศวกรเล็กๆ ที่มีความหลงใหลในพลังงานทดแทน พวกเราเติบโตอย่างรวดเร็วกลายเป็นหนึ่งในผู้นำด้านการติดตั้งและจำหน่ายระบบพลังงานแสงอาทิตย์',
+      success: 'ความสำเร็จ',
+      successStory: 'ตลอดระยะเวลาที่ผ่านมา เราได้ติดตั้งระบบโซลาร์เซลล์ไปแล้วมากกว่า 5,000 ระบบทั่วประเทศ ช่วยให้ลูกค้าประหยัดค่าไฟฟ้าและลดการปล่อยคาร์บอนไดออกไซด์รวมกว่า 12,000 ตันต่อปี',
+      installationStats: 'สถิติการติดตั้งระบบของเรา',
+      systemsInstalled: 'ระบบที่ติดตั้ง',
+      carbonReduced: 'ตันคาร์บอนที่ลดได้ต่อปี',
+      districtsNationwide: 'เขต/อำเภอทั่วประเทศ',
+      getFreeConsultation: 'ขอคำปรึกษาฟรี',
+      copyright: '© 2024 SOLARLAA. All rights reserved.'
+    },
+    en: {
+      menu: 'Menu',
+      homePage: 'Home',
+      simulator: 'Installation Simulator',
+      shop: 'Shop',
+      trackSystem: 'Track System',
+      aboutUs: 'About Us',
+      contactUs: 'Contact Us',
+      login: 'Login',
+      freeConsultation: 'Free Consultation',
+      changeLanguage: 'Change Language: EN/TH',
+      
+      // About Us content
+      cleanEnergyNetwork: 'Clean Energy Network<br/>Across Thailand',
+      solarlaaBuildNetwork: 'SOLARLAA builds a clean energy network covering all regions, committed to continuously expanding usage for a sustainable future',
+      districtsAll: 'Districts<br/>Nationwide',
+      systemsInstalled: 'Systems<br/>Installed',
+      carbonReduction: 'Tons of Carbon<br/>Reduced per Year',
+      startWithUs: 'Start<br/>With Us',
+      coverThailand: 'Coverage Across Thailand',
+      proudToInstall: 'We are proud to have installed solar systems for more than 10,000 households and businesses nationwide with our quality team and excellent after-sales service',
+      ourStory: 'Our Story',
+      beginning: 'The Beginning',
+      beginningStory: 'SOLARLAA was founded in 2018 with a vision to make solar energy the primary choice for every home and business in Thailand',
+      growth: 'Growth',
+      growthStory: 'Starting from a small team of engineers passionate about renewable energy, we grew rapidly to become one of the leaders in solar system installation and distribution',
+      success: 'Success',
+      successStory: 'Throughout our journey, we have installed more than 5,000 solar systems nationwide, helping customers save on electricity bills and reduce carbon dioxide emissions by more than 12,000 tons per year',
+      installationStats: 'Our Installation Statistics',
+      systemsInstalled: 'Systems Installed',
+      carbonReduced: 'Tons of Carbon Reduced per Year',
+      districtsNationwide: 'Districts Nationwide',
+      getFreeConsultation: 'Get Free Consultation',
+      copyright: '© 2024 SOLARLAA. All rights reserved.'
+    }
+  };
+  
+  const tr = (key) => {
+    return translations[currentLang]?.[key] || translations.en[key];
+  };
   
   useEffect(() => {
     setIsLoaded(true);
     
-    // ตั้งค่าภาษาเริ่มต้นเป็น TH
-    if (typeof window !== 'undefined' && !localStorage.getItem('language')) {
-      localStorage.setItem('language', 'th');
-      document.documentElement.lang = 'th';
-      document.documentElement.setAttribute('data-lang', 'th');
-    }
+    const initLang = 'en';
+    localStorage.setItem('language', initLang);
+    document.documentElement.lang = initLang;
+    document.documentElement.setAttribute('data-lang', initLang);
+    setCurrentLang(initLang);
     
-    // ปิดเมนูเมื่อคลิกนอกพื้นที่เมนู
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setIsMenuOpen(false);
@@ -39,15 +115,20 @@ export default function AboutUsPage() {
   };
 
   const handleLanguageToggle = () => {
-    const currentLang = localStorage.getItem('language') || 'en';
     const newLang = currentLang === 'en' ? 'th' : 'en';
+    
     localStorage.setItem('language', newLang);
+    
     document.documentElement.lang = newLang;
     document.documentElement.setAttribute('data-lang', newLang);
-    document.dispatchEvent(
-      new CustomEvent('toggle-language', { detail: { language: newLang } })
-    );
-    window.location.reload();
+    
+    setCurrentLang(newLang);
+    
+    document.cookie = `locale=${newLang};path=/;max-age=31536000`;
+    document.cookie = `NEXT_LOCALE=${newLang};path=/;max-age=31536000`;
+    
+    console.log('เปลี่ยนภาษาเป็น:', newLang);
+    
     setIsMenuOpen(false);
   };
 
@@ -69,8 +150,9 @@ export default function AboutUsPage() {
             <button 
               onClick={toggleMenu}
               className="px-5 py-1.5 bg-[#233544] text-white text-xs font-medium rounded-sm"
+              suppressHydrationWarning
             >
-              Menu
+              {tr('menu')}
             </button>
             
             {isMenuOpen && (
@@ -79,78 +161,73 @@ export default function AboutUsPage() {
                   href="/"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  หน้าหลัก
+                  {tr('homePage')}
                 </Link>
                 <Link 
                   href="/simulator"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  จำลองการติดตั้ง
+                  {tr('simulator')}
                 </Link>
                 <Link 
-                  href="http://localhost:3001/shop"
+                  href="/shop"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  ร้านค้า
+                  {tr('shop')}
                 </Link>
                 <Link 
                   href="/ติดตามระบบ"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  ติดตามระบบ
-                </Link>
-                <Link 
-                  href="/สำหรับบ้าน"
-                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  สำหรับบ้าน
-                </Link>
-                <Link 
-                  href="/สำหรับธุรกิจ"
-                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  สำหรับธุรกิจ
+                  {tr('trackSystem')}
                 </Link>
                 <Link 
                   href="/about-us"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700 bg-[#344554]"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  เกี่ยวกับเรา
+                  {tr('aboutUs')}
                 </Link>
                 <Link 
                   href="/contact-us"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  ติดต่อเรา
+                  {tr('contactUs')}
                 </Link>
                 <Link 
                   href="/login"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  เข้าสู่ระบบ
+                  {tr('login')}
                 </Link>
                 <Link 
                   href="/ขอคำปรึกษาฟรี"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554]"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  ขอคำปรึกษาฟรี
+                  {tr('freeConsultation')}
                 </Link>
                 <div className="px-4 py-2 text-xs text-white/70 border-t border-gray-700">
                   <button 
                     className="text-sm text-white hover:text-yellow-400 transition-colors font-medium"
                     onClick={handleLanguageToggle}
+                    suppressHydrationWarning
                   >
-                    เปลี่ยนภาษา: TH/EN
+                    {tr('changeLanguage')}
                   </button>
                 </div>
               </div>
@@ -165,9 +242,9 @@ export default function AboutUsPage() {
         <section className="relative bg-gradient-to-r from-blue-900 to-[#01121f] py-16 md:py-20">
           <div className="container mx-auto px-4">
             <div className="flex flex-col items-center text-center mb-12">
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">เครือข่ายพลังงานสะอาด<br/>ทั่วประเทศไทย</h1>
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-6" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: tr('cleanEnergyNetwork') }}></h1>
               <div className="h-1 w-24 bg-yellow-400 mb-8"></div>
-              <p className="text-blue-100 max-w-2xl text-lg">SOLARLAA สร้างเครือข่ายพลังงานสะอาดครอบคลุมทุกภูมิภาค มุ่งมั่นขยายการใช้งานอย่างต่อเนื่องเพื่ออนาคตที่ยั่งยืน</p>
+              <p className="text-blue-100 max-w-2xl text-lg" suppressHydrationWarning>{tr('solarlaaBuildNetwork')}</p>
             </div>
             
             <div className="flex flex-col lg:flex-row items-center justify-between">
@@ -218,31 +295,29 @@ export default function AboutUsPage() {
                 <div className="grid grid-cols-2 gap-6">
                   <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl">
                     <div className="text-6xl md:text-7xl font-extrabold text-yellow-400">579</div>
-                    <div className="mt-3 text-blue-100 text-lg">เขต/อำเภอ<br/>ทั่วประเทศไทย</div>
+                    <div className="mt-3 text-blue-100 text-lg" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: tr('districtsAll') }}></div>
                   </div>
                   
                   <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl">
                     <div className="text-6xl md:text-7xl font-extrabold text-yellow-400">5k+</div>
-                    <div className="mt-3 text-blue-100 text-lg">ระบบ<br/>ที่ติดตั้งแล้ว</div>
+                    <div className="mt-3 text-blue-100 text-lg" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: tr('systemsInstalled') }}></div>
                   </div>
                   
                   <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl">
                     <div className="text-6xl md:text-7xl font-extrabold text-yellow-400">12k</div>
-                    <div className="mt-3 text-blue-100 text-lg">ตันคาร์บอน<br/>ที่ลดได้ต่อปี</div>
+                    <div className="mt-3 text-blue-100 text-lg" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: tr('carbonReduction') }}></div>
                   </div>
                   
                   <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl">
                     <div className="text-4xl font-bold text-white flex items-center justify-center h-full">
-                      <Link href="/consultation" className="bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 transition-all duration-300 text-black px-5 py-3 rounded-lg inline-block">
-                        เริ่มต้น<br/>กับเรา
-                      </Link>
+                      <Link href="/consultation" className="bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 transition-all duration-300 text-black px-5 py-3 rounded-lg inline-block" suppressHydrationWarning dangerouslySetInnerHTML={{ __html: tr('startWithUs') }}></Link>
                     </div>
                   </div>
                 </div>
                 
                 <div className="mt-10 text-center lg:text-left">
-                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">ครอบคลุมทั่วประเทศไทย</h2>
-                  <p className="text-blue-100">เราภูมิใจที่ได้ติดตั้งระบบโซลาร์เซลล์ให้ลูกค้ากว่า 10,000 ครัวเรือนและธุรกิจทั่วประเทศ ด้วยทีมงานคุณภาพและบริการหลังการขายที่เป็นเลิศ</p>
+                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-3" suppressHydrationWarning>{tr('coverThailand')}</h2>
+                  <p className="text-blue-100" suppressHydrationWarning>{tr('proudToInstall')}</p>
                 </div>
               </div>
             </div>
@@ -255,30 +330,30 @@ export default function AboutUsPage() {
         <section className="bg-slate-50 py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto">
-              <h2 className="text-3xl font-bold mb-8 text-center text-[#01121f]">เรื่องราวของเรา</h2>
+              <h2 className="text-3xl font-bold mb-8 text-center text-[#01121f]" suppressHydrationWarning>{tr('ourStory')}</h2>
               <div className="space-y-6 text-gray-700">
                 <div className="bg-white p-6 rounded-xl shadow-sm">
                   <div className="flex items-center mb-4">
                     <div className="w-10 h-10 bg-yellow-400 rounded-full mr-4 flex items-center justify-center text-black font-bold">1</div>
-                    <h3 className="text-xl font-semibold">การเริ่มต้น</h3>
+                    <h3 className="text-xl font-semibold" suppressHydrationWarning>{tr('beginning')}</h3>
                   </div>
-                  <p>SOLARLAA ก่อตั้งขึ้นในปี 2018 ด้วยวิสัยทัศน์ที่จะทำให้พลังงานแสงอาทิตย์เป็นทางเลือกหลักสำหรับทุกบ้านและธุรกิจในประเทศไทย</p>
+                  <p suppressHydrationWarning>{tr('beginningStory')}</p>
                 </div>
 
                 <div className="bg-white p-6 rounded-xl shadow-sm">
                   <div className="flex items-center mb-4">
                     <div className="w-10 h-10 bg-yellow-400 rounded-full mr-4 flex items-center justify-center text-black font-bold">2</div>
-                    <h3 className="text-xl font-semibold">การเติบโต</h3>
+                    <h3 className="text-xl font-semibold" suppressHydrationWarning>{tr('growth')}</h3>
                   </div>
-                  <p>เริ่มต้นจากทีมวิศวกรเล็กๆ ที่มีความหลงใหลในพลังงานทดแทน พวกเราเติบโตอย่างรวดเร็วกลายเป็นหนึ่งในผู้นำด้านการติดตั้งและจำหน่ายระบบพลังงานแสงอาทิตย์</p>
+                  <p suppressHydrationWarning>{tr('growthStory')}</p>
                 </div>
 
                 <div className="bg-white p-6 rounded-xl shadow-sm">
                   <div className="flex items-center mb-4">
                     <div className="w-10 h-10 bg-yellow-400 rounded-full mr-4 flex items-center justify-center text-black font-bold">3</div>
-                    <h3 className="text-xl font-semibold">ความสำเร็จ</h3>
+                    <h3 className="text-xl font-semibold" suppressHydrationWarning>{tr('success')}</h3>
                   </div>
-                  <p>ตลอดระยะเวลาที่ผ่านมา เราได้ติดตั้งระบบโซลาร์เซลล์ไปแล้วมากกว่า 5,000 ระบบทั่วประเทศ ช่วยให้ลูกค้าประหยัดค่าไฟฟ้าและลดการปล่อยคาร์บอนไดออกไซด์รวมกว่า 12,000 ตันต่อปี</p>
+                  <p suppressHydrationWarning>{tr('successStory')}</p>
                 </div>
               </div>
             </div>
@@ -289,28 +364,28 @@ export default function AboutUsPage() {
         <section className="bg-[#01121f] text-white py-16">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-3xl font-bold mb-12 text-center">สถิติการติดตั้งระบบของเรา</h2>
+              <h2 className="text-3xl font-bold mb-12 text-center" suppressHydrationWarning>{tr('installationStats')}</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="bg-[#122535] p-6 rounded-lg text-center">
                   <div className="text-5xl font-bold mb-2 text-yellow-400">5,000+</div>
-                  <div className="text-lg text-gray-300">ระบบที่ติดตั้ง</div>
+                  <div className="text-lg text-gray-300" suppressHydrationWarning>{tr('systemsInstalled')}</div>
                 </div>
                 
                 <div className="bg-[#122535] p-6 rounded-lg text-center">
                   <div className="text-5xl font-bold mb-2 text-yellow-400">12,000</div>
-                  <div className="text-lg text-gray-300">ตันคาร์บอนที่ลดได้ต่อปี</div>
+                  <div className="text-lg text-gray-300" suppressHydrationWarning>{tr('carbonReduced')}</div>
                 </div>
                 
                 <div className="bg-[#122535] p-6 rounded-lg text-center">
                   <div className="text-5xl font-bold mb-2 text-yellow-400">579</div>
-                  <div className="text-lg text-gray-300">เขต/อำเภอทั่วประเทศ</div>
+                  <div className="text-lg text-gray-300" suppressHydrationWarning>{tr('districtsNationwide')}</div>
                 </div>
               </div>
               
               <div className="mt-12 text-center">
-                <Link href="/consultation" className="inline-block bg-yellow-400 hover:bg-yellow-500 text-black font-medium py-3 px-8 rounded-lg transition-colors">
-                  ขอคำปรึกษาฟรี
+                <Link href="/consultation" className="inline-block bg-yellow-400 hover:bg-yellow-500 text-black font-medium py-3 px-8 rounded-lg transition-colors" suppressHydrationWarning>
+                  {tr('getFreeConsultation')}
                 </Link>
               </div>
             </div>
@@ -321,8 +396,8 @@ export default function AboutUsPage() {
       {/* Footer */}
       <footer className="bg-slate-100 py-8">
         <div className="container mx-auto px-4">
-          <div className="text-center text-gray-600">
-            <p>© 2024 SOLARLAA. All rights reserved.</p>
+          <div className="text-center text-gray-600" suppressHydrationWarning>
+            <p>{tr('copyright')}</p>
           </div>
         </div>
       </footer>

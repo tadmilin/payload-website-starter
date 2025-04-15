@@ -194,7 +194,7 @@ export default function ShopPage() {
   const [selectedSort, setSelectedSort] = useState('price-asc');
   const [cart, setCart] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState(PRODUCTS);
-  const [currentLang, setCurrentLang] = useState('th');
+  const [currentLang, setCurrentLang] = useState('en');
   const [isCartOpen, setIsCartOpen] = useState(false);
   
   const menuRef = useRef(null);
@@ -204,11 +204,15 @@ export default function ShopPage() {
   useEffect(() => {
     setIsLoaded(true);
     
-    // ตั้งค่าภาษาเริ่มต้นเป็น TH
+    // ตั้งค่าภาษาเริ่มต้นเป็น EN
     if (typeof window !== 'undefined' && !localStorage.getItem('language')) {
-      localStorage.setItem('language', 'th');
-      document.documentElement.setAttribute('data-lang', 'th');
+      localStorage.setItem('language', 'en');
+      document.documentElement.setAttribute('data-lang', 'en');
     }
+    
+    // โหลดภาษาปัจจุบันจาก localStorage
+    const currentLanguage = localStorage.getItem('language') || 'en';
+    setCurrentLang(currentLanguage);
     
     // โหลดตะกร้าสินค้าจาก localStorage
     try {
@@ -249,7 +253,7 @@ export default function ShopPage() {
 
   // ฟังก์ชันอ้างอิงข้อความแปลตามภาษาปัจจุบัน
   const t = (key) => {
-    return translations[currentLang]?.[key] || translations['th'][key];
+    return translations[currentLang]?.[key] || translations.en[key];
   };
 
   // ฟังก์ชันแปลหมวดหมู่
@@ -313,7 +317,6 @@ export default function ShopPage() {
   };
 
   const handleLanguageToggle = () => {
-    const currentLang = localStorage.getItem('language') || 'th';
     const newLang = currentLang === 'en' ? 'th' : 'en';
     
     // บันทึกลงใน localStorage
@@ -322,22 +325,16 @@ export default function ShopPage() {
     // อัพเดต DOM
     document.documentElement.setAttribute('data-lang', newLang);
     
+    // อัพเดต state
+    setCurrentLang(newLang);
+    
     // อัพเดต cookies
     document.cookie = `locale=${newLang};path=/;max-age=31536000`;
     document.cookie = `NEXT_LOCALE=${newLang};path=/;max-age=31536000`;
     
-    // สร้างและส่ง Custom Event ให้ส่วนอื่นๆ ทราบ
-    const event = new CustomEvent('toggle-language', { 
-      detail: { language: newLang } 
-    });
-    document.dispatchEvent(event);
     console.log('เปลี่ยนภาษาเป็น:', newLang);
     
-    // รีโหลดหน้าหลังจากส่ง event สักครู่ (เพื่อให้คอมโพเนนต์อื่นได้รับ event ก่อน)
-    setTimeout(() => {
-      window.location.reload();
-    }, 100);
-    
+    // ปิดเมนู
     setIsMenuOpen(false);
   };
 
@@ -419,10 +416,7 @@ export default function ShopPage() {
 
   // เพิ่มฟังก์ชันตรวจสอบภาษาปัจจุบัน
   const getCurrentLanguage = () => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('language') || 'th';
-    }
-    return 'th';
+    return currentLang;
   };
 
   // Render components

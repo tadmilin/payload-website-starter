@@ -7,17 +7,32 @@ import { useTranslation } from 'react-i18next'
 export default function HomePage() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [currentLang, setCurrentLang] = useState('en'); // เริ่มต้นด้วย en เสมอ
   const menuRef = useRef(null);
   const { t } = useTranslation();
+  
+  // ฟังก์ชันตรวจสอบภาษาปัจจุบัน
+  const getCurrentLanguage = () => {
+    return currentLang;
+  };
   
   useEffect(() => {
     setIsLoaded(true);
     
-    // ตั้งค่าภาษาเริ่มต้นเป็น EN
-    if (typeof window !== 'undefined' && !localStorage.getItem('language')) {
-      localStorage.setItem('language', 'en');
+    // ตั้งค่าภาษาเริ่มต้นเป็น EN ทุกครั้ง
+    const initLang = 'en';
+    localStorage.setItem('language', initLang);
+    document.documentElement.setAttribute('data-lang', initLang);
+    setCurrentLang(initLang);
+    
+    // เพิ่ม script tag ที่ตั้งค่าภาษาเริ่มต้น
+    const script = document.createElement('script');
+    script.innerHTML = `
       document.documentElement.setAttribute('data-lang', 'en');
-    }
+      localStorage.setItem('language', 'en');
+    `;
+    script.async = true;
+    document.head.appendChild(script);
     
     // ปิดเมนูเมื่อคลิกนอกพื้นที่เมนู
     const handleClickOutside = (event) => {
@@ -29,6 +44,7 @@ export default function HomePage() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.head.removeChild(script);
     };
   }, []);
 
@@ -37,7 +53,6 @@ export default function HomePage() {
   };
   
   const handleLanguageToggle = () => {
-    const currentLang = localStorage.getItem('language') || 'en';
     const newLang = currentLang === 'en' ? 'th' : 'en';
     
     // บันทึกลงใน localStorage
@@ -46,11 +61,8 @@ export default function HomePage() {
     // อัพเดต DOM
     document.documentElement.setAttribute('data-lang', newLang);
     
-    // สร้างและส่ง Custom Event
-    const event = new CustomEvent('toggle-language', { 
-      detail: { language: newLang } 
-    });
-    document.dispatchEvent(event);
+    // อัพเดต state
+    setCurrentLang(newLang);
     
     // อัพเดต cookies
     document.cookie = `locale=${newLang};path=/;max-age=31536000`;
@@ -60,19 +72,6 @@ export default function HomePage() {
     
     // ปิดเมนู
     setIsMenuOpen(false);
-    
-    // รีโหลดหน้าหลังจากส่ง event สักครู่ (เพื่อให้คอมโพเนนต์อื่นได้รับ event ก่อน)
-    setTimeout(() => {
-      window.location.reload();
-    }, 100);
-  };
-
-  // เพิ่มฟังก์ชันตรวจสอบภาษาปัจจุบัน
-  const getCurrentLanguage = () => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('language') || 'en';
-    }
-    return 'en';
   };
   
   // แปลข้อความตามภาษาที่เลือก

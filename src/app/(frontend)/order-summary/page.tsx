@@ -6,9 +6,17 @@ import Link from 'next/link'
 
 export default function OrderSummaryPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [currentLang, setCurrentLang] = useState('en'); // เริ่มต้นด้วย en เสมอ
   const menuRef = useRef(null);
 
   useEffect(() => {
+    // ตั้งค่าภาษาเริ่มต้นเป็น EN ทุกครั้ง
+    const initLang = 'en';
+    localStorage.setItem('language', initLang);
+    document.documentElement.lang = initLang;
+    document.documentElement.setAttribute('data-lang', initLang);
+    setCurrentLang(initLang);
+    
     // ปิดเมนูเมื่อคลิกนอกพื้นที่เมนู
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -24,6 +32,98 @@ export default function OrderSummaryPage() {
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+  
+  const handleLanguageToggle = () => {
+    const newLang = currentLang === 'en' ? 'th' : 'en';
+    
+    // บันทึกลงใน localStorage
+    localStorage.setItem('language', newLang);
+    
+    // อัพเดต DOM
+    document.documentElement.lang = newLang;
+    document.documentElement.setAttribute('data-lang', newLang);
+    
+    // อัพเดต state
+    setCurrentLang(newLang);
+    
+    // อัพเดต cookies
+    document.cookie = `locale=${newLang};path=/;max-age=31536000`;
+    document.cookie = `NEXT_LOCALE=${newLang};path=/;max-age=31536000`;
+    
+    console.log('เปลี่ยนภาษาเป็น:', newLang);
+    
+    // ปิดเมนู
+    setIsMenuOpen(false);
+  };
+  
+  // แปลข้อความตามภาษาที่เลือก
+  const translations = {
+    th: {
+      menu: 'เมนู',
+      homePage: 'หน้าหลัก',
+      simulator: 'จำลองการติดตั้ง',
+      shop: 'ร้านค้า',
+      trackSystem: 'ติดตามระบบ',
+      aboutUs: 'เกี่ยวกับเรา',
+      contactUs: 'ติดต่อเรา',
+      login: 'เข้าสู่ระบบ',
+      freeConsultation: 'ขอคำปรึกษาฟรี',
+      changeLanguage: 'เปลี่ยนภาษา: TH/EN',
+      back: 'ย้อนกลับ',
+      recommendedSystem: 'ระบบที่แนะนำ',
+      kitNeeded: 'ประมาณการณ์: ต้องการ 1 ชุด',
+      edit: 'แก้ไข',
+      saveEstimated: 'ประหยัดประมาณ 2,000 บาท/เดือน',
+      monthlyBill: 'จากค่าไฟฟ้ารายเดือนของคุณ',
+      bahtSaved: 'ประหยัดได้ 2,000 บาท',
+      withSolarlaa: 'ด้วย SOLARLAA',
+      currentBill: 'ค่าไฟปัจจุบัน',
+      perMonth: 'บาท/เดือน',
+      total: 'รวมทั้งสิ้น',
+      baht: 'บาท',
+      paybackPeriod: 'ระยะเวลาคืนทุน: เพียง 5 ปี',
+      noHiddenFees: 'ไม่มีค่าใช้จ่ายแอบแฝง รวมการให้คำปรึกษาฟรี',
+      viewOrderSummary: 'ดูสรุปคำสั่งซื้อ',
+      continueToView: 'ดำเนินการต่อเพื่อดูสรุปราคาและสั่งซื้อระบบของคุณ',
+      continueToOrderSummary: 'ดำเนินการต่อไปยังสรุปคำสั่งซื้อ',
+      save: 'บันทึก'
+    },
+    en: {
+      menu: 'Menu',
+      homePage: 'Home',
+      simulator: 'Installation Simulator',
+      shop: 'Shop',
+      trackSystem: 'Track System',
+      aboutUs: 'About Us',
+      contactUs: 'Contact Us',
+      login: 'Login',
+      freeConsultation: 'Free Consultation',
+      changeLanguage: 'Change Language: EN/TH',
+      back: 'Back',
+      recommendedSystem: 'Recommended System',
+      kitNeeded: 'Estimated: 1 kit needed',
+      edit: 'Edit',
+      saveEstimated: 'Save Est. 2,000 baht/month',
+      monthlyBill: 'On Your Monthly Electric Bill',
+      bahtSaved: '2,000 baht saved',
+      withSolarlaa: 'With SOLARLAA',
+      currentBill: 'Current bill',
+      perMonth: 'baht/month',
+      total: 'Total',
+      baht: 'baht',
+      paybackPeriod: 'Payback Period: Just 5 years',
+      noHiddenFees: 'No hidden fees. Free consultation included',
+      viewOrderSummary: 'View order Summary',
+      continueToView: 'Continue to view pricing summary and order your system',
+      continueToOrderSummary: 'Continue to Order Summary',
+      save: 'Save'
+    }
+  };
+  
+  // ช่วยการแปลข้อความ
+  const tr = (key) => {
+    return translations[currentLang]?.[key] || translations.en[key];
   };
 
   return (
@@ -44,8 +144,9 @@ export default function OrderSummaryPage() {
             <button 
               onClick={toggleMenu}
               className="px-5 py-1.5 bg-[#233544] text-white text-xs font-medium rounded-sm"
+              suppressHydrationWarning
             >
-              Menu
+              {tr('menu')}
             </button>
             
             {isMenuOpen && (
@@ -54,83 +155,73 @@ export default function OrderSummaryPage() {
                   href="/"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  หน้าหลัก
+                  {tr('homePage')}
                 </Link>
                 <Link 
-                  href="/จำลองการติดตั้ง"
+                  href="/simulator"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  จำลองการติดตั้ง
+                  {tr('simulator')}
                 </Link>
                 <Link 
-                  href="/ร้านค้า"
+                  href="/shop"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  ร้านค้า
+                  {tr('shop')}
                 </Link>
                 <Link 
                   href="/ติดตามระบบ"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  ติดตามระบบ
+                  {tr('trackSystem')}
                 </Link>
                 <Link 
-                  href="/สำหรับบ้าน"
+                  href="/about-us"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  สำหรับบ้าน
+                  {tr('aboutUs')}
                 </Link>
                 <Link 
-                  href="/สำหรับธุรกิจ"
+                  href="/contact-us"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  สำหรับธุรกิจ
-                </Link>
-                <Link 
-                  href="/เกี่ยวกับเรา"
-                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  เกี่ยวกับเรา
-                </Link>
-                <Link 
-                  href="/ติดต่อเรา"
-                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  ติดต่อเรา
+                  {tr('contactUs')}
                 </Link>
                 <Link 
                   href="/login"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  เข้าสู่ระบบ
+                  {tr('login')}
                 </Link>
                 <Link 
                   href="/ขอคำปรึกษาฟรี"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554]"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  ขอคำปรึกษาฟรี
+                  {tr('freeConsultation')}
                 </Link>
                 <div className="px-4 py-2 text-xs text-white/70 border-t border-gray-700">
                   <button 
                     className="text-sm text-white hover:text-yellow-400 transition-colors font-medium"
-                    onClick={() => {
-                      document.dispatchEvent(
-                        new CustomEvent('toggle-language', { detail: {} })
-                      );
-                      setIsMenuOpen(false);
-                    }}
+                    onClick={handleLanguageToggle}
+                    suppressHydrationWarning
                   >
-                    เปลี่ยนภาษา: TH/EN
+                    {tr('changeLanguage')}
                   </button>
                 </div>
               </div>
@@ -143,20 +234,20 @@ export default function OrderSummaryPage() {
       <div className="pt-16 pb-6 px-4 sm:px-6 md:px-8 max-w-md mx-auto w-full">
         {/* Back Button */}
         <div className="mb-4">
-          <Link href="/order-home" className="text-gray-500 text-sm flex items-center">
+          <Link href="/order-home" className="text-gray-500 text-sm flex items-center" suppressHydrationWarning>
             <span>&#8592;</span>
-            <span className="ml-1">Back</span>
+            <span className="ml-1">{tr('back')}</span>
           </Link>
         </div>
 
         {/* Title */}
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-5">Recommended System</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-5" suppressHydrationWarning>{tr('recommendedSystem')}</h1>
 
         {/* Solar Panel Info */}
         <div className="flex items-center justify-between mb-3">
           <div>
             <div className="text-gray-800 font-medium">SOLARLAA Kit M10w</div>
-            <div className="text-gray-500 text-sm">Estimated: 1 kit needed</div>
+            <div className="text-gray-500 text-sm" suppressHydrationWarning>{tr('kitNeeded')}</div>
           </div>
           <div className="w-16 h-16 relative">
             <Image
@@ -175,8 +266,8 @@ export default function OrderSummaryPage() {
             278/12 Ekkamai Complex,<br />
             Sukhumvit 63 10110
           </div>
-          <button className="text-blue-500 text-sm font-medium">
-            Edit
+          <button className="text-blue-500 text-sm font-medium" suppressHydrationWarning>
+            {tr('edit')}
           </button>
         </div>
 
@@ -184,13 +275,13 @@ export default function OrderSummaryPage() {
 
         {/* Savings Info */}
         <div className="mb-2">
-          <div className="text-gray-800 font-medium">Save Est. 2,000 baht/month</div>
-          <div className="text-gray-500 text-sm">On Your Monthly Electric Bill</div>
+          <div className="text-gray-800 font-medium" suppressHydrationWarning>{tr('saveEstimated')}</div>
+          <div className="text-gray-500 text-sm" suppressHydrationWarning>{tr('monthlyBill')}</div>
         </div>
         
         {/* Chart */}
         <div className="my-5">
-          <div className="text-center text-xs text-gray-500 mb-2">2,000 baht saved</div>
+          <div className="text-center text-xs text-gray-500 mb-2" suppressHydrationWarning>{tr('bahtSaved')}</div>
           <div className="flex items-end h-28 sm:h-32 mb-2">
             <div className="w-1/2 flex justify-center">
               <div className="w-16 sm:w-24 bg-blue-500 h-24 sm:h-28"></div>
@@ -201,11 +292,11 @@ export default function OrderSummaryPage() {
           </div>
           <div className="flex text-xs text-gray-500">
             <div className="w-1/2 text-center">
-              <div>With SOLARLAA</div>
+              <div suppressHydrationWarning>{tr('withSolarlaa')}</div>
             </div>
             <div className="w-1/2 text-center">
-              <div>Current bill</div>
-              <div>5,000 baht/month</div>
+              <div suppressHydrationWarning>{tr('currentBill')}</div>
+              <div suppressHydrationWarning>5,000 {tr('perMonth')}</div>
             </div>
           </div>
         </div>
@@ -215,28 +306,28 @@ export default function OrderSummaryPage() {
         {/* Total and Payback */}
         <div className="mb-5">
           <div className="flex justify-between mb-2">
-            <div className="font-bold text-gray-800">Total</div>
-            <div className="font-bold text-gray-800">140,000 baht</div>
+            <div className="font-bold text-gray-800" suppressHydrationWarning>{tr('total')}</div>
+            <div className="font-bold text-gray-800" suppressHydrationWarning>140,000 {tr('baht')}</div>
           </div>
-          <div className="text-sm text-gray-600">Payback Period: Just 5 years</div>
-          <div className="text-sm text-gray-600">No hidden fees. Free consultation included</div>
+          <div className="text-sm text-gray-600" suppressHydrationWarning>{tr('paybackPeriod')}</div>
+          <div className="text-sm text-gray-600" suppressHydrationWarning>{tr('noHiddenFees')}</div>
         </div>
 
         {/* View order summary */}
         <div className="mb-4">
-          <h2 className="text-lg font-semibold text-gray-800 mb-2">View order Summary</h2>
-          <p className="text-sm text-gray-600">
-            Continue to view pricing summary and order your system
+          <h2 className="text-lg font-semibold text-gray-800 mb-2" suppressHydrationWarning>{tr('viewOrderSummary')}</h2>
+          <p className="text-sm text-gray-600" suppressHydrationWarning>
+            {tr('continueToView')}
           </p>
         </div>
 
         {/* Action Buttons */}
         <div className="space-y-3 mt-6">
-          <Link href="/order-final" className="block w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 text-center rounded-md">
-            Continue to Order Summary
+          <Link href="/order-final" className="block w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 text-center rounded-md" suppressHydrationWarning>
+            {tr('continueToOrderSummary')}
           </Link>
-          <button className="block w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 text-center rounded-md">
-            Save
+          <button className="block w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 text-center rounded-md" suppressHydrationWarning>
+            {tr('save')}
           </button>
         </div>
       </div>

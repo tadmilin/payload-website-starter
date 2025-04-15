@@ -3,25 +3,83 @@
 import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useTranslation } from 'react-i18next'
 
 export default function ContactUsPage() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [currentLang, setCurrentLang] = useState('en');
   const menuRef = useRef(null);
-  const { t } = useTranslation();
+  
+  const translations = {
+    th: {
+      menu: 'เมนู',
+      homePage: 'หน้าหลัก',
+      simulator: 'จำลองการติดตั้ง',
+      shop: 'ร้านค้า',
+      trackSystem: 'ติดตามระบบ',
+      aboutUs: 'เกี่ยวกับเรา',
+      contactUs: 'ติดต่อเรา',
+      login: 'เข้าสู่ระบบ',
+      freeConsultation: 'ขอคำปรึกษาฟรี',
+      changeLanguage: 'เปลี่ยนภาษา: TH/EN',
+      
+      // หน้าติดต่อเรา
+      contactUsHeading: 'ติดต่อเรา',
+      contactUsDescription: 'มีคำถามเกี่ยวกับระบบโซลาร์เซลล์หรือต้องการข้อมูลเพิ่มเติม? ทีมงานของเรายินดีให้คำปรึกษาและช่วยเหลือคุณ',
+      contactInfo: 'ข้อมูลติดต่อ',
+      phone: 'โทรศัพท์',
+      email: 'อีเมล',
+      address: 'ที่อยู่',
+      officeHours: 'เวลาทำการ',
+      mondayToFriday: 'วันจันทร์ - วันศุกร์',
+      saturday: 'วันเสาร์',
+      sundayAndHolidays: 'วันอาทิตย์และวันหยุดนักขัตฤกษ์',
+      closed: 'ปิดทำการ',
+      socialMediaChannels: 'ช่องทางโซเชียลมีเดีย',
+      copyright: '© 2024 SOLARLAA'
+    },
+    en: {
+      menu: 'Menu',
+      homePage: 'Home',
+      simulator: 'Installation Simulator',
+      shop: 'Shop',
+      trackSystem: 'Track System',
+      aboutUs: 'About Us',
+      contactUs: 'Contact Us',
+      login: 'Login',
+      freeConsultation: 'Free Consultation',
+      changeLanguage: 'Change Language: EN/TH',
+      
+      // Contact Us page
+      contactUsHeading: 'Contact Us',
+      contactUsDescription: 'Do you have questions about solar systems or need more information? Our team is happy to provide consultation and assist you',
+      contactInfo: 'Contact Information',
+      phone: 'Phone',
+      email: 'Email',
+      address: 'Address',
+      officeHours: 'Office Hours',
+      mondayToFriday: 'Monday - Friday',
+      saturday: 'Saturday',
+      sundayAndHolidays: 'Sunday and Holidays',
+      closed: 'Closed',
+      socialMediaChannels: 'Social Media Channels',
+      copyright: '© 2024 SOLARLAA'
+    }
+  };
+  
+  const tr = (key) => {
+    return translations[currentLang]?.[key] || translations.en[key];
+  };
   
   useEffect(() => {
     setIsLoaded(true);
     
-    // ตั้งค่าภาษาเริ่มต้นเป็น TH
-    if (typeof window !== 'undefined' && !localStorage.getItem('language')) {
-      localStorage.setItem('language', 'th');
-      document.documentElement.lang = 'th';
-      document.documentElement.setAttribute('data-lang', 'th');
-    }
+    const initLang = 'en';
+    localStorage.setItem('language', initLang);
+    document.documentElement.lang = initLang;
+    document.documentElement.setAttribute('data-lang', initLang);
+    setCurrentLang(initLang);
     
-    // ปิดเมนูเมื่อคลิกนอกพื้นที่เมนู
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setIsMenuOpen(false);
@@ -39,43 +97,27 @@ export default function ContactUsPage() {
   };
 
   const handleLanguageToggle = () => {
-    const currentLang = localStorage.getItem('language') || 'th';
     const newLang = currentLang === 'en' ? 'th' : 'en';
     
-    // บันทึกลงใน localStorage
     localStorage.setItem('language', newLang);
     
-    // อัพเดต DOM
     document.documentElement.lang = newLang;
     document.documentElement.setAttribute('data-lang', newLang);
     
-    // สร้างและส่ง Custom Event
-    const event = new CustomEvent('toggle-language', { 
-      detail: { language: newLang } 
-    });
-    document.dispatchEvent(event);
+    setCurrentLang(newLang);
     
-    // อัพเดต cookies
     document.cookie = `locale=${newLang};path=/;max-age=31536000`;
     document.cookie = `NEXT_LOCALE=${newLang};path=/;max-age=31536000`;
     
     console.log('เปลี่ยนภาษาเป็น:', newLang);
     
-    // ปิดเมนู
     setIsMenuOpen(false);
-    
-    // รีโหลดหน้าหลังจากส่ง event สักครู่ (เพื่อให้คอมโพเนนต์อื่นได้รับ event ก่อน)
-    setTimeout(() => {
-      window.location.reload();
-    }, 100);
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-white text-gray-900">
-      {/* Navbar */}
       <div className="fixed top-0 left-0 w-full z-50">
         <div className="px-4 py-3 flex justify-between items-center">
-          {/* โลโก้ */}
           <div className="text-black font-bold">
             <Link href="/" className="flex items-center">
               <span className="text-lg mr-1">☀️</span>
@@ -83,14 +125,13 @@ export default function ContactUsPage() {
             </Link>
           </div>
           
-          {/* ปุ่ม Menu */}
           <div className="relative" ref={menuRef}>
             <button 
               onClick={toggleMenu}
               className="px-5 py-1.5 bg-[#233544] text-white text-xs font-medium rounded-sm"
               suppressHydrationWarning
             >
-              Menu
+              {tr('menu')}
             </button>
             
             {isMenuOpen && (
@@ -99,78 +140,73 @@ export default function ContactUsPage() {
                   href="/"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  หน้าหลัก
+                  {tr('homePage')}
                 </Link>
                 <Link 
                   href="/simulator"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  จำลองการติดตั้ง
+                  {tr('simulator')}
                 </Link>
                 <Link 
                   href="/shop"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  ร้านค้า
+                  {tr('shop')}
                 </Link>
                 <Link 
                   href="/ติดตามระบบ"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  ติดตามระบบ
-                </Link>
-                <Link 
-                  href="/สำหรับบ้าน"
-                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  สำหรับบ้าน
-                </Link>
-                <Link 
-                  href="/สำหรับธุรกิจ"
-                  className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  สำหรับธุรกิจ
+                  {tr('trackSystem')}
                 </Link>
                 <Link 
                   href="/about-us"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  เกี่ยวกับเรา
+                  {tr('aboutUs')}
                 </Link>
                 <Link 
                   href="/contact-us"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700 bg-[#344554]"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  ติดต่อเรา
+                  {tr('contactUs')}
                 </Link>
                 <Link 
                   href="/login"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  เข้าสู่ระบบ
+                  {tr('login')}
                 </Link>
                 <Link 
                   href="/ขอคำปรึกษาฟรี"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554]"
                   onClick={() => setIsMenuOpen(false)}
+                  suppressHydrationWarning
                 >
-                  ขอคำปรึกษาฟรี
+                  {tr('freeConsultation')}
                 </Link>
                 <div className="px-4 py-2 text-xs text-white/70 border-t border-gray-700">
                   <button 
                     className="text-sm text-white hover:text-yellow-400 transition-colors font-medium"
                     onClick={handleLanguageToggle}
+                    suppressHydrationWarning
                   >
-                    เปลี่ยนภาษา: TH/EN
+                    {tr('changeLanguage')}
                   </button>
                 </div>
               </div>
@@ -179,18 +215,15 @@ export default function ContactUsPage() {
         </div>
       </div>
 
-      {/* หน้าติดต่อเรา */}
       <div className="container mx-auto px-4 pt-20 pb-12">
-        {/* ส่วนหัว */}
         <div className="mb-12 text-center">
-          <h1 className="text-4xl font-bold mb-4">ติดต่อเรา</h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">มีคำถามเกี่ยวกับระบบโซลาร์เซลล์หรือต้องการข้อมูลเพิ่มเติม? ทีมงานของเรายินดีให้คำปรึกษาและช่วยเหลือคุณ</p>
+          <h1 className="text-4xl font-bold mb-4" suppressHydrationWarning>{tr('contactUsHeading')}</h1>
+          <p className="text-gray-600 max-w-2xl mx-auto" suppressHydrationWarning>{tr('contactUsDescription')}</p>
         </div>
         
-        {/* ข้อมูลการติดต่อ */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-12">
           <div className="bg-gray-50 p-8 rounded-lg shadow-sm">
-            <h2 className="text-2xl font-semibold mb-4">ข้อมูลติดต่อ</h2>
+            <h2 className="text-2xl font-semibold mb-4" suppressHydrationWarning>{tr('contactInfo')}</h2>
             
             <div className="space-y-4">
               <div className="flex items-start">
@@ -200,7 +233,7 @@ export default function ContactUsPage() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-800">โทรศัพท์</h3>
+                  <h3 className="font-medium text-gray-800" suppressHydrationWarning>{tr('phone')}</h3>
                   <p className="text-gray-600">02-123-4567</p>
                 </div>
               </div>
@@ -212,7 +245,7 @@ export default function ContactUsPage() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-800">อีเมล</h3>
+                  <h3 className="font-medium text-gray-800" suppressHydrationWarning>{tr('email')}</h3>
                   <p className="text-gray-600">info@solarlaa.com</p>
                 </div>
               </div>
@@ -225,7 +258,7 @@ export default function ContactUsPage() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-800">ที่อยู่</h3>
+                  <h3 className="font-medium text-gray-800" suppressHydrationWarning>{tr('address')}</h3>
                   <p className="text-gray-600">123 อาคารโซลาร์ ชั้น 15, ถนนสีลม, กรุงเทพฯ 10500</p>
                 </div>
               </div>
@@ -233,25 +266,25 @@ export default function ContactUsPage() {
           </div>
           
           <div className="bg-gray-50 p-8 rounded-lg shadow-sm">
-            <h2 className="text-2xl font-semibold mb-4">เวลาทำการ</h2>
+            <h2 className="text-2xl font-semibold mb-4" suppressHydrationWarning>{tr('officeHours')}</h2>
             
             <div className="space-y-4">
               <div className="flex justify-between border-b border-gray-200 pb-2">
-                <span className="font-medium">วันจันทร์ - วันศุกร์</span>
+                <span className="font-medium" suppressHydrationWarning>{tr('mondayToFriday')}</span>
                 <span>8:30 - 17:30 น.</span>
               </div>
               <div className="flex justify-between border-b border-gray-200 pb-2">
-                <span className="font-medium">วันเสาร์</span>
+                <span className="font-medium" suppressHydrationWarning>{tr('saturday')}</span>
                 <span>9:00 - 15:00 น.</span>
               </div>
               <div className="flex justify-between">
-                <span className="font-medium">วันอาทิตย์และวันหยุดนักขัตฤกษ์</span>
-                <span>ปิดทำการ</span>
+                <span className="font-medium" suppressHydrationWarning>{tr('sundayAndHolidays')}</span>
+                <span suppressHydrationWarning>{tr('closed')}</span>
               </div>
             </div>
             
             <div className="mt-8">
-              <h3 className="font-medium text-gray-800 mb-2">ช่องทางโซเชียลมีเดีย</h3>
+              <h3 className="font-medium text-gray-800 mb-2" suppressHydrationWarning>{tr('socialMediaChannels')}</h3>
               <div className="flex space-x-4">
                 <a href="#" className="bg-blue-600 text-white p-2 rounded-full">FB</a>
                 <a href="#" className="bg-blue-400 text-white p-2 rounded-full">TW</a>
@@ -263,16 +296,16 @@ export default function ContactUsPage() {
         </div>
       </div>
 
-      {/* Footer */}
       <footer className="bg-[#01121f] text-white py-4 mt-auto">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-sm text-gray-400">© 2024 SOLARLAA</p>
+          <p className="text-sm text-gray-400" suppressHydrationWarning>{tr('copyright')}</p>
           <div className="mt-2">
             <Link 
               href="/ขอคำปรึกษาฟรี"
               className="text-sm text-blue-400 hover:text-blue-300"
+              suppressHydrationWarning
             >
-              ขอคำปรึกษาฟรี
+              {tr('freeConsultation')}
             </Link>
           </div>
         </div>
