@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 
 import React from 'react'
-import { Providers } from '@/providers'
 import { ClientProviders } from '@/app/providers'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { draftMode } from 'next/headers'
@@ -18,11 +17,7 @@ export default async function FrontendLayout({ children }: { children: React.Rea
     <>
       <FrontendClientScripts />
       <ClientProviders>
-        <Providers>
-          <div className="frontend-content">
-            {children}
-          </div>
-        </Providers>
+        <div className="frontend-content">{children}</div>
       </ClientProviders>
     </>
   )

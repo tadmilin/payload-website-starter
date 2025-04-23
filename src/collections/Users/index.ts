@@ -6,20 +6,57 @@ export const Users: CollectionConfig = {
   slug: 'users',
   access: {
     admin: authenticated,
-    create: authenticated,
+    create: () => true,
     delete: authenticated,
     read: authenticated,
     update: authenticated,
   },
   admin: {
-    defaultColumns: ['name', 'email'],
-    useAsTitle: 'name',
+    defaultColumns: ['firstName', 'lastName', 'email'],
+    useAsTitle: 'email',
   },
-  auth: true,
+  auth: {
+    verify: false,
+    maxLoginAttempts: 5,
+    lockTime: 600000,
+  },
   fields: [
     {
-      name: 'name',
+      name: 'firstName',
       type: 'text',
+      required: true,
+    },
+    {
+      name: 'lastName',
+      type: 'text',
+      required: true,
+    },
+    {
+      name: 'email',
+      type: 'email',
+      required: true,
+      unique: true,
+    },
+    {
+      name: 'roles',
+      type: 'select',
+      hasMany: true,
+      defaultValue: ['user'],
+      options: [
+        {
+          value: 'admin',
+          label: 'Admin',
+        },
+        {
+          value: 'user',
+          label: 'User',
+        },
+      ],
+    },
+    {
+      name: 'password',
+      type: 'text',
+      hidden: true,
     },
   ],
   timestamps: true,
