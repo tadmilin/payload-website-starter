@@ -25,41 +25,56 @@ export default async function Page({ params: paramsPromise }: Args) {
 
   if (!Number.isInteger(sanitizedPageNumber)) notFound()
 
-  const posts = await payload.find({
-    collection: 'posts',
-    depth: 1,
-    limit: 12,
-    page: sanitizedPageNumber,
-    overrideAccess: false,
-  })
+  try {
+    const posts = await payload.find({
+      collection: 'posts',
+      depth: 1,
+      limit: 12,
+      page: sanitizedPageNumber,
+      overrideAccess: false,
+    })
 
-  return (
-    <div className="pt-24 pb-24">
-      <PageClient />
-      <div className="container mb-16">
-        <div className="prose dark:prose-invert max-w-none">
-          <h1>Posts</h1>
+    return (
+      <div className="pt-24 pb-24">
+        <PageClient />
+        <div className="container mb-16">
+          <div className="prose dark:prose-invert max-w-none">
+            <h1>Posts</h1>
+          </div>
+        </div>
+
+        <div className="container mb-8">
+          <PageRange
+            collection="posts"
+            currentPage={posts.page}
+            limit={12}
+            totalDocs={posts.totalDocs}
+          />
+        </div>
+
+        <CollectionArchive posts={posts.docs} />
+
+        <div className="container">
+          {posts?.page && posts?.totalPages > 1 && (
+            <Pagination page={posts.page} totalPages={posts.totalPages} />
+          )}
         </div>
       </div>
-
-      <div className="container mb-8">
-        <PageRange
-          collection="posts"
-          currentPage={posts.page}
-          limit={12}
-          totalDocs={posts.totalDocs}
-        />
+    )
+  } catch (error) {
+    // หากมีข้อผิดพลาดในการดึงข้อมูล posts แสดงหน้าว่าง
+    return (
+      <div className="pt-24 pb-24">
+        <PageClient />
+        <div className="container mb-16">
+          <div className="prose dark:prose-invert max-w-none">
+            <h1>Posts</h1>
+            <p>No posts available at this time.</p>
+          </div>
+        </div>
       </div>
-
-      <CollectionArchive posts={posts.docs} />
-
-      <div className="container">
-        {posts?.page && posts?.totalPages > 1 && (
-          <Pagination page={posts.page} totalPages={posts.totalPages} />
-        )}
-      </div>
-    </div>
-  )
+    )
+  }
 }
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
@@ -70,19 +85,24 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
 }
 
 export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const { totalDocs } = await payload.count({
-    collection: 'posts',
-    overrideAccess: false,
-  })
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const { totalDocs } = await payload.count({
+      collection: 'posts',
+      overrideAccess: false,
+    })
 
-  const totalPages = Math.ceil(totalDocs / 10)
+    const totalPages = Math.ceil(totalDocs / 10)
+    const pages: { pageNumber: string }[] = []
 
-  const pages: { pageNumber: string }[] = []
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push({ pageNumber: String(i) })
+    }
 
-  for (let i = 1; i <= totalPages; i++) {
-    pages.push({ pageNumber: String(i) })
+    return pages
+  } catch (error) {
+    // หากมีข้อผิดพลาด (เช่น ไม่มี collection) ให้สร้างเฉพาะหน้าแรก
+    console.error('Error generating static params for posts:', error)
+    return [{ pageNumber: '1' }]
   }
-
-  return pages
 }
