@@ -3,16 +3,29 @@ import { getPayload } from 'payload'
 import { unstable_cache } from 'next/cache'
 
 export async function getRedirects(depth = 1) {
-  const payload = await getPayload({ config: configPromise })
+  try {
+    const payload = await getPayload({ config: configPromise })
 
-  const { docs: redirects } = await payload.find({
-    collection: 'redirects',
-    depth,
-    limit: 0,
-    pagination: false,
-  })
+    // ตรวจสอบว่า redirects collection มีอยู่หรือไม่
+    const collections = payload.collections.map(collection => collection.slug)
 
-  return redirects
+    if (!collections.includes('redirects')) {
+      console.warn('Collection "redirects" not found in Payload config')
+      return []
+    }
+
+    const { docs: redirects } = await payload.find({
+      collection: 'redirects',
+      depth,
+      limit: 0,
+      pagination: false,
+    })
+
+    return redirects
+  } catch (error) {
+    console.error('Error fetching redirects:', error)
+    return []
+  }
 }
 
 /**

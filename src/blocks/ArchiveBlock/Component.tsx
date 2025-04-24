@@ -1,4 +1,14 @@
-import type { Post, ArchiveBlock as ArchiveBlockProps } from '@/payload-types'
+import type { Post } from '@/payload-types'
+
+// สร้าง interface ของเราเองแทนการใช้จาก payload-types
+interface ArchiveBlockProps {
+  id?: string;
+  categories?: any[];
+  introContent?: any;
+  limit?: number;
+  populateBy?: 'collection' | 'selection';
+  selectedDocs?: Array<{ value: any }>;
+}
 
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'

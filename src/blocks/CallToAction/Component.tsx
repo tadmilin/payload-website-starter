@@ -1,6 +1,15 @@
 import React from 'react'
 
-import type { CallToActionBlock as CTABlockProps } from '@/payload-types'
+// สร้าง interface ของเราเองแทนการใช้จาก payload-types
+interface CTABlockProps {
+  links?: Array<{
+    link: any;
+  }>;
+  richText?: any;
+  id?: string;
+  blockName?: string;
+  blockType: 'cta';
+}
 
 import RichText from '@/components/RichText'
 import { CMSLink } from '@/components/Link'

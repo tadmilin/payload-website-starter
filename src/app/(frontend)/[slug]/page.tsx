@@ -68,7 +68,9 @@ export default async function Page({ params: paramsPromise }: Args) {
     return <PayloadRedirects url={url} />
   }
 
-  const { hero, layout } = page
+  // แก้ไขเพื่อตรวจสอบว่า hero และ layout มีอยู่ใน page หรือไม่
+  const hero = 'hero' in page ? page.hero : undefined
+  const layout = 'layout' in page && Array.isArray(page.layout) ? page.layout : []
 
   return (
     <article className="pt-16 pb-24">
@@ -78,8 +80,8 @@ export default async function Page({ params: paramsPromise }: Args) {
 
       {draft && <LivePreviewListener />}
 
-      <RenderHero {...hero} />
-      <RenderBlocks blocks={layout} />
+      {hero && typeof hero === 'object' && <RenderHero {...hero} />}
+      {Array.isArray(layout) && <RenderBlocks blocks={layout} />}
     </article>
   )
 }

@@ -2,7 +2,18 @@ import { cn } from '@/utilities/ui'
 import React from 'react'
 import RichText from '@/components/RichText'
 
-import type { ContentBlock as ContentBlockProps } from '@/payload-types'
+// สร้าง interface ของเราเองแทนการใช้จาก payload-types
+interface ContentBlockProps {
+  columns?: Array<{
+    enableLink?: boolean;
+    link?: any;
+    richText?: any;
+    size?: 'full' | 'half' | 'oneThird' | 'twoThirds';
+  }>;
+  id?: string;
+  blockName?: string;
+  blockType: 'content';
+}
 
 import { CMSLink } from '../../components/Link'
 
