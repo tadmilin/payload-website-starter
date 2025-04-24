@@ -23,10 +23,6 @@ const getPagesSitemap = unstable_cache(
           equals: 'published',
         },
       },
-      select: {
-        slug: true,
-        updatedAt: true,
-      },
     })
 
     const dateFallback = new Date().toISOString()
