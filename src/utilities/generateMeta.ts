@@ -1,11 +1,35 @@
 import type { Metadata } from 'next'
 
-import type { Media, Page, Post, Config } from '../payload-types'
+// กำหนด interface แทนการใช้จาก payload-types
+interface Media {
+  url?: string;
+  sizes?: {
+    og?: {
+      url?: string;
+    };
+  };
+}
+
+interface PageMeta {
+  title?: string;
+  description?: string;
+  image?: Media | number | null;
+}
+
+interface Page {
+  meta?: PageMeta;
+  slug?: string | string[];
+}
+
+interface Post {
+  meta?: PageMeta;
+  slug?: string | string[];
+}
 
 import { mergeOpenGraph } from './mergeOpenGraph'
 import { getServerSideURL } from './getURL'
 
-const getImageURL = (image?: Media | Config['db']['defaultIDType'] | null) => {
+const getImageURL = (image?: Media | number | null) => {
   const serverUrl = getServerSideURL()
 
   let url = serverUrl + '/website-template-OG.webp'

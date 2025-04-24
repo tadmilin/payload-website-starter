@@ -1,6 +1,14 @@
 import React from 'react'
 
-import type { Page } from '@/payload-types'
+// สร้าง interface สำหรับ hero
+interface HeroProps {
+  links?: Array<{
+    link: any;
+  }>;
+  media?: any;
+  richText?: any;
+  type?: string;
+}
 
 import RichText from '@/components/RichText'
 
@@ -9,9 +17,9 @@ type LowImpactHeroType =
       children?: React.ReactNode
       richText?: never
     }
-  | (Omit<Page['hero'], 'richText'> & {
+  | (Omit<HeroProps, 'richText'> & {
       children?: never
-      richText?: Page['hero']['richText']
+      richText?: HeroProps['richText']
     })
 
 export const LowImpactHero: React.FC<LowImpactHeroType> = ({ children, richText }) => {

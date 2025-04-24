@@ -1,7 +1,30 @@
-import type { RequiredDataFromCollectionSlug } from 'payload'
+// สร้าง interface สำหรับหน้าเพื่อใช้แทน RequiredDataFromCollectionSlug
+interface Page {
+  slug: string;
+  _status: string;
+  hero: {
+    type: string;
+    richText?: {
+      root: {
+        type: string;
+        children: any[];
+        direction: string;
+        format: string;
+        indent: number;
+        version: number;
+      };
+    };
+  };
+  meta?: {
+    description: string;
+    title: string;
+  };
+  title: string;
+  layout: any[];
+}
 
 // Used for pre-seeded content so that the homepage is not empty
-export const homeStatic: RequiredDataFromCollectionSlug<'pages'> = {
+export const homeStatic: Page = {
   slug: 'home',
   _status: 'published',
   hero: {

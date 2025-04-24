@@ -1,12 +1,20 @@
 import React from 'react'
 
-import type { Page } from '@/payload-types'
+// สร้าง interface สำหรับ hero
+interface HeroProps {
+  links?: Array<{
+    link: any;
+  }>;
+  media?: any;
+  richText?: any;
+  type?: string;
+}
 
 import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
 import RichText from '@/components/RichText'
 
-export const MediumImpactHero: React.FC<Page['hero']> = ({ links, media, richText }) => {
+export const MediumImpactHero: React.FC<HeroProps> = ({ links, media, richText }) => {
   return (
     <div className="">
       <div className="container mb-8">

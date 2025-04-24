@@ -1,11 +1,28 @@
-import type { Form } from '@/payload-types'
-import { RequiredDataFromCollectionSlug } from 'payload'
+// สร้าง interface เองแทนการอ้างอิง
+interface Form {
+  [key: string]: any;
+}
+
+interface Page {
+  slug: string;
+  _status: string;
+  hero: {
+    type: string;
+  };
+  layout: Array<{
+    blockType: string;
+    enableIntro?: boolean;
+    form?: any;
+    introContent?: any;
+  }>;
+  title: string;
+}
 
 type ContactArgs = {
   contactForm: Form
 }
 
-export const contact: (args: ContactArgs) => RequiredDataFromCollectionSlug<'pages'> = ({
+export const contact: (args: ContactArgs) => Page = ({
   contactForm,
 }) => {
   return {
