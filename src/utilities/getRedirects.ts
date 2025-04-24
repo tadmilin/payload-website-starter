@@ -7,7 +7,8 @@ export async function getRedirects(depth = 1) {
     const payload = await getPayload({ config: configPromise })
 
     // ตรวจสอบว่า redirects collection มีอยู่หรือไม่
-    const collections = payload.collections.map(collection => collection.slug)
+    // ใช้ Object.keys แทน .map เนื่องจาก collections เป็น Record ไม่ใช่ Array
+    const collections = Object.keys(payload.collections)
 
     if (!collections.includes('redirects')) {
       console.warn('Collection "redirects" not found in Payload config')
@@ -15,7 +16,7 @@ export async function getRedirects(depth = 1) {
     }
 
     const { docs: redirects } = await payload.find({
-      collection: 'redirects',
+      collection: 'redirects' as any,
       depth,
       limit: 0,
       pagination: false,
