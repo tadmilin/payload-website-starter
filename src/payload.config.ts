@@ -17,8 +17,8 @@ import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
-// import { Footer } from './Footer/config' // Temporarily remove globals
-// import { Header } from './Header/config' // Temporarily remove globals
+import { Footer } from './Footer/config'
+import { Header } from './Header/config'
 import { plugins } from './plugins' // Keep import for reference, but ensure it's empty or commented out below
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
@@ -96,7 +96,7 @@ export default buildConfig({
   db: dbAdapter,
   collections: [Users, Media, Pages, Posts, Categories],
   cors: ['*'], // อนุญาตให้เข้าถึงจากทุก domain
-  globals: [],
+  globals: [Header, Footer],
   plugins: [
     // ...plugins, // Ensure this is still commented out or './plugins' exports empty array
     vercelBlobStorage({
