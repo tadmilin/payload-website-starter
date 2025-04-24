@@ -1,6 +1,40 @@
-import { RequiredDataFromCollectionSlug } from 'payload'
+// import { RequiredDataFromCollectionSlug } from 'payload'
 
-export const contactForm: RequiredDataFromCollectionSlug<'forms'> = {
+// กำหนด interface ของเราเอง
+interface ContactForm {
+  confirmationMessage: {
+    root: {
+      type: string;
+      children: any[];
+      direction: string;
+      format: string;
+      indent: number;
+      version: number;
+    };
+  };
+  confirmationType: string;
+  createdAt: string;
+  emails: Array<{
+    emailFrom: string;
+    emailTo: string;
+    message: any;
+    subject: string;
+  }>;
+  fields: Array<{
+    name: string;
+    blockName: string;
+    blockType: string;
+    label: string;
+    required: boolean;
+    width: number;
+  }>;
+  redirect: any;
+  submitButtonLabel: string;
+  title: string;
+  updatedAt: string;
+}
+
+export const contactForm: ContactForm = {
   confirmationMessage: {
     root: {
       type: 'root',
