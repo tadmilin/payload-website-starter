@@ -13,11 +13,23 @@ import {
 
 import { CodeBlock, CodeBlockProps } from '@/blocks/Code/Component'
 
+// import เฉพาะ types ที่มีอยู่จริงใน payload-types
 import type {
   BannerBlock as BannerBlockProps,
-  CallToActionBlock as CTABlockProps,
   MediaBlock as MediaBlockProps,
 } from '@/payload-types'
+
+// สร้าง interface ของเราเองแทนการ import จาก payload-types
+interface CTABlockProps {
+  links?: Array<{
+    link: any;
+  }>;
+  richText?: any;
+  id?: string;
+  blockName?: string;
+  blockType: 'cta';
+}
+
 import { BannerBlock } from '@/blocks/Banner/Component'
 import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { cn } from '@/utilities/ui'
