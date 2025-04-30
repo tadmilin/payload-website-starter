@@ -4,71 +4,75 @@ import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 
 export default function ConsultationPage() {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [currentLang, setCurrentLang] = useState('en');
-  const [formSubmitted, setFormSubmitted] = useState(false);
-  const menuRef = useRef(null);
-  
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [currentLang, setCurrentLang] = useState('en')
+  const [formSubmitted, setFormSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [successNote, setSuccessNote] = useState('')
+  const menuRef = useRef(null)
+
   // ฟังก์ชันตรวจสอบภาษาปัจจุบัน
   const getCurrentLanguage = () => {
-    return currentLang;
-  };
-  
+    return currentLang
+  }
+
   useEffect(() => {
-    setIsLoaded(true);
-    
+    setIsLoaded(true)
+
     // ดึงภาษาจาก localStorage
     if (typeof window !== 'undefined') {
-      const storedLang = localStorage.getItem('language') || 'en';
-      setCurrentLang(storedLang);
-      document.documentElement.setAttribute('data-lang', storedLang);
+      const storedLang = localStorage.getItem('language') || 'en'
+      setCurrentLang(storedLang)
+      document.documentElement.setAttribute('data-lang', storedLang)
     }
-    
+
     // ปิดเมนูเมื่อคลิกนอกพื้นที่เมนู
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setIsMenuOpen(false);
+        setIsMenuOpen(false)
       }
-    };
+    }
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside)
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
 
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-  
+    setIsMenuOpen(!isMenuOpen)
+  }
+
   const handleLanguageToggle = () => {
-    const newLang = currentLang === 'en' ? 'th' : 'en';
-    
+    const newLang = currentLang === 'en' ? 'th' : 'en'
+
     // บันทึกลงใน localStorage
-    localStorage.setItem('language', newLang);
-    
+    localStorage.setItem('language', newLang)
+
     // อัพเดต DOM
-    document.documentElement.setAttribute('data-lang', newLang);
-    
+    document.documentElement.setAttribute('data-lang', newLang)
+
     // อัพเดต state
-    setCurrentLang(newLang);
-    
+    setCurrentLang(newLang)
+
     // อัพเดต cookies
-    document.cookie = `locale=${newLang};path=/;max-age=31536000`;
-    document.cookie = `NEXT_LOCALE=${newLang};path=/;max-age=31536000`;
-    
-    console.log('เปลี่ยนภาษาเป็น:', newLang);
-    
+    document.cookie = `locale=${newLang};path=/;max-age=31536000`
+    document.cookie = `NEXT_LOCALE=${newLang};path=/;max-age=31536000`
+
+    console.log('เปลี่ยนภาษาเป็น:', newLang)
+
     // ปิดเมนู
-    setIsMenuOpen(false);
-  };
-  
+    setIsMenuOpen(false)
+  }
+
   // แปลข้อความตามภาษาที่เลือก
   const translations = {
     th: {
       consultationTitle: 'ขอคำปรึกษาออนไลน์ฟรี',
-      consultationDesc: 'กรอกข้อมูลด้านล่างเพื่อรับคำปรึกษาเกี่ยวกับการติดตั้งระบบโซลาร์เซลล์สำหรับบ้านหรือธุรกิจของคุณ',
+      consultationDesc:
+        'กรอกข้อมูลด้านล่างเพื่อรับคำปรึกษาเกี่ยวกับการติดตั้งระบบโซลาร์เซลล์สำหรับบ้านหรือธุรกิจของคุณ',
       nameLabel: 'ชื่อ',
       namePlaceholder: 'กรุณากรอกชื่อของคุณ',
       emailLabel: 'อีเมล',
@@ -79,7 +83,8 @@ export default function ConsultationPage() {
       typeHome: 'บ้าน',
       typeBusiness: 'ธุรกิจ',
       messageLabel: 'ข้อความ',
-      messagePlaceholder: 'กรุณากรอกรายละเอียดเพิ่มเติม (ตัวอย่าง: ขนาดของระบบที่ต้องการ, ที่อยู่, เวลาที่สะดวกรับสาย)',
+      messagePlaceholder:
+        'กรุณากรอกรายละเอียดเพิ่มเติม (ตัวอย่าง: ขนาดของระบบที่ต้องการ, ที่อยู่, เวลาที่สะดวกรับสาย)',
       submitButton: 'ส่งข้อมูล',
       backToHomeButton: 'กลับไปหน้าหลัก',
       submissionSuccess: 'ขอบคุณสำหรับข้อมูล! เราจะติดต่อกลับโดยเร็วที่สุด',
@@ -94,11 +99,12 @@ export default function ConsultationPage() {
       contactUs: 'ติดต่อเรา',
       login: 'เข้าสู่ระบบ',
       freeConsultation: 'ขอคำปรึกษาฟรี',
-      allRightsReserved: 'สงวนลิขสิทธิ์'
+      allRightsReserved: 'สงวนลิขสิทธิ์',
     },
     en: {
       consultationTitle: 'Free Online Consultation',
-      consultationDesc: 'Fill out the form below to get a consultation about solar installation for your home or business',
+      consultationDesc:
+        'Fill out the form below to get a consultation about solar installation for your home or business',
       nameLabel: 'Name',
       namePlaceholder: 'Enter your name',
       emailLabel: 'Email',
@@ -109,7 +115,8 @@ export default function ConsultationPage() {
       typeHome: 'Home',
       typeBusiness: 'Business',
       messageLabel: 'Message',
-      messagePlaceholder: 'Enter additional details (e.g., system size required, address, preferred call time)',
+      messagePlaceholder:
+        'Enter additional details (e.g., system size required, address, preferred call time)',
       submitButton: 'Submit',
       backToHomeButton: 'Back to Home',
       submissionSuccess: 'Thank you for your information! We will contact you as soon as possible.',
@@ -124,25 +131,62 @@ export default function ConsultationPage() {
       contactUs: 'Contact Us',
       login: 'Login',
       freeConsultation: 'Free Consultation',
-      allRightsReserved: 'All rights reserved'
-    }
-  };
-  
+      allRightsReserved: 'All rights reserved',
+    },
+  }
+
   // ช่วยการแปลข้อความ
   const tr = (key) => {
-    const lang = getCurrentLanguage();
-    return translations[lang]?.[key] || translations.en[key];
-  };
+    const lang = getCurrentLanguage()
+    return translations[lang]?.[key] || translations.en[key]
+  }
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // สำหรับจำลองการส่งข้อมูล
-    setFormSubmitted(true);
-    
-    // ในโปรเจ็คจริงจะต้องมีการส่งข้อมูลไปยัง API
-    console.log('Form submitted');
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    try {
+      setIsSubmitting(true)
+      setErrorMessage('')
+      setSuccessNote('')
+
+      // ดึงข้อมูลจากฟอร์ม
+      const formData = new FormData(e.target)
+      const formValues = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        phone: formData.get('phone'),
+        propertyType: formData.get('propertyType'),
+        message: formData.get('message'),
+      }
+
+      // ส่งข้อมูลไปยัง API endpoint
+      const response = await fetch('/api/consultation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formValues),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || tr('submissionError'))
+      }
+
+      // แสดงข้อความสำเร็จ
+      setFormSubmitted(true)
+      if (data.note) {
+        setSuccessNote(data.note)
+      }
+      console.log('ส่งข้อมูลสำเร็จ', data)
+    } catch (error) {
+      console.error('เกิดข้อผิดพลาด:', error)
+      setErrorMessage(error.message || tr('submissionError'))
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -156,69 +200,69 @@ export default function ConsultationPage() {
               <span className="text-sm tracking-wider">SOLARLAA</span>
             </Link>
           </div>
-          
+
           {/* ปุ่ม Menu */}
           <div className="relative" ref={menuRef}>
-            <button 
+            <button
               onClick={toggleMenu}
               className="px-5 py-1.5 bg-[#233544] text-white text-xs font-medium rounded-sm"
               suppressHydrationWarning
             >
               {tr('menu')}
             </button>
-            
+
             {isMenuOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-[#233544] rounded-sm shadow-lg z-50">
-                <Link 
+                <Link
                   href="/"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {tr('homePage')}
                 </Link>
-                <Link 
+                <Link
                   href="/simulator"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {tr('simulator')}
                 </Link>
-                <Link 
+                <Link
                   href="/shop"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {tr('shop')}
                 </Link>
-                <Link 
+                <Link
                   href="/track-system"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {tr('trackSystem')}
                 </Link>
-                <Link 
+                <Link
                   href="/about-us"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {tr('aboutUs')}
                 </Link>
-                <Link 
+                <Link
                   href="/contact-us"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {tr('contactUs')}
                 </Link>
-                <Link 
+                <Link
                   href="/login"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554] border-b border-gray-700"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {tr('login')}
                 </Link>
-                <Link 
+                <Link
                   href="/consultation"
                   className="block px-4 py-3 text-sm text-white hover:bg-[#344554]"
                   onClick={() => setIsMenuOpen(false)}
@@ -226,7 +270,7 @@ export default function ConsultationPage() {
                   {tr('freeConsultation')}
                 </Link>
                 <div className="px-4 py-2 text-xs text-white/70 border-t border-gray-700">
-                  <button 
+                  <button
                     className="text-sm text-white hover:text-yellow-400 transition-colors font-medium"
                     onClick={handleLanguageToggle}
                   >
@@ -245,14 +289,31 @@ export default function ConsultationPage() {
           {formSubmitted ? (
             <div className="p-8 text-center">
               <div className="mx-auto mb-4 flex items-center justify-center w-12 h-12 rounded-full bg-green-100">
-                <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                <svg
+                  className="h-6 w-6 text-green-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
               </div>
               <h2 className="text-xl font-bold text-gray-900 mb-2" suppressHydrationWarning>
                 {tr('submissionSuccess')}
               </h2>
-              <Link 
+
+              {successNote && (
+                <p className="mt-2 mb-4 text-xs text-gray-600 bg-blue-50 p-2 rounded">
+                  <strong>หมายเหตุ:</strong> {successNote}
+                </p>
+              )}
+
+              <Link
                 href="/"
                 className="mt-6 inline-block w-full py-3 bg-[#0078FF] text-white text-center font-medium rounded-md"
                 suppressHydrationWarning
@@ -270,11 +331,17 @@ export default function ConsultationPage() {
                   {tr('consultationDesc')}
                 </p>
               </div>
-              
+
+              {errorMessage && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 m-4 rounded">
+                  <p>{errorMessage}</p>
+                </div>
+              )}
+
               <form onSubmit={handleSubmit} className="p-6 space-y-4">
                 <div>
-                  <label 
-                    htmlFor="name" 
+                  <label
+                    htmlFor="name"
                     className="block text-sm font-medium text-gray-700 mb-1"
                     suppressHydrationWarning
                   >
@@ -289,10 +356,10 @@ export default function ConsultationPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                   />
                 </div>
-                
+
                 <div>
-                  <label 
-                    htmlFor="email" 
+                  <label
+                    htmlFor="email"
                     className="block text-sm font-medium text-gray-700 mb-1"
                     suppressHydrationWarning
                   >
@@ -307,10 +374,10 @@ export default function ConsultationPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                   />
                 </div>
-                
+
                 <div>
-                  <label 
-                    htmlFor="phone" 
+                  <label
+                    htmlFor="phone"
                     className="block text-sm font-medium text-gray-700 mb-1"
                     suppressHydrationWarning
                   >
@@ -325,9 +392,9 @@ export default function ConsultationPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                   />
                 </div>
-                
+
                 <div>
-                  <label 
+                  <label
                     className="block text-sm font-medium text-gray-700 mb-1"
                     suppressHydrationWarning
                   >
@@ -335,40 +402,34 @@ export default function ConsultationPage() {
                   </label>
                   <div className="flex space-x-4">
                     <label className="inline-flex items-center">
-                      <input 
-                        type="radio" 
-                        name="propertyType" 
-                        value="home" 
-                        defaultChecked 
+                      <input
+                        type="radio"
+                        name="propertyType"
+                        value="home"
+                        defaultChecked
                         className="h-4 w-4 text-blue-600"
                       />
-                      <span 
-                        className="ml-2 text-sm text-gray-700"
-                        suppressHydrationWarning
-                      >
+                      <span className="ml-2 text-sm text-gray-700" suppressHydrationWarning>
                         {tr('typeHome')}
                       </span>
                     </label>
                     <label className="inline-flex items-center">
-                      <input 
-                        type="radio" 
-                        name="propertyType" 
-                        value="business" 
+                      <input
+                        type="radio"
+                        name="propertyType"
+                        value="business"
                         className="h-4 w-4 text-blue-600"
                       />
-                      <span 
-                        className="ml-2 text-sm text-gray-700"
-                        suppressHydrationWarning
-                      >
+                      <span className="ml-2 text-sm text-gray-700" suppressHydrationWarning>
                         {tr('typeBusiness')}
                       </span>
                     </label>
                   </div>
                 </div>
-                
+
                 <div>
-                  <label 
-                    htmlFor="message" 
+                  <label
+                    htmlFor="message"
                     className="block text-sm font-medium text-gray-700 mb-1"
                     suppressHydrationWarning
                   >
@@ -382,13 +443,40 @@ export default function ConsultationPage() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                   />
                 </div>
-                
+
                 <button
                   type="submit"
-                  className="w-full py-3 bg-[#0078FF] text-white font-medium rounded-md"
+                  className="w-full py-3 bg-[#0078FF] text-white font-medium rounded-md flex items-center justify-center"
+                  disabled={isSubmitting}
                   suppressHydrationWarning
                 >
-                  {tr('submitButton')}
+                  {isSubmitting ? (
+                    <div className="flex items-center">
+                      <svg
+                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      กำลังส่งข้อมูล...
+                    </div>
+                  ) : (
+                    tr('submitButton')
+                  )}
                 </button>
               </form>
             </div>
@@ -404,4 +492,4 @@ export default function ConsultationPage() {
       </footer>
     </div>
   )
-} 
+}

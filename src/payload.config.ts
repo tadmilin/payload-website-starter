@@ -17,6 +17,7 @@ import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
+import { Consultations } from './collections/Consultations'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { plugins } from './plugins' // Keep import for reference, but ensure it's empty or commented out below
@@ -94,7 +95,7 @@ export default buildConfig({
   // This config helps us configure global or default features that the other editors can inherit
   editor: defaultLexical,
   db: dbAdapter,
-  collections: [Users, Media, Pages, Posts, Categories],
+  collections: [Users, Media, Pages, Posts, Categories, Consultations],
   cors: ['*'], // อนุญาตให้เข้าถึงจากทุก domain
   globals: [Header, Footer],
   plugins: [

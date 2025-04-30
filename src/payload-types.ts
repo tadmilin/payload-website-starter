@@ -72,6 +72,7 @@ export interface Config {
     pages: Page;
     posts: Post;
     categories: Category;
+    consultations: Consultation;
     'payload-jobs': PayloadJob;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +85,7 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    consultations: ConsultationsSelect<false> | ConsultationsSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -333,6 +335,21 @@ export interface Category {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "consultations".
+ */
+export interface Consultation {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  propertyType: 'home' | 'business';
+  message?: string | null;
+  status: 'pending' | 'contacted' | 'completed';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs".
  */
 export interface PayloadJob {
@@ -449,6 +466,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'categories';
         value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'consultations';
+        value: number | Consultation;
       } | null)
     | ({
         relationTo: 'payload-jobs';
@@ -659,6 +680,20 @@ export interface CategoriesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
   slugLock?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "consultations_select".
+ */
+export interface ConsultationsSelect<T extends boolean = true> {
+  name?: T;
+  email?: T;
+  phone?: T;
+  propertyType?: T;
+  message?: T;
+  status?: T;
   updatedAt?: T;
   createdAt?: T;
 }
