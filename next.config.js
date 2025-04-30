@@ -27,6 +27,7 @@ const nextConfig = {
       }),
     ],
     domains: ['images.unsplash.com'],
+    disableStaticImages: true,
   },
   reactStrictMode: true,
   redirects,
@@ -50,6 +51,14 @@ const nextConfig = {
       child_process: false,
       http2: false,
     }
+
+    // แก้ไขปัญหา sharp
+    config.module = config.module || {}
+    config.module.rules = config.module.rules || []
+    config.module.rules.push({
+      test: /\.(png|jpe?g|gif|ico|webp|avif)$/i,
+      type: 'asset/resource',
+    })
 
     return config
   },
