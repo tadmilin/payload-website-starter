@@ -97,9 +97,10 @@ export default buildConfig({
     // ...plugins, // Ensure this is still commented out or './plugins' exports empty array
     vercelBlobStorage({
       collections: {
-        ['media']: true,
+        media: true,
       },
       token: process.env.BLOB_READ_WRITE_TOKEN || '',
+      clientUploads: true,
     }),
   ],
   secret: process.env.PAYLOAD_SECRET || 'default-fallback-secret-CHANGE-ME',
