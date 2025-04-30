@@ -5,6 +5,7 @@ import type { Metadata } from 'next'
 import config from '@payload-config'
 import { RootPage, generatePageMetadata } from '@payloadcms/next/views'
 import { importMap } from '../importMap'
+import { UploadHandlersProvider } from '@payloadcms/storage-vercel-blob/client'
 
 type Args = {
   params: Promise<{
@@ -18,7 +19,10 @@ type Args = {
 export const generateMetadata = ({ params, searchParams }: Args): Promise<Metadata> =>
   generatePageMetadata({ config, params, searchParams })
 
-const Page = ({ params, searchParams }: Args) =>
-  RootPage({ config, params, searchParams, importMap })
+const Page = ({ params, searchParams }: Args) => {
+  const Root = RootPage({ config, params, searchParams, importMap })
+  // ครอบด้วย UploadHandlersProvider
+  return <UploadHandlersProvider>{Root}</UploadHandlersProvider>
+}
 
 export default Page
