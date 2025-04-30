@@ -41,6 +41,12 @@ const nextConfig = {
       ),
     )
 
+    // แก้ไขการอ้างอิง @payload-config
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@payload-config': path.join(__dirname, 'src/payload.config.ts'),
+    }
+
     // Fallback สำหรับ node builtin modules
     config.resolve.fallback = {
       ...config.resolve.fallback,
@@ -52,13 +58,19 @@ const nextConfig = {
       http2: false,
     }
 
-    // แก้ไขปัญหา sharp
+    // แก้ไขปัญหา sharp และ SVG files
     config.module = config.module || {}
     config.module.rules = config.module.rules || []
-    config.module.rules.push({
-      test: /\.(png|jpe?g|gif|ico|webp|avif)$/i,
-      type: 'asset/resource',
-    })
+    config.module.rules.push(
+      {
+        test: /\.(png|jpe?g|gif|ico|webp|avif)$/i,
+        type: 'asset/resource',
+      },
+      {
+        test: /\.svg$/,
+        type: 'asset/resource',
+      },
+    )
 
     return config
   },
