@@ -1,6 +1,6 @@
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { vercelPostgresAdapter } from '@payloadcms/db-vercel-postgres'
-import { postgresAdapter } from '@payloadcms/db-postgres'
+// import { postgresAdapter } from '@payloadcms/db-postgres'
 
 import sharp from 'sharp' // sharp-import
 import path from 'path'
@@ -18,11 +18,11 @@ import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
 import { Consultations } from './collections/Consultations'
-import { Footer } from './Footer/config'
-import { Header } from './Header/config'
-import { plugins } from './plugins' // Keep import for reference, but ensure it's empty or commented out below
+// import { Footer } from './Footer/config'
+// import { Header } from './Header/config'
+// import { plugins } from './plugins' // Keep import for reference, but ensure it's empty or commented out below
 import { defaultLexical } from '@/fields/defaultLexical'
-import { getServerSideURL } from './utilities/getURL'
+// import { getServerSideURL } from './utilities/getURL'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -38,22 +38,15 @@ if (!process.env.PAYLOAD_SECRET) {
   // Consider throwing an error in production if the secret is missing
 }
 
-// Configure the standard PostgreSQL adapter
-const dbAdapter = postgresAdapter({
-  pool: {
-    connectionString: process.env.DATABASE_URL, // Read directly from env var
-  },
-  // Optional: Enable SSL if required by Neon (usually needed)
-  // Make sure your DATABASE_URL includes sslmode=require or similar
+// Configure the Vercel PostgreSQL adapter
+const dbAdapter = vercelPostgresAdapter({
+  // pool options are usually handled by Vercel automatically
   // pool: {
   //   connectionString: process.env.DATABASE_URL,
-  //   ssl: {
-  //     rejectUnauthorized: false, // Adjust based on Neon's requirements/certs
-  //   },
   // },
 })
 
-console.log('[payload.config] Using PostgreSQL Adapter')
+console.log('[payload.config] Using Vercel Postgres Adapter')
 
 export default buildConfig({
   admin: {
@@ -97,7 +90,9 @@ export default buildConfig({
   db: dbAdapter,
   collections: [Users, Media, Pages, Posts, Categories, Consultations],
   cors: ['*'], // อนุญาตให้เข้าถึงจากทุก domain
-  globals: [Header, Footer],
+  globals: [
+    // ...globals, // Ensure this is still commented out or './globals' exports empty array
+  ],
   plugins: [
     // ...plugins, // Ensure this is still commented out or './plugins' exports empty array
     vercelBlobStorage({

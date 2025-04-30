@@ -1,15 +1,46 @@
-import { getCachedGlobal } from '@/utilities/getGlobals'
 import Link from 'next/link'
 import React from 'react'
-
-import type { Footer } from '@/payload-types'
 
 import { ThemeSelector } from '@/providers/Theme/ThemeSelector'
 import { CMSLink } from '@/components/Link'
 import { Logo } from '@/components/Logo/Logo'
 
+// กำหนด type สำหรับ footer ให้ตรงกับ CMSLinkType
+type FooterNavItem = {
+  link: {
+    type: 'custom' | 'reference' | null
+    label: string | null
+    url?: string | null
+    newTab?: boolean | null
+  }
+}
+
+interface FooterData {
+  navItems: FooterNavItem[]
+}
+
 export async function Footer() {
-  const footerData: Footer = await getCachedGlobal('footer', 1)()
+  // ใช้ข้อมูล hard-coded แทนการดึงจาก global
+  const footerData: FooterData = {
+    navItems: [
+      {
+        link: {
+          type: 'custom',
+          label: 'หน้าแรก',
+          url: '/',
+          newTab: null,
+        },
+      },
+      {
+        link: {
+          type: 'custom',
+          label: 'Admin',
+          url: '/admin',
+          newTab: null,
+        },
+      },
+    ],
+  }
 
   const navItems = footerData?.navItems || []
 

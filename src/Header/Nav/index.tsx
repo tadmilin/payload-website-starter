@@ -1,14 +1,23 @@
 'use client'
 
 import React from 'react'
-
-import type { Header as HeaderType } from '@/payload-types'
-
-import { CMSLink } from '@/components/Link'
 import Link from 'next/link'
 import { SearchIcon } from 'lucide-react'
+import { CMSLink } from '@/components/Link'
 
-export const HeaderNav: React.FC<{ data: HeaderType }> = ({ data }) => {
+// กำหนด type ที่ต้องการแทนการนำเข้าจาก payload-types
+type CustomHeader = {
+  navItems?: {
+    link?: {
+      type?: 'custom' | 'reference'
+      label?: string
+      url?: string
+      newTab?: boolean
+    }
+  }[]
+}
+
+export const HeaderNav: React.FC<{ data: CustomHeader }> = ({ data }) => {
   const navItems = data?.navItems || []
 
   return (

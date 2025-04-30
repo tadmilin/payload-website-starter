@@ -30,19 +30,38 @@ const nextConfig = {
   },
   reactStrictMode: true,
   redirects,
-  transpilePackages: ['react-i18next', 'i18next'],
-  webpack: (config) => {
+  transpilePackages: ['react-i18next', 'i18next', 'pg-cloudflare'],
+  webpack: (config, { webpack }) => {
+    // แก้ไขปัญหา cloudflare:sockets
+    config.plugins.push(
+      new webpack.NormalModuleReplacementPlugin(
+        /cloudflare:sockets/,
+        path.join(__dirname, 'cloudflare-sockets-shim.js'),
+      ),
+    )
+
+    // Fallback สำหรับ node builtin modules
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      net: false,
+      tls: false,
+      fs: false,
+      dns: false,
+      child_process: false,
+      http2: false,
+    }
+
     return config
   },
   experimental: {
     esmExternals: true,
     cpus: 1,
     memoryBasedWorkersCount: true,
-  }
+  },
 }
 
-export default withPayload(nextConfig, { 
+export default withPayload(nextConfig, {
   devBundleServerPackages: false,
   // รองรับ Edge runtime บน Vercel
-  forceDisableLocalizationMiddleware: true
+  forceDisableLocalizationMiddleware: true,
 })

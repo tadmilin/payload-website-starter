@@ -4,13 +4,23 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
-import type { Header } from '@/payload-types'
-
 import { Logo } from '@/components/Logo/Logo'
 import { HeaderNav } from './Nav'
 
+// กำหนด type ที่ต้องการแทนการนำเข้าจาก payload-types
+type CustomHeader = {
+  navItems?: {
+    link?: {
+      type?: 'custom' | 'reference'
+      label?: string
+      url?: string
+      newTab?: boolean
+    }
+  }[]
+}
+
 interface HeaderClientProps {
-  data: Header
+  data: CustomHeader
 }
 
 export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
