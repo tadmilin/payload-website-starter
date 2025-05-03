@@ -34,6 +34,11 @@ export const Users: CollectionConfig = {
         const baseURL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
         const resetPasswordURL = `${baseURL}/reset-password?token=${token}`
 
+        // ล็อกข้อมูลสำคัญเพื่อการ Debug
+        console.log(`[FORGOT PASSWORD] baseURL = ${baseURL}`)
+        console.log(`[FORGOT PASSWORD] resetPasswordURL = ${resetPasswordURL}`)
+        console.log(`[FORGOT PASSWORD] token length = ${token.length}`)
+
         return `
           <html>
             <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">

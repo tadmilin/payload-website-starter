@@ -76,8 +76,17 @@ export default function ResetPasswordClient() {
     }
 
     try {
+      console.log('กำลังส่งคำขอรีเซ็ตรหัสผ่าน...')
+
+      // ใช้ URL แบบเต็มโดยใช้ค่าจาก env หรือ host ปัจจุบัน
+      const baseURL = process.env.NEXT_PUBLIC_SERVER_URL || window.location.origin
+      const resetPasswordURL = `${baseURL}/api/users/reset-password`
+
+      console.log('API URL:', resetPasswordURL)
+      console.log('Token length:', token.length)
+
       // ส่งคำขอเพื่อรีเซ็ตรหัสผ่าน
-      const response = await fetch('/api/users/reset-password', {
+      const response = await fetch(resetPasswordURL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -88,10 +97,13 @@ export default function ResetPasswordClient() {
         }),
       })
 
+      console.log('Response status:', response.status)
       const data = await response.json()
+      console.log('Response data:', data)
 
       if (!response.ok) {
-        throw new Error(data.message || 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน')
+        console.error('เกิดข้อผิดพลาด:', data)
+        throw new Error(data.message || data.error || 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน')
       }
 
       // แสดงข้อความสำเร็จ
@@ -102,6 +114,7 @@ export default function ResetPasswordClient() {
         router.push('/login')
       }, 3000)
     } catch (error: any) {
+      console.error('Error details:', error)
       setError(error.message || 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน')
     } finally {
       setLoading(false)

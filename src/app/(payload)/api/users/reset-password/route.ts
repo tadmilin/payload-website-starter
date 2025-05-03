@@ -64,61 +64,110 @@ function isErrorWithMessage(error: unknown): error is { message: string; stack?:
   return typeof error === 'object' && error !== null && 'message' in error
 }
 
+// เพิ่มฟังก์ชัน OPTIONS เพื่อรองรับ CORS preflight requests
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  })
+}
+
 export async function POST(req: Request) {
+  console.log('[RESET PASSWORD] เริ่มต้นกระบวนการรีเซ็ตรหัสผ่าน')
+
+  // เตรียม response headers สำหรับ CORS
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  }
+
   try {
     // รับค่า token และ password จากคำขอ
-    const { token, password } = await req.json()
+    const body = await req.json().catch((e) => {
+      console.error('[RESET PASSWORD] ไม่สามารถอ่านข้อมูล JSON ได้:', e)
+      return {}
+    })
+
+    const { token, password } = body
 
     // --- LOG ข้อมูลสำคัญสำหรับ debug ---
-    console.log('[RESET PASSWORD] token:', token)
-    console.log('[RESET PASSWORD] password length:', password.length)
-
-    // decode token อีกครั้งเพื่อความปลอดภัย (รองรับกรณี encode ซ้ำ)
-    const decodedToken = decodeURIComponent(token)
+    console.log('[RESET PASSWORD] มี token หรือไม่:', !!token)
+    console.log('[RESET PASSWORD] password length:', password ? password.length : 'ไม่มีรหัสผ่าน')
 
     // ตรวจสอบข้อมูลที่จำเป็น
-    if (!decodedToken) {
-      return NextResponse.json({ message: 'กรุณาระบุรหัสสำหรับรีเซ็ตรหัสผ่าน' }, { status: 400 })
+    if (!token) {
+      return NextResponse.json(
+        { message: 'กรุณาระบุรหัสสำหรับรีเซ็ตรหัสผ่าน' },
+        { status: 400, headers: corsHeaders },
+      )
     }
 
     if (!password) {
-      return NextResponse.json({ message: 'กรุณาระบุรหัสผ่านใหม่' }, { status: 400 })
+      return NextResponse.json(
+        { message: 'กรุณาระบุรหัสผ่านใหม่' },
+        { status: 400, headers: corsHeaders },
+      )
+    }
+
+    // decode token อีกครั้งเพื่อความปลอดภัย (รองรับกรณี encode ซ้ำ)
+    let decodedToken = token
+    try {
+      // ถ้า token เป็น encoded URI component, ทำการ decode
+      if (token.includes('%')) {
+        decodedToken = decodeURIComponent(token)
+        console.log('[RESET PASSWORD] token ถูก decode')
+      }
+    } catch (decodeError) {
+      console.error('[RESET PASSWORD] ไม่สามารถ decode token ได้:', decodeError)
+      // ใช้ token ดั้งเดิมหากไม่สามารถ decode ได้
     }
 
     // ตรวจสอบความซับซ้อนของรหัสผ่าน
     if (password.length < 8) {
       return NextResponse.json(
         { message: 'รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร' },
-        { status: 400 },
+        { status: 400, headers: corsHeaders },
       )
     }
 
     if (!/[A-Z]/.test(password)) {
       return NextResponse.json(
         { message: 'รหัสผ่านต้องมีตัวพิมพ์ใหญ่อย่างน้อย 1 ตัว' },
-        { status: 400 },
+        { status: 400, headers: corsHeaders },
       )
     }
 
     if (!/[a-z]/.test(password)) {
       return NextResponse.json(
         { message: 'รหัสผ่านต้องมีตัวพิมพ์เล็กอย่างน้อย 1 ตัว' },
-        { status: 400 },
+        { status: 400, headers: corsHeaders },
       )
     }
 
     if (!/[0-9]/.test(password)) {
-      return NextResponse.json({ message: 'รหัสผ่านต้องมีตัวเลขอย่างน้อย 1 ตัว' }, { status: 400 })
+      return NextResponse.json(
+        { message: 'รหัสผ่านต้องมีตัวเลขอย่างน้อย 1 ตัว' },
+        { status: 400, headers: corsHeaders },
+      )
     }
 
     // เชื่อมต่อกับ Payload CMS
-    const payload = await getPayloadClient()
+    console.log('[RESET PASSWORD] กำลังเชื่อมต่อกับ Payload CMS...')
+    const payloadClient = await getPayloadClient()
+    console.log('[RESET PASSWORD] เชื่อมต่อกับ Payload CMS สำเร็จ')
 
     try {
       // --- LOG ก่อนเรียก resetPassword ---
       console.log('[RESET PASSWORD] เรียกใช้ payload.resetPassword...')
+      console.log('[RESET PASSWORD] token length:', decodedToken.length)
+
       // เรียกใช้ resetPassword API ของ Payload
-      const result = await payload.resetPassword({
+      const result = await payloadClient.resetPassword({
         collection: 'users',
         data: {
           token: decodedToken,
@@ -140,7 +189,7 @@ export async function POST(req: Request) {
             email: result.user.email,
           },
         },
-        { status: 200 },
+        { status: 200, headers: corsHeaders },
       )
     } catch (resetError: unknown) {
       // --- LOG ERROR ---
@@ -161,7 +210,7 @@ export async function POST(req: Request) {
               expired: true,
               debug: resetError.message, // เพิ่ม debug message สำหรับ dev
             },
-            { status: 400 },
+            { status: 400, headers: corsHeaders },
           )
         }
         // กรณี error อื่น ๆ
@@ -171,7 +220,7 @@ export async function POST(req: Request) {
             error: resetError.message || 'ไม่สามารถรีเซ็ตรหัสผ่านได้ กรุณาลองใหม่อีกครั้ง',
             debug: resetError.stack || '', // เพิ่ม stack trace สำหรับ dev
           },
-          { status: 500 },
+          { status: 500, headers: corsHeaders },
         )
       } else {
         // error ไม่ใช่ object หรือไม่มี message
@@ -180,7 +229,7 @@ export async function POST(req: Request) {
             message: 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ',
             error: String(resetError),
           },
-          { status: 500 },
+          { status: 500, headers: corsHeaders },
         )
       }
     }
@@ -193,7 +242,7 @@ export async function POST(req: Request) {
           error: error.message || 'ไม่สามารถรีเซ็ตรหัสผ่านได้ กรุณาลองใหม่อีกครั้ง',
           debug: error.stack || '',
         },
-        { status: 500 },
+        { status: 500, headers: corsHeaders },
       )
     } else {
       return NextResponse.json(
@@ -201,7 +250,7 @@ export async function POST(req: Request) {
           message: 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ',
           error: String(error),
         },
-        { status: 500 },
+        { status: 500, headers: corsHeaders },
       )
     }
   }
