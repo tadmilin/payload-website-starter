@@ -77,6 +77,14 @@ export async function OPTIONS() {
 }
 
 export async function POST(req: Request) {
+  // --- Log จุดเริ่มต้น ---
+  console.log(`[RESET PASSWORD] Received POST request at ${new Date().toISOString()}`)
+  console.log(`[RESET PASSWORD] Request URL: ${req.url}`)
+  console.log(
+    `[RESET PASSWORD] Request Headers: ${JSON.stringify(Object.fromEntries(req.headers))}`,
+  )
+  // --- สิ้นสุด Log จุดเริ่มต้น ---
+
   console.log('[RESET PASSWORD] เริ่มต้นกระบวนการรีเซ็ตรหัสผ่าน')
 
   // เตรียม response headers สำหรับ CORS
