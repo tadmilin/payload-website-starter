@@ -1,6 +1,6 @@
 import canUseDOM from './canUseDOM'
 
-export const getServerSideURL = () => {
+export const getServerSideURL = (): string => {
   let url = process.env.NEXT_PUBLIC_SERVER_URL
 
   if (!url && process.env.VERCEL_PROJECT_PRODUCTION_URL) {
@@ -8,7 +8,10 @@ export const getServerSideURL = () => {
   }
 
   if (!url) {
-    url = 'http://localhost:3000'
+    console.warn(
+      'getServerSideURL: ไม่พบค่า NEXT_PUBLIC_SERVER_URL หรือ VERCEL_PROJECT_PRODUCTION_URL. โปรดตรวจสอบ environment variables.',
+    )
+    return ''
   }
 
   return url

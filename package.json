@@ -98,7 +98,7 @@
     "@eslint/eslintrc": "^3.2.0",
     "copyfiles": "^2.4.1",
     "cross-env": "^7.0.3",
-    "eslint": "^9.16.0",
+    "eslint": "^9.26.0",
     "eslint-config-next": "15.3.0",
     "patch-package": "^8.0.0",
     "prettier": "^3.4.2"
