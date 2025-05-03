@@ -15,15 +15,20 @@ export default function ResetPasswordClient() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    // ดึง token จาก URL
-    const tokenFromUrl = searchParams.get('token')
-    if (tokenFromUrl) {
-      const decodedToken = decodeURIComponent(tokenFromUrl)
-      setToken(decodedToken)
-      console.log('RESET PASSWORD: token from URL =', tokenFromUrl)
-      console.log('RESET PASSWORD: decoded token =', decodedToken)
-    } else {
-      setError('ไม่พบรหัสสำหรับรีเซ็ตรหัสผ่าน โปรดตรวจสอบลิงก์ในอีเมลของคุณอีกครั้ง')
+    try {
+      // ดึง token จาก URL
+      const tokenFromUrl = searchParams.get('token')
+      if (tokenFromUrl) {
+        const decodedToken = decodeURIComponent(tokenFromUrl)
+        setToken(decodedToken)
+        console.log('RESET PASSWORD: token from URL =', tokenFromUrl)
+        console.log('RESET PASSWORD: decoded token =', decodedToken)
+      } else {
+        setError('ไม่พบรหัสสำหรับรีเซ็ตรหัสผ่าน โปรดตรวจสอบลิงก์ในอีเมลของคุณอีกครั้ง')
+      }
+    } catch (e) {
+      setError('เกิดข้อผิดพลาดในการอ่าน token โปรดลองใหม่หรือติดต่อผู้ดูแลระบบ')
+      console.error('Error decoding token:', e)
     }
   }, [searchParams])
 
