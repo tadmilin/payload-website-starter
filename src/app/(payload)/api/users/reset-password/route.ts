@@ -56,6 +56,10 @@ export async function POST(req: Request) {
     // รับค่า token และ password จากคำขอ
     const { token, password } = await req.json()
 
+    // --- LOG ข้อมูลสำคัญสำหรับ debug ---
+    console.log('[RESET PASSWORD] token:', token)
+    console.log('[RESET PASSWORD] password length:', password.length)
+
     // ตรวจสอบข้อมูลที่จำเป็น
     if (!token) {
       return NextResponse.json({ message: 'กรุณาระบุรหัสสำหรับรีเซ็ตรหัสผ่าน' }, { status: 400 })
@@ -95,6 +99,8 @@ export async function POST(req: Request) {
     const payload = await getPayloadClient()
 
     try {
+      // --- LOG ก่อนเรียก resetPassword ---
+      console.log('[RESET PASSWORD] เรียกใช้ payload.resetPassword...')
       // เรียกใช้ resetPassword API ของ Payload
       const result = await payload.resetPassword({
         collection: 'users',
@@ -104,6 +110,9 @@ export async function POST(req: Request) {
         },
         overrideAccess: true,
       })
+
+      // --- LOG สำเร็จ ---
+      console.log('[RESET PASSWORD] สำเร็จ user:', result.user?.email)
 
       // ตอบกลับว่าสำเร็จ
       return NextResponse.json(
@@ -118,27 +127,32 @@ export async function POST(req: Request) {
         { status: 200 },
       )
     } catch (resetError: any) {
-      console.error('เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน (Payload API):', resetError)
-
-      // ตรวจสอบข้อผิดพลาดเฉพาะ
+      // --- LOG ERROR ---
+      console.error('[RESET PASSWORD] ERROR (Payload API):', resetError)
+      const msg = resetError.message?.toLowerCase() || ''
       if (
-        resetError.message?.includes('expired') ||
-        resetError.message?.includes('invalid token') ||
-        resetError.message?.includes('not found')
+        msg.includes('expired') ||
+        msg.includes('invalid token') ||
+        msg.includes('not found') ||
+        msg.includes('jwt') ||
+        msg.includes('signature') ||
+        msg.includes('malformed')
       ) {
         return NextResponse.json(
           {
             message: 'รหัสสำหรับรีเซ็ตรหัสผ่านไม่ถูกต้องหรือหมดอายุแล้ว กรุณาขอรหัสใหม่อีกครั้ง',
             expired: true,
+            debug: resetError.message, // เพิ่ม debug message สำหรับ dev
           },
           { status: 400 },
         )
       }
-
+      // กรณี error อื่น ๆ
       return NextResponse.json(
         {
           message: 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน',
           error: resetError.message || 'ไม่สามารถรีเซ็ตรหัสผ่านได้ กรุณาลองใหม่อีกครั้ง',
+          debug: resetError.stack || '', // เพิ่ม stack trace สำหรับ dev
         },
         { status: 500 },
       )
