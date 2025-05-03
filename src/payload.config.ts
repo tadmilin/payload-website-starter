@@ -72,8 +72,7 @@ export default buildConfig({
       // Feel free to delete this at any time. Simply remove the line below and the import `BeforeDashboard` statement on line 15.
       beforeDashboard: ['@/components/BeforeDashboard'],
     },
-    // กำหนด path ไปยัง admin overrides เพื่อแก้ไขปัญหา hydration
-    path: path.resolve(dirname, './app/(payload)/admin/overrides.tsx'),
+    // path: path.resolve(dirname, './app/(payload)/admin/overrides.tsx'), // ลบออก เพราะไม่รองรับ
     importMap: {
       baseDir: path.resolve(dirname),
     },
