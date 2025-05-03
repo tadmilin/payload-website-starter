@@ -1,2 +1,5 @@
 // ไฟล์ shim สำหรับ cloudflare:sockets
-export default {}
+
+console.log('Throwing UnverifiedEmail error:', verificationError)
+
+console.log('Login error in form:', err, 'error name:', err.name)

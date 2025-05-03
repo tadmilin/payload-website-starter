@@ -1,10 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { debounce } from 'lodash'
 
 // สร้าง schema สำหรับตรวจสอบข้อมูล
 const schema = z.object({
@@ -28,6 +29,9 @@ export const RegisterForm: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [isCheckingEmail, setIsCheckingEmail] = useState(false)
+  const [emailExists, setEmailExists] = useState(false)
+  const [emailVerified, setEmailVerified] = useState<boolean | null>(null)
   const router = useRouter()
 
   const {
@@ -36,10 +40,53 @@ export const RegisterForm: React.FC = () => {
     formState: { errors },
     reset,
     watch,
+    getValues,
   } = useForm<FormValues>()
 
-  // ใช้ watch เพื่อดูค่าของ password
+  // ใช้ watch เพื่อดูค่าของ password และ email
   const password = watch('password')
+  const email = watch('email')
+
+  // ใช้ debounce เพื่อไม่ให้มีการเรียก API บ่อยเกินไป
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const checkEmailExists = React.useCallback(
+    debounce(async (email: string) => {
+      if (!email || !email.includes('@') || errors.email) return
+
+      try {
+        setIsCheckingEmail(true)
+
+        const response = await fetch('/api/users/check-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email }),
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          setEmailExists(data.exists)
+          setEmailVerified(data.verified)
+        }
+      } catch (error) {
+        console.error('ข้อผิดพลาดในการตรวจสอบอีเมล:', error)
+      } finally {
+        setIsCheckingEmail(false)
+      }
+    }, 500),
+    [],
+  )
+
+  // เรียกใช้ฟังก์ชัน checkEmailExists เมื่อค่า email เปลี่ยนแปลง
+  useEffect(() => {
+    if (email && email.includes('@')) {
+      checkEmailExists(email)
+    } else {
+      setEmailExists(false)
+      setEmailVerified(null)
+    }
+  }, [email, checkEmailExists])
 
   const validatePassword = (value: string) => {
     // ตรวจสอบความซับซ้อนของรหัสผ่าน
@@ -137,10 +184,36 @@ export const RegisterForm: React.FC = () => {
 
         // ดูว่ามีข้อความ error หรือไม่
         if (responseData && responseData.message) {
-          setError(responseData.message)
+          // ตรวจสอบข้อความเฉพาะสำหรับอีเมลซ้ำ
+          if (
+            responseData.message.includes('duplicate key') ||
+            responseData.message.includes('email already exists') ||
+            responseData.errors?.email?.message?.includes('duplicate')
+          ) {
+            setError('อีเมลนี้ถูกใช้งานแล้ว กรุณาใช้อีเมลอื่นหรือเข้าสู่ระบบหากเป็นบัญชีของคุณ')
+          } else if (
+            responseData.message.includes('not verified') ||
+            responseData.message.includes('verification')
+          ) {
+            setError(
+              'บัญชีนี้ยังไม่ได้ยืนยันอีเมล กรุณาตรวจสอบกล่องจดหมายของคุณเพื่อยืนยันบัญชี หรือลองสมัครใหม่',
+            )
+          } else {
+            setError(responseData.message)
+          }
           return
         } else if (responseData && responseData.error) {
-          setError(responseData.error)
+          if (
+            responseData.error.includes('duplicate') ||
+            responseData.error.includes('already exists')
+          ) {
+            setError('อีเมลนี้ถูกใช้งานแล้ว กรุณาใช้อีเมลอื่นหรือเข้าสู่ระบบหากเป็นบัญชีของคุณ')
+          } else {
+            setError(responseData.error)
+          }
+          return
+        } else if (response.status === 400) {
+          setError('ข้อมูลไม่ถูกต้อง อาจเป็นเพราะอีเมลซ้ำในระบบหรือข้อมูลไม่ครบถ้วน')
           return
         } else {
           setError(`เกิดข้อผิดพลาด: ${response.status} ${response.statusText}`)
@@ -178,9 +251,18 @@ export const RegisterForm: React.FC = () => {
       if (
         err.message.includes('email already exists') ||
         err.message.includes('อีเมลนี้ถูกใช้งาน') ||
-        err.message.includes('EMAIL_ALREADY_EXISTS')
+        err.message.includes('EMAIL_ALREADY_EXISTS') ||
+        err.message.includes('duplicate key')
       ) {
-        setError('อีเมลนี้ถูกใช้งานแล้ว กรุณาใช้อีเมลอื่น')
+        setError('อีเมลนี้ถูกใช้งานแล้ว กรุณาใช้อีเมลอื่นหรือเข้าสู่ระบบหากเป็นบัญชีของคุณ')
+      } else if (
+        err.message.includes('not verified') ||
+        err.message.includes('verification') ||
+        err.message.includes('EMAIL_NOT_VERIFIED')
+      ) {
+        setError(
+          'บัญชีนี้ยังไม่ได้ยืนยันอีเมล กรุณาตรวจสอบกล่องจดหมายของคุณเพื่อยืนยันบัญชี หรือลองสมัครใหม่',
+        )
       } else if (
         err.message.includes('INVALID_PASSWORD') ||
         err.message.includes('รหัสผ่านไม่ถูกต้อง')
@@ -263,21 +345,70 @@ export const RegisterForm: React.FC = () => {
         <label htmlFor="email" className="block text-sm font-medium text-white/90">
           อีเมล
         </label>
-        <input
-          id="email"
-          type="email"
-          {...register('email', {
-            required: 'จำเป็นต้องระบุอีเมล',
-            pattern: {
-              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-              message: 'รูปแบบอีเมลไม่ถูกต้อง',
-            },
-          })}
-          className="w-full px-4 py-3 bg-[#162431] border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-white"
-          placeholder="your.email@example.com"
-          suppressHydrationWarning={true}
-        />
+        <div className="relative">
+          <input
+            id="email"
+            type="email"
+            {...register('email', {
+              required: 'จำเป็นต้องระบุอีเมล',
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: 'รูปแบบอีเมลไม่ถูกต้อง',
+              },
+            })}
+            className={`w-full px-4 py-3 bg-[#162431] border ${
+              emailExists ? 'border-yellow-600' : 'border-gray-700'
+            } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-white`}
+            placeholder="your.email@example.com"
+            suppressHydrationWarning={true}
+          />
+          {isCheckingEmail && (
+            <div className="absolute right-3 top-3.5">
+              <svg
+                className="animate-spin h-5 w-5 text-blue-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+            </div>
+          )}
+        </div>
         {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
+        {emailExists && !isCheckingEmail && (
+          <div className={`text-xs mt-1 ${emailVerified ? 'text-yellow-400' : 'text-red-400'}`}>
+            {emailVerified
+              ? 'อีเมลนี้มีในระบบแล้ว คุณสามารถ'
+              : 'อีเมลนี้ลงทะเบียนแล้วแต่ยังไม่ได้ยืนยัน คุณสามารถ'}
+            <Link href="/login" className="font-medium underline ml-1">
+              เข้าสู่ระบบ
+            </Link>
+            {!emailVerified && (
+              <>
+                {' หรือ '}
+                <Link
+                  href={`/verify-email?email=${encodeURIComponent(getValues('email'))}`}
+                  className="font-medium underline"
+                >
+                  ขอส่งอีเมลยืนยันใหม่
+                </Link>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="space-y-2">

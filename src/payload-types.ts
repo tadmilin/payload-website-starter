@@ -138,6 +138,8 @@ export interface User {
   firstName: string;
   lastName: string;
   roles?: ('admin' | 'user')[] | null;
+  phoneNumber?: string | null;
+  profileImage?: (number | null) | Media;
   password?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -146,6 +148,8 @@ export interface User {
   resetPasswordExpiration?: string | null;
   salt?: string | null;
   hash?: string | null;
+  _verified?: boolean | null;
+  _verificationToken?: string | null;
   loginAttempts?: number | null;
   lockUntil?: string | null;
 }
@@ -519,6 +523,8 @@ export interface UsersSelect<T extends boolean = true> {
   firstName?: T;
   lastName?: T;
   roles?: T;
+  phoneNumber?: T;
+  profileImage?: T;
   password?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -527,6 +533,8 @@ export interface UsersSelect<T extends boolean = true> {
   resetPasswordExpiration?: T;
   salt?: T;
   hash?: T;
+  _verified?: T;
+  _verificationToken?: T;
   loginAttempts?: T;
   lockUntil?: T;
 }

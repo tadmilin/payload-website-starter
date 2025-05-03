@@ -7,6 +7,8 @@ import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
 import dotenv from 'dotenv'
+import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
+import nodemailer from 'nodemailer'
 
 // Load .env file
 // dotenv.config({ path: path.resolve(process.cwd(), 'src/.env') })
@@ -48,6 +50,18 @@ const dbAdapter = vercelPostgresAdapter({
 
 console.log('[payload.config] Using Vercel Postgres Adapter')
 
+// สร้าง email transport
+// ใช้การตั้งค่าเฉพาะสำหรับทดสอบ หรือแก้ไขเป็นการตั้งค่าจริงสำหรับ production
+const emailTransport = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+  port: parseInt(process.env.SMTP_PORT || '587', 10),
+  auth: {
+    user: process.env.SMTP_USER || 'your.email@gmail.com',
+    pass: process.env.SMTP_PASS || 'your-app-password',
+  },
+  secure: process.env.SMTP_SECURE === 'true',
+})
+
 export default buildConfig({
   admin: {
     components: {
@@ -58,6 +72,8 @@ export default buildConfig({
       // Feel free to delete this at any time. Simply remove the line below and the import `BeforeDashboard` statement on line 15.
       beforeDashboard: ['@/components/BeforeDashboard'],
     },
+    // กำหนด path ไปยัง admin overrides เพื่อแก้ไขปัญหา hydration
+    path: path.resolve(dirname, './app/(payload)/admin/overrides.tsx'),
     importMap: {
       baseDir: path.resolve(dirname),
     },
@@ -85,6 +101,20 @@ export default buildConfig({
       ],
     },
   },
+  // ตั้งค่าการส่งอีเมล (ใช้ nodemailerAdapter)
+  email: nodemailerAdapter({
+    transportOptions: {
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: parseInt(process.env.SMTP_PORT || '587', 10),
+      auth: {
+        user: process.env.SMTP_USER || 'your.email@gmail.com',
+        pass: process.env.SMTP_PASS || 'your-app-password',
+      },
+      secure: process.env.SMTP_SECURE === 'true',
+    },
+    fromName: 'SOLARLAA',
+    fromAddress: process.env.EMAIL_FROM || 'noreply@solarlaa.com',
+  }),
   // This config helps us configure global or default features that the other editors can inherit
   editor: defaultLexical,
   db: dbAdapter,

@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import { I18nextProvider } from 'react-i18next'
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
+import { AuthProvider } from '@/providers/AuthProvider'
 
 // ใช้ dynamic import เพื่อแก้ปัญหา hydration error
 const LanguageDetectorComponent = dynamic(
@@ -86,14 +87,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
   // ป้องกัน hydration mismatch โดยการรอให้โค้ดทำงานบน client เท่านั้น
   return (
     <I18nextProvider i18n={i18n}>
-      {/* ทำงานเฉพาะใน client side */}
-      {typeof window !== 'undefined' && (
-        <>
-          <DefaultLanguageSetterComponent />
-          <LanguageDetectorComponent />
-        </>
-      )}
-      {children}
+      <AuthProvider>
+        {/* ทำงานเฉพาะใน client side */}
+        {typeof window !== 'undefined' && (
+          <>
+            <DefaultLanguageSetterComponent />
+            <LanguageDetectorComponent />
+          </>
+        )}
+        {children}
+      </AuthProvider>
     </I18nextProvider>
   )
 }
@@ -107,7 +110,7 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <>
+    <AuthProvider>
       {mounted && (
         <>
           <DefaultLanguageSetterComponent />
@@ -115,6 +118,6 @@ export function ClientProviders({ children }: { children: React.ReactNode }) {
         </>
       )}
       {children}
-    </>
+    </AuthProvider>
   )
 }
