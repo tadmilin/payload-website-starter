@@ -32,14 +32,6 @@ const nextConfig = {
   reactStrictMode: true,
   redirects,
   transpilePackages: ['react-i18next', 'i18next', 'pg-cloudflare'],
-  async rewrites() {
-    return [
-      {
-        source: '/api/users/reset-password',
-        destination: '/payload/api/users/reset-password',
-      },
-    ]
-  },
   webpack: (config, { webpack }) => {
     // แก้ไขปัญหา cloudflare:sockets
     config.plugins.push(
