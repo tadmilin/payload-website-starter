@@ -36,7 +36,7 @@ const nextConfig = {
     return [
       {
         source: '/api/users/reset-password',
-        destination: '/(payload)/api/users/reset-password',
+        destination: '/payload/api/users/reset-password',
       },
     ]
   },

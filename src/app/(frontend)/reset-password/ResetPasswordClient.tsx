@@ -80,7 +80,7 @@ export default function ResetPasswordClient() {
 
       // ใช้ URL แบบเต็มโดยใช้ค่าจาก env หรือ host ปัจจุบัน
       const baseURL = process.env.NEXT_PUBLIC_SERVER_URL || window.location.origin
-      const resetPasswordURL = `${baseURL}/api/users/reset-password`
+      const resetPasswordURL = `${baseURL}/payload/api/users/reset-password`
 
       console.log('API URL:', resetPasswordURL)
       console.log('Token length:', token.length)
