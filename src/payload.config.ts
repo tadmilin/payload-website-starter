@@ -102,6 +102,8 @@ export default buildConfig({
   },
   // ตั้งค่าการส่งอีเมล (ใช้ nodemailerAdapter)
   email: nodemailerAdapter({
+    defaultFromAddress: process.env.EMAIL_FROM || 'noreply@solarlaa.com',
+    defaultFromName: 'SOLARLAA',
     transportOptions: {
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
       port: parseInt(process.env.SMTP_PORT || '587', 10),
@@ -111,8 +113,6 @@ export default buildConfig({
       },
       secure: process.env.SMTP_SECURE === 'true',
     },
-    fromName: 'SOLARLAA',
-    fromAddress: process.env.EMAIL_FROM || 'noreply@solarlaa.com',
   }),
   // This config helps us configure global or default features that the other editors can inherit
   editor: defaultLexical,
