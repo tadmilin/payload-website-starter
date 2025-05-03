@@ -19,30 +19,42 @@ if (!cached) {
 
 // ฟังก์ชันเพื่อให้มั่นใจว่าเรามี payload instance ที่พร้อมใช้งาน
 async function getPayloadClient() {
-  // ถ้ามี client ที่พร้อมใช้งานแล้ว ให้ใช้ตัวที่มีอยู่
+  // --- Log การเรียก getPayloadClient ---
+  console.log(`[RESET PASSWORD - getPayloadClient] Function called at ${new Date().toISOString()}`)
+  // -----------------------------------
+
   if (cached.client) {
+    // --- Log การคืนค่า client ที่ cached ไว้ ---
+    console.log('[RESET PASSWORD - getPayloadClient] Returning cached client')
+    // ---------------------------------------
     return cached.client
   }
 
-  // ถ้ายังไม่มี promise ในการเริ่มต้น Payload
   if (!cached.promise) {
+    // --- Log การสร้าง promise ใหม่ ---
+    console.log('[RESET PASSWORD - getPayloadClient] Creating new payload promise')
+    // -------------------------------
     cached.promise = (async () => {
       try {
-        // ตรวจสอบว่า payload เริ่มต้นแล้วหรือยัง
         if (!payload.db) {
-          console.log('Payload ยังไม่ได้เริ่มต้น กำลังเริ่มต้น Payload...')
-          // เริ่มต้น Payload ผ่านฟังก์ชัน initPayload
+          console.log(
+            '[RESET PASSWORD - getPayloadClient] Payload DB not found, calling initPayload...',
+          )
           try {
             await initPayload()
+            console.log('[RESET PASSWORD - getPayloadClient] initPayload completed successfully')
           } catch (initError) {
-            console.error('เกิดข้อผิดพลาดในการเริ่มต้น Payload:', initError)
+            console.error(
+              '[RESET PASSWORD - getPayloadClient] Error during initPayload:',
+              initError,
+            )
             throw initError
           }
         }
-
+        console.log('[RESET PASSWORD - getPayloadClient] Returning payload from promise')
         return payload
       } catch (e) {
-        console.error('เกิดข้อผิดพลาดในการเตรียม Payload:', e)
+        console.error('[RESET PASSWORD - getPayloadClient] Error creating payload promise:', e)
         cached.promise = null
         throw e
       }
@@ -50,8 +62,11 @@ async function getPayloadClient() {
   }
 
   try {
+    console.log('[RESET PASSWORD - getPayloadClient] Awaiting payload promise...')
     cached.client = await cached.promise
+    console.log('[RESET PASSWORD - getPayloadClient] Payload promise resolved, client is ready.')
   } catch (e) {
+    console.error('[RESET PASSWORD - getPayloadClient] Error resolving payload promise:', e)
     cached.promise = null
     throw e
   }
