@@ -73,8 +73,11 @@ export async function POST(req: Request) {
     console.log('[RESET PASSWORD] token:', token)
     console.log('[RESET PASSWORD] password length:', password.length)
 
+    // decode token อีกครั้งเพื่อความปลอดภัย (รองรับกรณี encode ซ้ำ)
+    const decodedToken = decodeURIComponent(token)
+
     // ตรวจสอบข้อมูลที่จำเป็น
-    if (!token) {
+    if (!decodedToken) {
       return NextResponse.json({ message: 'กรุณาระบุรหัสสำหรับรีเซ็ตรหัสผ่าน' }, { status: 400 })
     }
 
@@ -118,7 +121,7 @@ export async function POST(req: Request) {
       const result = await payload.resetPassword({
         collection: 'users',
         data: {
-          token,
+          token: decodedToken,
           password,
         },
         overrideAccess: true,
