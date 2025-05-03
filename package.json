@@ -5,7 +5,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "prebuild": "npm rebuild && SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install --platform=linux --arch=x64 sharp",
+    "prebuild": "npm rebuild && cross-env SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install --platform=linux --arch=x64 sharp",
     "build": "next build",
     "postbuild": "next-sitemap --config next-sitemap.config.cjs",
     "ci": "npm run build",
