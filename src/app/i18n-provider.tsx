@@ -6,7 +6,7 @@ import { locales, defaultLocale } from '@/i18n'
 
 // สร้าง type สำหรับ context
 type TranslationType = {
-  t: (key: string, options?: any) => string
+  t: (key: string, options?: Record<string, unknown>) => string
   locale: string
   changeLocale: (locale: string) => void
 }
@@ -15,7 +15,7 @@ type TranslationType = {
 const initialTranslation: TranslationType = {
   t: (key) => key,
   locale: defaultLocale,
-  changeLocale: () => {}
+  changeLocale: () => {},
 }
 
 // สร้าง Context
@@ -37,7 +37,7 @@ const translations: Record<string, Record<string, string>> = {
     total_electricity: 'พลังงานไฟฟ้าทั้งหมด',
     total_consumption: 'การใช้พลังงานทั้งหมด',
     total_projects: 'โครงการทั้งหมด',
-    total_capacity: 'กำลังการผลิตทั้งหมด'
+    total_capacity: 'กำลังการผลิตทั้งหมด',
   },
   en: {
     home: 'Home',
@@ -53,17 +53,20 @@ const translations: Record<string, Record<string, string>> = {
     total_electricity: 'Total Electricity',
     total_consumption: 'Total Consumption',
     total_projects: 'Total Projects',
-    total_capacity: 'Total Capacity'
-  }
+    total_capacity: 'Total Capacity',
+  },
 }
 
 export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [locale, setLocale] = useState(defaultLocale)
 
   // ฟังก์ชันแปลข้อความ
-  const t = useCallback((key: string, options?: any) => {
-    return translations[locale]?.[key] || key
-  }, [locale])
+  const t = useCallback(
+    (key: string, options?: Record<string, unknown>) => {
+      return translations[locale]?.[key] || key
+    },
+    [locale],
+  )
 
   // เปลี่ยนภาษา
   const changeLocale = useCallback((newLocale: string) => {
@@ -75,15 +78,11 @@ export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const value = {
     t,
     locale,
-    changeLocale
+    changeLocale,
   }
 
-  return (
-    <TranslationContext.Provider value={value}>
-      {children}
-    </TranslationContext.Provider>
-  )
+  return <TranslationContext.Provider value={value}>{children}</TranslationContext.Provider>
 }
 
 // Hook สำหรับใช้งาน context
-export const useTranslation = () => useContext(TranslationContext) 
+export const useTranslation = () => useContext(TranslationContext)
