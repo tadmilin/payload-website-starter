@@ -1,12 +1,20 @@
 import { NextResponse } from 'next/server'
 import payload from 'payload'
 import { initPayload } from '@/lib/payload'
+import type { BasePayload } from 'payload'
+
+// ขยาย type ให้ global object เพื่อรองรับ payload
+
+declare global {
+  // eslint-disable-next-line no-var
+  var payload: { client: BasePayload | null; promise: Promise<BasePayload> | null } | undefined
+}
 
 // เตรียม Payload client สำหรับใช้งาน
-let cached = (global as any).payload
+let cached = global.payload
 
 if (!cached) {
-  cached = (global as any).payload = { client: null, promise: null }
+  cached = global.payload = { client: null, promise: null }
 }
 
 // ฟังก์ชันเพื่อให้มั่นใจว่าเรามี payload instance ที่พร้อมใช้งาน
@@ -49,6 +57,11 @@ async function getPayloadClient() {
   }
 
   return cached.client
+}
+
+// ฟังก์ชัน type guard สำหรับ error ที่มี message
+function isErrorWithMessage(error: unknown): error is { message: string; stack?: string } {
+  return typeof error === 'object' && error !== null && 'message' in error
 }
 
 export async function POST(req: Request) {
@@ -126,46 +139,67 @@ export async function POST(req: Request) {
         },
         { status: 200 },
       )
-    } catch (resetError: any) {
+    } catch (resetError: unknown) {
       // --- LOG ERROR ---
       console.error('[RESET PASSWORD] ERROR (Payload API):', resetError)
-      const msg = resetError.message?.toLowerCase() || ''
-      if (
-        msg.includes('expired') ||
-        msg.includes('invalid token') ||
-        msg.includes('not found') ||
-        msg.includes('jwt') ||
-        msg.includes('signature') ||
-        msg.includes('malformed')
-      ) {
+      if (isErrorWithMessage(resetError)) {
+        const msg = resetError.message?.toLowerCase() || ''
+        if (
+          msg.includes('expired') ||
+          msg.includes('invalid token') ||
+          msg.includes('not found') ||
+          msg.includes('jwt') ||
+          msg.includes('signature') ||
+          msg.includes('malformed')
+        ) {
+          return NextResponse.json(
+            {
+              message: 'รหัสสำหรับรีเซ็ตรหัสผ่านไม่ถูกต้องหรือหมดอายุแล้ว กรุณาขอรหัสใหม่อีกครั้ง',
+              expired: true,
+              debug: resetError.message, // เพิ่ม debug message สำหรับ dev
+            },
+            { status: 400 },
+          )
+        }
+        // กรณี error อื่น ๆ
         return NextResponse.json(
           {
-            message: 'รหัสสำหรับรีเซ็ตรหัสผ่านไม่ถูกต้องหรือหมดอายุแล้ว กรุณาขอรหัสใหม่อีกครั้ง',
-            expired: true,
-            debug: resetError.message, // เพิ่ม debug message สำหรับ dev
+            message: 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน',
+            error: resetError.message || 'ไม่สามารถรีเซ็ตรหัสผ่านได้ กรุณาลองใหม่อีกครั้ง',
+            debug: resetError.stack || '', // เพิ่ม stack trace สำหรับ dev
           },
-          { status: 400 },
+          { status: 500 },
+        )
+      } else {
+        // error ไม่ใช่ object หรือไม่มี message
+        return NextResponse.json(
+          {
+            message: 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ',
+            error: String(resetError),
+          },
+          { status: 500 },
         )
       }
-      // กรณี error อื่น ๆ
+    }
+  } catch (error: unknown) {
+    console.error('เกิดข้อผิดพลาดในการประมวลผลคำขอรีเซ็ตรหัสผ่าน:', error)
+    if (isErrorWithMessage(error)) {
       return NextResponse.json(
         {
           message: 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน',
-          error: resetError.message || 'ไม่สามารถรีเซ็ตรหัสผ่านได้ กรุณาลองใหม่อีกครั้ง',
-          debug: resetError.stack || '', // เพิ่ม stack trace สำหรับ dev
+          error: error.message || 'ไม่สามารถรีเซ็ตรหัสผ่านได้ กรุณาลองใหม่อีกครั้ง',
+          debug: error.stack || '',
+        },
+        { status: 500 },
+      )
+    } else {
+      return NextResponse.json(
+        {
+          message: 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ',
+          error: String(error),
         },
         { status: 500 },
       )
     }
-  } catch (error: any) {
-    console.error('เกิดข้อผิดพลาดในการประมวลผลคำขอรีเซ็ตรหัสผ่าน:', error)
-
-    return NextResponse.json(
-      {
-        message: 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน',
-        error: error.message || 'ไม่สามารถรีเซ็ตรหัสผ่านได้ กรุณาลองใหม่อีกครั้ง',
-      },
-      { status: 500 },
-    )
   }
 }
