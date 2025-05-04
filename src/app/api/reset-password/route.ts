@@ -44,8 +44,12 @@ export async function POST(req: NextRequest) {
     console.log('[PROXY RESET-PASSWORD] Request payload created')
 
     try {
-      // ใช้เส้นทางสัมพัทธ์เพื่อความเรียบง่าย
-      const response = await fetch('/api/payload/users/reset-password', {
+      // ใช้ absolute URL เพื่อให้แน่ใจว่าทำงานได้ทั้งใน dev และ production
+      const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+      const payloadApiUrl = `${baseUrl}/api/payload/users/reset-password`
+      console.log('[PROXY RESET-PASSWORD] Using Payload API URL:', payloadApiUrl)
+
+      const response = await fetch(payloadApiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
