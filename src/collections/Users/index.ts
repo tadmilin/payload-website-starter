@@ -32,13 +32,21 @@ export const Users: CollectionConfig = {
     },
     forgotPassword: {
       generateEmailHTML: ({ req, token, user }) => {
-        let baseURL = getServerSideURL()
+        let baseURL = null
 
-        if (req && req.headers && typeof req.headers.get === 'function') {
-          const origin = req.headers.get('Origin')
-          if (origin) {
-            baseURL = origin
+        if (req && req.headers) {
+          if (typeof req.headers.get === 'function') {
+            baseURL = req.headers.get('Origin') || req.headers.get('origin')
+          } else if (req.headers.origin) {
+            baseURL = req.headers.origin
+          } else if (req.headers.host) {
+            const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
+            baseURL = `${protocol}://${req.headers.host}`
           }
+        }
+
+        if (!baseURL) {
+          baseURL = getServerSideURL()
         }
 
         if (!baseURL) {
@@ -46,18 +54,28 @@ export const Users: CollectionConfig = {
         }
 
         if (!baseURL) {
-          baseURL = 'https://payload-solarlaa-website-bn41g7wrt-tadmilins-projects.vercel.app'
+          baseURL = 'https://payload-solarlaa-website-77skhubqn-tadmilins-projects.vercel.app'
         }
 
         const resetPasswordURL = `${baseURL}/reset-password?token=${token}`
 
         console.log(
-          `[FORGOT PASSWORD] Request Origin = ${req?.headers ? 'headers exist' : 'no headers'}`,
+          `[FORGOT PASSWORD] Request Headers ที่ได้รับ:`,
+          req && req.headers ? 'มี headers' : 'ไม่มี headers',
         )
+        if (req && req.headers) {
+          console.log(
+            `[FORGOT PASSWORD] Request host:`,
+            typeof req.headers.get === 'function' ? req.headers.get('host') : req.headers.host,
+          )
+          console.log(
+            `[FORGOT PASSWORD] Request origin:`,
+            typeof req.headers.get === 'function' ? req.headers.get('Origin') : req.headers.origin,
+          )
+        }
         console.log(`[FORGOT PASSWORD] baseURL ที่ใช้ในการสร้าง URL = ${baseURL}`)
         console.log(`[FORGOT PASSWORD] resetPasswordURL ที่ถูกสร้าง = ${resetPasswordURL}`)
         console.log(`[FORGOT PASSWORD] token length = ${token.length}`)
-        console.log(`[FORGOT PASSWORD] โปรดตรวจสอบว่า baseURL ถูกต้องเป็น URL ปัจจุบันของเว็บไซต์`)
 
         return `
           <html>
