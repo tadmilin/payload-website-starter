@@ -31,11 +31,24 @@ export const Users: CollectionConfig = {
     },
     forgotPassword: {
       generateEmailHTML: ({ req, token, user }) => {
-        const baseURL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
+        let baseURL = process.env.NEXT_PUBLIC_SERVER_URL
+
+        if (!baseURL && req) {
+          const protocol = req.headers.referer?.startsWith('https') ? 'https' : 'http'
+          baseURL = `${protocol}://${req.headers.host}`
+        }
+
+        if (!baseURL) {
+          baseURL = 'http://localhost:3000'
+        }
+
         const resetPasswordURL = `${baseURL}/reset-password?token=${token}`
 
-        // ล็อกข้อมูลสำคัญเพื่อการ Debug
         console.log(`[FORGOT PASSWORD] baseURL ที่ใช้ในการสร้าง URL = ${baseURL}`)
+        console.log(`[FORGOT PASSWORD] req.headers.host (ถ้ามี) = ${req?.headers?.host || 'ไม่มี'}`)
+        console.log(
+          `[FORGOT PASSWORD] req.headers.referer (ถ้ามี) = ${req?.headers?.referer || 'ไม่มี'}`,
+        )
         console.log(`[FORGOT PASSWORD] resetPasswordURL ที่ถูกสร้าง = ${resetPasswordURL}`)
         console.log(`[FORGOT PASSWORD] token length = ${token.length}`)
         console.log(`[FORGOT PASSWORD] โปรดตรวจสอบว่า baseURL ถูกต้องเป็น URL ปัจจุบันของเว็บไซต์`)
