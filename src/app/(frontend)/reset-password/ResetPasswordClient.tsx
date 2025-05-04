@@ -78,16 +78,12 @@ export default function ResetPasswordClient() {
     try {
       console.log('กำลังส่งคำขอรีเซ็ตรหัสผ่าน...')
 
-      // ใช้ window.location.origin เพื่อให้ตรงกับโดเมนปัจจุบัน - นี่เป็นสิ่งสำคัญมาก
-      const baseURL = window.location.origin
-
-      // ใช้ API endpoint ที่ถูกต้อง
-      const resetPasswordURL = `${baseURL}/api/users/reset-password`
+      // ส่ง API request ไปยังเส้นทางที่ถูกต้อง - ใช้เส้นทางสัมพัทธ์แทนการใช้ window.location.origin
+      const resetPasswordURL = '/api/users/reset-password'
 
       console.log('RESET PASSWORD ข้อมูลสำคัญ:')
       console.log('- API URL:', resetPasswordURL)
       console.log('- Window Location:', window.location.href)
-      console.log('- Window Origin:', window.location.origin)
       console.log('- Token length:', token.length)
       console.log('- Token (10 chars):', token.substring(0, 10) + '...')
 
@@ -101,15 +97,11 @@ export default function ResetPasswordClient() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-            Accept: 'application/json',
-            Origin: window.location.origin,
           },
           body: JSON.stringify({
             token: token,
             password: newPassword,
           }),
-          credentials: 'same-origin',
           cache: 'no-store',
           signal: controller.signal,
         })
@@ -264,18 +256,22 @@ export default function ResetPasswordClient() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#0078ff] hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-md transition-colors flex items-center justify-center disabled:opacity-70"
+              className={`w-full rounded-md py-3 px-4 text-white font-medium transition duration-300 ${
+                loading
+                  ? 'bg-blue-600/50 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-[#0a1925]'
+              }`}
             >
-              {loading ? 'กำลังรีเซ็ตรหัสผ่าน...' : 'รีเซ็ตรหัสผ่าน'}
+              {loading ? 'กำลังดำเนินการ...' : 'รีเซ็ตรหัสผ่าน'}
             </button>
+
+            <div className="text-center mt-6">
+              <Link href="/login" className="text-sm text-blue-400 hover:text-blue-300">
+                กลับไปยังหน้าเข้าสู่ระบบ
+              </Link>
+            </div>
           </form>
         )}
-
-        <div className="mt-6 text-center">
-          <Link href="/login" className="text-blue-400 hover:text-blue-300 text-sm font-medium">
-            กลับไปยังหน้าเข้าสู่ระบบ
-          </Link>
-        </div>
       </div>
     </div>
   )

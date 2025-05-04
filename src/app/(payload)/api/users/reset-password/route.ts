@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server'
 import payload from 'payload'
 import { initPayload } from '@/lib/payload'
-import { corsHeaders, corsMiddleware } from '@/lib/cors'
+import { corsHeaders } from '@/lib/cors'
 import type { BasePayload } from 'payload'
 import type { NextRequest } from 'next/server'
 
 // ขยาย type ให้ global object เพื่อรองรับ payload
-
 declare global {
   // eslint-disable-next-line no-var
   var payload: { client: BasePayload | null; promise: Promise<BasePayload> | null } | undefined
@@ -21,24 +20,18 @@ if (!cached) {
 
 // ฟังก์ชันเพื่อให้มั่นใจว่าเรามี payload instance ที่พร้อมใช้งาน
 async function getPayloadClient() {
-  // --- Log การเรียก getPayloadClient ---
   console.log(`[RESET PASSWORD - getPayloadClient] Function called at ${new Date().toISOString()}`)
-  // -----------------------------------
 
-  if (cached.client) {
-    // --- Log การคืนค่า client ที่ cached ไว้ ---
+  if (cached?.client) {
     console.log('[RESET PASSWORD - getPayloadClient] Returning cached client')
-    // ---------------------------------------
     return cached.client
   }
 
-  if (!cached.promise) {
-    // --- Log การสร้าง promise ใหม่ ---
+  if (!cached?.promise) {
     console.log('[RESET PASSWORD - getPayloadClient] Creating new payload promise')
-    // -------------------------------
     cached.promise = (async () => {
       try {
-        if (!payload.db) {
+        if (!payload?.db) {
           console.log(
             '[RESET PASSWORD - getPayloadClient] Payload DB not found, calling initPayload...',
           )
@@ -87,11 +80,7 @@ function createCorsResponse(body: any, status: number = 200) {
     status,
     headers: {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers':
-        'Content-Type, Authorization, X-Requested-With, Accept, Origin',
-      'Access-Control-Max-Age': '86400',
+      ...corsHeaders,
     },
   })
 }
@@ -130,11 +119,18 @@ export async function POST(req: NextRequest) {
   console.log('[RESET PASSWORD] เริ่มต้นกระบวนการรีเซ็ตรหัสผ่าน')
 
   try {
-    // รับค่า token และ password จากคำขอ
-    const body = await req.json().catch((e) => {
+    // รับค่า token และ password จาก request body
+    let body
+    try {
+      body = await req.json()
+      console.log('[RESET PASSWORD] อ่านข้อมูล JSON สำเร็จ')
+    } catch (e) {
       console.error('[RESET PASSWORD] ไม่สามารถอ่านข้อมูล JSON ได้:', e)
-      return {}
-    })
+      return createCorsResponse(
+        { message: 'รูปแบบข้อมูลไม่ถูกต้อง กรุณาส่งข้อมูลในรูปแบบ JSON' },
+        400,
+      )
+    }
 
     const { token, password } = body
 
@@ -173,8 +169,17 @@ export async function POST(req: NextRequest) {
 
     // เชื่อมต่อกับ Payload CMS
     console.log('[RESET PASSWORD] กำลังเชื่อมต่อกับ Payload CMS...')
-    const payloadClient = await getPayloadClient()
-    console.log('[RESET PASSWORD] เชื่อมต่อกับ Payload CMS สำเร็จ')
+    let payloadClient
+    try {
+      payloadClient = await getPayloadClient()
+      console.log('[RESET PASSWORD] เชื่อมต่อกับ Payload CMS สำเร็จ')
+    } catch (error) {
+      console.error('[RESET PASSWORD] ไม่สามารถเชื่อมต่อกับ Payload CMS ได้:', error)
+      return createCorsResponse(
+        { message: 'เกิดข้อผิดพลาดในการเชื่อมต่อกับระบบ กรุณาลองใหม่อีกครั้ง' },
+        500,
+      )
+    }
 
     try {
       // --- LOG ก่อนเรียก resetPassword ---
@@ -248,34 +253,28 @@ export async function POST(req: NextRequest) {
       let errorMessage = 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน'
       let status = 500
 
-      // จัดการกับข้อผิดพลาดเฉพาะ
+      // ตรวจสอบข้อผิดพลาดที่เฉพาะเจาะจงมากขึ้น
       if (isErrorWithMessage(resetError)) {
-        console.error('[RESET PASSWORD] Error message:', resetError.message)
-        console.error('[RESET PASSWORD] Error stack:', resetError.stack || 'No stack trace')
-
+        // กรณีพบข้อความว่า token ไม่ถูกต้องหรือหมดอายุ
         if (
-          resetError.message.includes('Invalid token') ||
-          resetError.message.includes('expired')
+          resetError.message.includes('token') &&
+          (resetError.message.includes('invalid') ||
+            resetError.message.includes('expire') ||
+            resetError.message.includes('not found'))
         ) {
           errorMessage = 'รหัสสำหรับรีเซ็ตรหัสผ่านไม่ถูกต้องหรือหมดอายุแล้ว กรุณาขอรหัสใหม่อีกครั้ง'
           status = 400
         }
       }
 
-      return createCorsResponse({ message: errorMessage }, status)
+      return createCorsResponse({ message: errorMessage, error: true }, status)
     }
   } catch (error) {
-    console.error('[RESET PASSWORD] เกิดข้อผิดพลาดทั่วไป:', error)
+    console.error('[RESET PASSWORD] เกิดข้อผิดพลาดที่ไม่คาดคิด:', error)
 
-    // ไม่ควรเปิดเผยข้อผิดพลาดที่เกิดขึ้นจริง เพื่อความปลอดภัย
+    // ข้อความแสดงข้อผิดพลาดที่เป็นมิตรต่อผู้ใช้
     return createCorsResponse(
-      {
-        message: 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน กรุณาลองใหม่ในภายหลัง',
-        error:
-          typeof error === 'object' && error !== null && 'message' in error
-            ? (error as { message: string }).message
-            : 'ไม่สามารถรีเซ็ตรหัสผ่านได้ในขณะนี้',
-      },
+      { message: 'เกิดข้อผิดพลาดในระบบ กรุณาลองใหม่อีกครั้งหรือติดต่อผู้ดูแลระบบ' },
       500,
     )
   }
