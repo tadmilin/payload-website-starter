@@ -4,7 +4,18 @@ import { authenticated } from '../../access/authenticated'
 import { isAdmin } from '../../access/isAdmin'
 import { getClientSideURL, getServerSideURL } from '../../utilities/getURL'
 
-// เพิ่ม type guard functions เพื่อตรวจสอบประเภทของ headers
+// Type definitions
+interface PlainObjectWithOrigin {
+  origin: string
+  [key: string]: unknown
+}
+
+interface PlainObjectWithHost {
+  host: string
+  [key: string]: unknown
+}
+
+// Type guard function for Headers object (modern API)
 function isHeadersObject(headers: unknown): headers is Headers {
   return (
     typeof headers === 'object' &&
@@ -13,8 +24,22 @@ function isHeadersObject(headers: unknown): headers is Headers {
   )
 }
 
-function isPlainObject(obj: unknown): obj is Record<string, any> {
-  return typeof obj === 'object' && obj !== null && obj.constructor === Object
+function isPlainObjectWithOrigin(headers: unknown): headers is PlainObjectWithOrigin {
+  return (
+    typeof headers === 'object' &&
+    headers !== null &&
+    'origin' in headers &&
+    typeof (headers as PlainObjectWithOrigin).origin === 'string'
+  )
+}
+
+function isPlainObjectWithHost(headers: unknown): headers is PlainObjectWithHost {
+  return (
+    typeof headers === 'object' &&
+    headers !== null &&
+    'host' in headers &&
+    typeof (headers as PlainObjectWithHost).host === 'string'
+  )
 }
 
 export const Users: CollectionConfig = {
@@ -50,18 +75,27 @@ export const Users: CollectionConfig = {
 
         // ลองดึง Origin จาก req.headers (ถ้ามี)
         if (req && req.headers) {
-          // ตรวจสอบว่า headers เป็น Headers object (App Router) หรือเป็น plain object (Pages Router)
-          if (isHeadersObject(req.headers)) {
-            // Headers object (App Router) - ใช้เมธอด get
-            baseURL = req.headers.get('Origin') || req.headers.get('origin')
-          } else if (isPlainObject(req.headers)) {
-            // Plain object (Pages Router)
-            if (typeof req.headers.origin === 'string') {
-              baseURL = req.headers.origin
-            } else if (typeof req.headers.host === 'string') {
-              const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
-              baseURL = `${protocol}://${req.headers.host}`
+          try {
+            // ตรวจสอบว่า headers เป็น Headers object (App Router) หรือเป็น plain object (Pages Router)
+            if (isHeadersObject(req.headers)) {
+              // Headers object (App Router) - ใช้เมธอด get
+              baseURL = req.headers.get('Origin') || req.headers.get('origin')
+            } else {
+              // Plain object (Pages Router) - ใช้ type casting แบบปลอดภัย
+              const headers = req.headers as Record<string, unknown>
+
+              // ตรวจสอบ 'origin' property
+              if (typeof headers.origin === 'string') {
+                baseURL = headers.origin
+              }
+              // ตรวจสอบ 'host' property
+              else if (typeof headers.host === 'string') {
+                const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
+                baseURL = `${protocol}://${headers.host}`
+              }
             }
+          } catch (err) {
+            console.error(`[FORGOT PASSWORD] เกิดข้อผิดพลาดในการประมวลผล headers:`, err)
           }
         }
 
@@ -88,15 +122,27 @@ export const Users: CollectionConfig = {
           `[FORGOT PASSWORD] Request Headers ที่ได้รับ:`,
           req && req.headers ? 'มี headers' : 'ไม่มี headers',
         )
+
         if (req && req.headers) {
-          if (isHeadersObject(req.headers)) {
-            console.log(`[FORGOT PASSWORD] Request host:`, req.headers.get('host'))
-            console.log(`[FORGOT PASSWORD] Request origin:`, req.headers.get('Origin'))
-          } else if (isPlainObject(req.headers)) {
-            console.log(`[FORGOT PASSWORD] Request host:`, req.headers.host)
-            console.log(`[FORGOT PASSWORD] Request origin:`, req.headers.origin)
+          try {
+            if (isHeadersObject(req.headers)) {
+              console.log(`[FORGOT PASSWORD] Request host:`, req.headers.get('host'))
+              console.log(`[FORGOT PASSWORD] Request origin:`, req.headers.get('Origin'))
+            } else {
+              // ใช้ type casting แบบปลอดภัย
+              const headers = req.headers as Record<string, unknown>
+              if (typeof headers.host === 'string') {
+                console.log(`[FORGOT PASSWORD] Request host:`, headers.host)
+              }
+              if (typeof headers.origin === 'string') {
+                console.log(`[FORGOT PASSWORD] Request origin:`, headers.origin)
+              }
+            }
+          } catch (err) {
+            console.error(`[FORGOT PASSWORD] เกิดข้อผิดพลาดในการ log ข้อมูล headers:`, err)
           }
         }
+
         console.log(`[FORGOT PASSWORD] baseURL ที่ใช้ในการสร้าง URL = ${baseURL}`)
         console.log(`[FORGOT PASSWORD] resetPasswordURL ที่ถูกสร้าง = ${resetPasswordURL}`)
         console.log(`[FORGOT PASSWORD] token length = ${token.length}`)
