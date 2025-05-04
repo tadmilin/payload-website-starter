@@ -78,7 +78,7 @@ export default function ResetPasswordClient() {
     try {
       console.log('กำลังส่งคำขอรีเซ็ตรหัสผ่าน...')
 
-      // ส่ง API request ไปยังเส้นทางที่ถูกต้อง - ใช้เส้นทางสัมพัทธ์แทนการใช้ window.location.origin
+      // ส่ง API request ไปยังเส้นทางที่ถูกต้อง - ใช้เส้นทางสัมพัทธ์
       const resetPasswordURL = '/api/users/reset-password'
 
       console.log('RESET PASSWORD ข้อมูลสำคัญ:')
@@ -102,6 +102,7 @@ export default function ResetPasswordClient() {
             token: token,
             password: newPassword,
           }),
+          credentials: 'same-origin', // เพิ่ม credentials เพื่อส่ง cookies
           cache: 'no-store',
           signal: controller.signal,
         })
