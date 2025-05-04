@@ -118,7 +118,10 @@ export default buildConfig({
   editor: defaultLexical,
   db: dbAdapter,
   collections: [Users, Media, Pages, Posts, Categories, Consultations],
-  cors: '*', // อนุญาตให้เข้าถึงจากทุก domain
+
+  // อนุญาตให้เข้าถึงจากทุก domain - สำคัญมากสำหรับการเรียก API
+  cors: '*',
+
   globals: [
     // ...globals, // Ensure this is still commented out or './globals' exports empty array
   ],

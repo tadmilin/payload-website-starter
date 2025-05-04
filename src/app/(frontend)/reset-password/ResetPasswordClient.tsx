@@ -78,8 +78,8 @@ export default function ResetPasswordClient() {
     try {
       console.log('กำลังส่งคำขอรีเซ็ตรหัสผ่าน...')
 
-      // ใช้ payload API โดยตรงแทนที่จะใช้ API route ที่สร้างขึ้นเอง
-      const resetPasswordURL = '/api/payload/users/reset-password'
+      // ใช้ endpoint ใหม่ที่เป็น proxy ที่เราสร้างไว้
+      const resetPasswordURL = '/api/reset-password'
 
       console.log('RESET PASSWORD ข้อมูลสำคัญ:')
       console.log('- API URL:', resetPasswordURL)

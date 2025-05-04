@@ -10,40 +10,13 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/home', request.url))
   }
 
-  // จัดการ CORS สำหรับทุก API routes
-  if (request.nextUrl.pathname.startsWith('/api/')) {
-    console.log(`[Middleware] Request to ${request.url}`)
-
-    // สำหรับ OPTIONS requests ตอบกลับทันที
-    if (request.method === 'OPTIONS') {
-      return new Response(null, {
-        status: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept',
-          'Access-Control-Max-Age': '86400',
-        },
-      })
-    }
-
-    // สำหรับ request อื่นๆ ให้เพิ่ม CORS headers
-    const response = NextResponse.next()
-    response.headers.set('Access-Control-Allow-Origin', '*')
-    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
-    response.headers.set(
-      'Access-Control-Allow-Headers',
-      'Content-Type, Authorization, X-Requested-With, Accept',
-    )
-    response.headers.set('Access-Control-Max-Age', '86400')
-
-    return response
-  }
+  // สำหรับทุก request ที่เกี่ยวข้องกับ API
+  // ไม่จำเป็นต้องจัดการ CORS ที่นี่แล้วเพราะเราจัดการใน route.ts
 
   return NextResponse.next()
 }
 
 // กำหนดว่าใช้ middleware กับเส้นทางไหนบ้าง
 export const config = {
-  matcher: ['/', '/api/:path*', '/api/payload/:path*'],
+  matcher: ['/'],
 }
