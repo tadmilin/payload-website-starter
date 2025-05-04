@@ -82,9 +82,11 @@ export default function ResetPasswordClient() {
       const baseURL = process.env.NEXT_PUBLIC_SERVER_URL || window.location.origin
       const resetPasswordURL = `${baseURL}/api/users/reset-password`
 
-      console.log('API URL:', resetPasswordURL)
-      console.log('Token length:', token.length)
-      console.log('Token (10 chars):', token.substring(0, 10) + '...')
+      console.log('RESET PASSWORD ข้อมูลสำคัญ:')
+      console.log('- API URL:', resetPasswordURL)
+      console.log('- Window Location Origin:', window.location.origin)
+      console.log('- Token length:', token.length)
+      console.log('- Token (10 chars):', token.substring(0, 10) + '...')
 
       // ส่งคำขอเพื่อรีเซ็ตรหัสผ่าน
       const response = await fetch(resetPasswordURL, {
@@ -93,28 +95,46 @@ export default function ResetPasswordClient() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          token: token, // ส่ง token แบบไม่มีการ encode/decode เพิ่มเติม
+          token: token,
           password: newPassword,
         }),
         cache: 'no-store',
       })
 
-      console.log('Response status:', response.status)
-      const data = await response.json()
-      console.log('Response data:', data)
+      // ล็อกค่า response และข้อมูลที่ได้รับกลับมา
+      console.log('RESET PASSWORD Response:')
+      console.log('- Status:', response.status)
+      console.log('- Status Text:', response.statusText)
+      console.log('- Headers:', [...response.headers.entries()])
 
-      if (!response.ok) {
-        console.error('เกิดข้อผิดพลาด:', data)
-        throw new Error(data.message || data.error || 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน')
+      const contentType = response.headers.get('Content-Type')
+      console.log('- Content-Type:', contentType)
+
+      try {
+        const data = await response.json()
+        console.log('- Response data:', data)
+
+        if (!response.ok) {
+          console.error('เกิดข้อผิดพลาด:', data)
+          throw new Error(data.message || data.error || 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน')
+        }
+
+        // แสดงข้อความสำเร็จ
+        setSuccess(true)
+
+        // นำผู้ใช้ไปยังหน้าล็อกอินหลังจาก 3 วินาที
+        setTimeout(() => {
+          router.push('/login')
+        }, 3000)
+      } catch (jsonError) {
+        console.error('เกิดข้อผิดพลาดในการอ่านข้อมูล response:', jsonError)
+
+        // กรณี response.json() ล้มเหลว ให้พยายามอ่านเป็น text
+        const textData = await response.text().catch(() => 'ไม่สามารถอ่านข้อมูล text ได้')
+        console.log('- Response text:', textData)
+
+        throw new Error(`เกิดข้อผิดพลาดในการประมวลผลคำตอบจากเซิร์ฟเวอร์: ${jsonError.message}`)
       }
-
-      // แสดงข้อความสำเร็จ
-      setSuccess(true)
-
-      // นำผู้ใช้ไปยังหน้าล็อกอินหลังจาก 3 วินาที
-      setTimeout(() => {
-        router.push('/login')
-      }, 3000)
     } catch (error: any) {
       console.error('Error details:', error)
       setError(error.message || 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน')
