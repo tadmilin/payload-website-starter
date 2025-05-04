@@ -97,12 +97,14 @@ export default function ResetPasswordClient() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
           },
           body: JSON.stringify({
             token: token,
             password: newPassword,
           }),
-          credentials: 'same-origin', // เพิ่ม credentials เพื่อส่ง cookies
+          mode: 'cors', // เพิ่ม mode cors เพื่อรองรับการเรียกข้ามโดเมน
+          credentials: 'include', // เปลี่ยนเป็น include แทน same-origin
           cache: 'no-store',
           signal: controller.signal,
         })

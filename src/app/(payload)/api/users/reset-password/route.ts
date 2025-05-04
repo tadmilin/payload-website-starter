@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import payload from 'payload'
 import { initPayload } from '@/lib/payload'
-import { corsHeaders } from '@/lib/cors'
 import type { BasePayload } from 'payload'
 import type { NextRequest } from 'next/server'
 
@@ -74,6 +73,14 @@ function isErrorWithMessage(error: unknown): error is { message: string; stack?:
   return typeof error === 'object' && error !== null && 'message' in error
 }
 
+// กำหนด CORS headers แบบเฉพาะเจาะจง
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept, Origin',
+  'Access-Control-Max-Age': '86400',
+}
+
 // ฟังก์ชันช่วยสำหรับการสร้าง response ที่มี CORS headers
 function createCorsResponse(body: any, status: number = 200) {
   return new Response(typeof body === 'string' ? body : JSON.stringify(body), {
@@ -105,7 +112,10 @@ export async function OPTIONS(req: NextRequest) {
   console.log(`[RESET PASSWORD] Request Headers Origin: ${req.headers.get('Origin')}`)
 
   // สำหรับ OPTIONS request ให้ตอบกลับทันทีโดยไม่ต้องทำอะไรเพิ่มเติม
-  return createCorsResponse(null)
+  return new Response(null, {
+    status: 200,
+    headers: corsHeaders,
+  })
 }
 
 export async function POST(req: NextRequest) {
