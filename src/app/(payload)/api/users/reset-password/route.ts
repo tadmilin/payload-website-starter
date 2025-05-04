@@ -95,9 +95,7 @@ export async function POST(req: Request) {
   // --- Log จุดเริ่มต้น ---
   console.log(`[RESET PASSWORD] Received POST request at ${new Date().toISOString()}`)
   console.log(`[RESET PASSWORD] Request URL: ${req.url}`)
-  console.log(
-    `[RESET PASSWORD] Request Headers: ${JSON.stringify(Object.fromEntries(req.headers))}`,
-  )
+  console.log(`[RESET PASSWORD] Request Headers Content-Type: ${req.headers.get('Content-Type')}`)
   // --- สิ้นสุด Log จุดเริ่มต้น ---
 
   console.log('[RESET PASSWORD] เริ่มต้นกระบวนการรีเซ็ตรหัสผ่าน')
@@ -120,6 +118,9 @@ export async function POST(req: Request) {
 
     // --- LOG ข้อมูลสำคัญสำหรับ debug ---
     console.log('[RESET PASSWORD] มี token หรือไม่:', !!token)
+    console.log('[RESET PASSWORD] token length:', token ? token.length : 'undefined')
+    if (token)
+      console.log('[RESET PASSWORD] token (first 10 chars):', token.substring(0, 10) + '...')
     console.log('[RESET PASSWORD] password length:', password ? password.length : 'ไม่มีรหัสผ่าน')
 
     // ตรวจสอบข้อมูลที่จำเป็น
@@ -135,19 +136,6 @@ export async function POST(req: Request) {
         { message: 'กรุณาระบุรหัสผ่านใหม่' },
         { status: 400, headers: corsHeaders },
       )
-    }
-
-    // decode token อีกครั้งเพื่อความปลอดภัย (รองรับกรณี encode ซ้ำ)
-    let decodedToken = token
-    try {
-      // ถ้า token เป็น encoded URI component, ทำการ decode
-      if (token.includes('%')) {
-        decodedToken = decodeURIComponent(token)
-        console.log('[RESET PASSWORD] token ถูก decode')
-      }
-    } catch (decodeError) {
-      console.error('[RESET PASSWORD] ไม่สามารถ decode token ได้:', decodeError)
-      // ใช้ token ดั้งเดิมหากไม่สามารถ decode ได้
     }
 
     // ตรวจสอบความซับซ้อนของรหัสผ่าน
@@ -187,13 +175,55 @@ export async function POST(req: Request) {
     try {
       // --- LOG ก่อนเรียก resetPassword ---
       console.log('[RESET PASSWORD] เรียกใช้ payload.resetPassword...')
-      console.log('[RESET PASSWORD] token length:', decodedToken.length)
+      console.log('[RESET PASSWORD] token length:', token.length)
+
+      // ค้นหา collection users ก่อน เพื่อตรวจสอบว่ามี user ที่มี resetPasswordToken ตรงกับ token ที่ส่งมาหรือไม่
+      console.log('[RESET PASSWORD] ค้นหา user ที่มี resetPasswordToken ตรงกับ token')
+      const usersWithToken = await payloadClient.find({
+        collection: 'users',
+        where: {
+          resetPasswordToken: {
+            equals: token,
+          },
+        },
+        limit: 1,
+      })
+
+      if (usersWithToken.totalDocs === 0) {
+        console.log('[RESET PASSWORD] ไม่พบ user ที่มี resetPasswordToken ตรงกับ token')
+        return NextResponse.json(
+          {
+            message: 'รหัสสำหรับรีเซ็ตรหัสผ่านไม่ถูกต้องหรือหมดอายุแล้ว กรุณาขอรหัสใหม่อีกครั้ง',
+            expired: true,
+          },
+          { status: 400, headers: corsHeaders },
+        )
+      }
+
+      const user = usersWithToken.docs[0]
+      console.log('[RESET PASSWORD] พบ user ที่มี resetPasswordToken:', user.email)
+
+      // ตรวจสอบว่า token หมดอายุหรือไม่
+      if (user.resetPasswordExpiration) {
+        const expirationDate = new Date(user.resetPasswordExpiration)
+        const now = new Date()
+        if (expirationDate < now) {
+          console.log('[RESET PASSWORD] token หมดอายุแล้ว')
+          return NextResponse.json(
+            {
+              message: 'รหัสสำหรับรีเซ็ตรหัสผ่านหมดอายุแล้ว กรุณาขอรหัสใหม่อีกครั้ง',
+              expired: true,
+            },
+            { status: 400, headers: corsHeaders },
+          )
+        }
+      }
 
       // เรียกใช้ resetPassword API ของ Payload
       const result = await payloadClient.resetPassword({
         collection: 'users',
         data: {
-          token: decodedToken,
+          token,
           password,
         },
         overrideAccess: true,
@@ -257,24 +287,13 @@ export async function POST(req: Request) {
       }
     }
   } catch (error: unknown) {
-    console.error('เกิดข้อผิดพลาดในการประมวลผลคำขอรีเซ็ตรหัสผ่าน:', error)
-    if (isErrorWithMessage(error)) {
-      return NextResponse.json(
-        {
-          message: 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน',
-          error: error.message || 'ไม่สามารถรีเซ็ตรหัสผ่านได้ กรุณาลองใหม่อีกครั้ง',
-          debug: error.stack || '',
-        },
-        { status: 500, headers: corsHeaders },
-      )
-    } else {
-      return NextResponse.json(
-        {
-          message: 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ',
-          error: String(error),
-        },
-        { status: 500, headers: corsHeaders },
-      )
-    }
+    console.error('[RESET PASSWORD] ERROR (Global):', error)
+    return NextResponse.json(
+      {
+        message: 'เกิดข้อผิดพลาดในการประมวลผลคำขอ',
+        error: isErrorWithMessage(error) ? error.message : String(error),
+      },
+      { status: 500, headers: corsHeaders },
+    )
   }
 }

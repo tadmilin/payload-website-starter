@@ -1,40 +1,59 @@
 import { NextResponse } from 'next/server'
 import payload from 'payload'
 import { initPayload } from '@/lib/payload'
+import type { BasePayload } from 'payload'
+
+// ขยาย type ให้ global object เพื่อรองรับ payload
+declare global {
+  // eslint-disable-next-line no-var
+  var payload: { client: BasePayload | null; promise: Promise<BasePayload> | null } | undefined
+}
 
 // เตรียม Payload client สำหรับใช้งาน
-let cached = (global as any).payload
+let cached = global.payload
 
 if (!cached) {
-  cached = (global as any).payload = { client: null, promise: null }
+  cached = global.payload = { client: null, promise: null }
 }
 
 // ฟังก์ชันเพื่อให้มั่นใจว่าเรามี payload instance ที่พร้อมใช้งาน
 async function getPayloadClient() {
-  // ถ้ามี client ที่พร้อมใช้งานแล้ว ให้ใช้ตัวที่มีอยู่
+  // --- Log การเรียก getPayloadClient ---
+  console.log(`[FORGOT PASSWORD - getPayloadClient] Function called at ${new Date().toISOString()}`)
+  // -----------------------------------
+
   if (cached.client) {
+    // --- Log การคืนค่า client ที่ cached ไว้ ---
+    console.log('[FORGOT PASSWORD - getPayloadClient] Returning cached client')
+    // ---------------------------------------
     return cached.client
   }
 
-  // ถ้ายังไม่มี promise ในการเริ่มต้น Payload
   if (!cached.promise) {
+    // --- Log การสร้าง promise ใหม่ ---
+    console.log('[FORGOT PASSWORD - getPayloadClient] Creating new payload promise')
+    // -------------------------------
     cached.promise = (async () => {
       try {
-        // ตรวจสอบว่า payload เริ่มต้นแล้วหรือยัง
         if (!payload.db) {
-          console.log('Payload ยังไม่ได้เริ่มต้น กำลังเริ่มต้น Payload...')
-          // เริ่มต้น Payload ผ่านฟังก์ชัน initPayload
+          console.log(
+            '[FORGOT PASSWORD - getPayloadClient] Payload DB not found, calling initPayload...',
+          )
           try {
             await initPayload()
+            console.log('[FORGOT PASSWORD - getPayloadClient] initPayload completed successfully')
           } catch (initError) {
-            console.error('เกิดข้อผิดพลาดในการเริ่มต้น Payload:', initError)
+            console.error(
+              '[FORGOT PASSWORD - getPayloadClient] Error during initPayload:',
+              initError,
+            )
             throw initError
           }
         }
-
+        console.log('[FORGOT PASSWORD - getPayloadClient] Returning payload from promise')
         return payload
       } catch (e) {
-        console.error('เกิดข้อผิดพลาดในการเตรียม Payload:', e)
+        console.error('[FORGOT PASSWORD - getPayloadClient] Error creating payload promise:', e)
         cached.promise = null
         throw e
       }
@@ -42,8 +61,11 @@ async function getPayloadClient() {
   }
 
   try {
+    console.log('[FORGOT PASSWORD - getPayloadClient] Awaiting payload promise...')
     cached.client = await cached.promise
+    console.log('[FORGOT PASSWORD - getPayloadClient] Payload promise resolved, client is ready.')
   } catch (e) {
+    console.error('[FORGOT PASSWORD - getPayloadClient] Error resolving payload promise:', e)
     cached.promise = null
     throw e
   }
@@ -52,6 +74,11 @@ async function getPayloadClient() {
 }
 
 export async function POST(req: Request) {
+  // --- Log จุดเริ่มต้น ---
+  console.log(`[FORGOT PASSWORD] Received POST request at ${new Date().toISOString()}`)
+  console.log(`[FORGOT PASSWORD] Request URL: ${req.url}`)
+  // --- สิ้นสุด Log จุดเริ่มต้น ---
+
   try {
     // รับค่าอีเมลจากคำขอ
     const { email } = await req.json()
@@ -65,10 +92,12 @@ export async function POST(req: Request) {
     }
 
     // เชื่อมต่อกับ Payload CMS
-    const payload = await getPayloadClient()
+    console.log('[FORGOT PASSWORD] กำลังเชื่อมต่อกับ Payload CMS...')
+    const payloadClient = await getPayloadClient()
+    console.log('[FORGOT PASSWORD] เชื่อมต่อกับ Payload CMS สำเร็จ')
 
     // ตรวจสอบว่ามีผู้ใช้ที่มีอีเมลนี้หรือไม่
-    const users = await payload.find({
+    const users = await payloadClient.find({
       collection: 'users',
       where: {
         email: {
@@ -89,13 +118,15 @@ export async function POST(req: Request) {
     }
 
     // เรียกใช้ forgotPassword API ของ Payload
-    const result = await payload.forgotPassword({
+    console.log('[FORGOT PASSWORD] เรียกใช้ payload.forgotPassword...')
+    const result = await payloadClient.forgotPassword({
       collection: 'users',
       data: {
         email,
       },
       overrideAccess: true,
     })
+    console.log('[FORGOT PASSWORD] ส่งอีเมลรีเซ็ตรหัสผ่านสำเร็จ')
 
     // ตอบกลับว่าสำเร็จ
     return NextResponse.json(
@@ -106,7 +137,7 @@ export async function POST(req: Request) {
       { status: 200 },
     )
   } catch (error: any) {
-    console.error('เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน:', error)
+    console.error('[FORGOT PASSWORD] เกิดข้อผิดพลาดในการส่งอีเมลรีเซ็ตรหัสผ่าน:', error)
 
     // ไม่ควรเปิดเผยข้อผิดพลาดที่เกิดขึ้นจริง เพื่อความปลอดภัย
     return NextResponse.json(

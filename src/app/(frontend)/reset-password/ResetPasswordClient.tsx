@@ -19,16 +19,16 @@ export default function ResetPasswordClient() {
       // ดึง token จาก URL
       const tokenFromUrl = searchParams.get('token')
       if (tokenFromUrl) {
-        const decodedToken = decodeURIComponent(tokenFromUrl)
-        setToken(decodedToken)
+        // ไม่ต้อง decode token อีก เพราะจะทำให้เกิดการ double-decode
+        setToken(tokenFromUrl)
         console.log('RESET PASSWORD: token from URL =', tokenFromUrl)
-        console.log('RESET PASSWORD: decoded token =', decodedToken)
+        console.log('RESET PASSWORD: token length =', tokenFromUrl.length)
       } else {
         setError('ไม่พบรหัสสำหรับรีเซ็ตรหัสผ่าน โปรดตรวจสอบลิงก์ในอีเมลของคุณอีกครั้ง')
       }
     } catch (e) {
       setError('เกิดข้อผิดพลาดในการอ่าน token โปรดลองใหม่หรือติดต่อผู้ดูแลระบบ')
-      console.error('Error decoding token:', e)
+      console.error('Error processing token:', e)
     }
   }, [searchParams])
 
@@ -84,6 +84,7 @@ export default function ResetPasswordClient() {
 
       console.log('API URL:', resetPasswordURL)
       console.log('Token length:', token.length)
+      console.log('Token (10 chars):', token.substring(0, 10) + '...')
 
       // ส่งคำขอเพื่อรีเซ็ตรหัสผ่าน
       const response = await fetch(resetPasswordURL, {
@@ -92,9 +93,10 @@ export default function ResetPasswordClient() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          token,
+          token: token, // ส่ง token แบบไม่มีการ encode/decode เพิ่มเติม
           password: newPassword,
         }),
+        cache: 'no-store',
       })
 
       console.log('Response status:', response.status)
@@ -154,7 +156,7 @@ export default function ResetPasswordClient() {
                       ขอรหัสรีเซ็ตใหม่
                     </button>
                     <div className="text-xs text-gray-400 mt-2">
-                      รหัสสำหรับรีเซ็ตรหัสผ่านจะหมดอายุภายใน 2 ชั่วโมง หรือเมื่อถูกใช้ไปแล้ว
+                      รหัสสำหรับรีเซ็ตรหัสผ่านจะหมดอายุภายใน 24 ชั่วโมง หรือเมื่อถูกใช้ไปแล้ว
                       <br />
                       กรุณาขอรหัสใหม่หากลิงก์หมดอายุหรือถูกใช้ไปแล้ว
                     </div>
