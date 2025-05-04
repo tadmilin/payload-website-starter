@@ -124,7 +124,6 @@ export async function POST(req: Request) {
       data: {
         email,
       },
-      overrideAccess: true,
     })
     console.log('[FORGOT PASSWORD] ส่งอีเมลรีเซ็ตรหัสผ่านสำเร็จ')
 
