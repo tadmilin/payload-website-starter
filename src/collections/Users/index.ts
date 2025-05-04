@@ -4,6 +4,19 @@ import { authenticated } from '../../access/authenticated'
 import { isAdmin } from '../../access/isAdmin'
 import { getClientSideURL, getServerSideURL } from '../../utilities/getURL'
 
+// เพิ่ม type guard functions เพื่อตรวจสอบประเภทของ headers
+function isHeadersObject(headers: unknown): headers is Headers {
+  return (
+    typeof headers === 'object' &&
+    headers !== null &&
+    typeof (headers as Headers).get === 'function'
+  )
+}
+
+function isPlainObject(obj: unknown): obj is Record<string, any> {
+  return typeof obj === 'object' && obj !== null && obj.constructor === Object
+}
+
 export const Users: CollectionConfig = {
   slug: 'users',
   access: {
@@ -32,46 +45,57 @@ export const Users: CollectionConfig = {
     },
     forgotPassword: {
       generateEmailHTML: ({ req, token, user }) => {
+        // ดึง baseURL จาก request header ก่อนเป็นอันดับแรก
         let baseURL = null
 
+        // ลองดึง Origin จาก req.headers (ถ้ามี)
         if (req && req.headers) {
-          if (typeof req.headers.get === 'function') {
+          // ตรวจสอบว่า headers เป็น Headers object (App Router) หรือเป็น plain object (Pages Router)
+          if (isHeadersObject(req.headers)) {
+            // Headers object (App Router) - ใช้เมธอด get
             baseURL = req.headers.get('Origin') || req.headers.get('origin')
-          } else if (req.headers.origin) {
-            baseURL = req.headers.origin
-          } else if (req.headers.host) {
-            const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
-            baseURL = `${protocol}://${req.headers.host}`
+          } else if (isPlainObject(req.headers)) {
+            // Plain object (Pages Router)
+            if (typeof req.headers.origin === 'string') {
+              baseURL = req.headers.origin
+            } else if (typeof req.headers.host === 'string') {
+              const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http'
+              baseURL = `${protocol}://${req.headers.host}`
+            }
           }
         }
 
+        // หากไม่สามารถดึงจาก request ได้ ให้ใช้ server URL
         if (!baseURL) {
           baseURL = getServerSideURL()
         }
 
+        // ถ้ายังไม่มี URL ให้ใช้จาก environment variables
         if (!baseURL) {
           baseURL = process.env.NEXT_PUBLIC_SERVER_URL || process.env.PAYLOAD_PUBLIC_SERVER_URL
         }
 
+        // ใช้ค่าเริ่มต้นจาก deployment ล่าสุดที่ทราบ
         if (!baseURL) {
           baseURL = 'https://payload-solarlaa-website-77skhubqn-tadmilins-projects.vercel.app'
         }
 
+        // สร้าง reset password URL
         const resetPasswordURL = `${baseURL}/reset-password?token=${token}`
 
+        // Log ข้อมูลเพื่อการดีบัก
         console.log(
           `[FORGOT PASSWORD] Request Headers ที่ได้รับ:`,
           req && req.headers ? 'มี headers' : 'ไม่มี headers',
         )
         if (req && req.headers) {
-          console.log(
-            `[FORGOT PASSWORD] Request host:`,
-            typeof req.headers.get === 'function' ? req.headers.get('host') : req.headers.host,
-          )
-          console.log(
-            `[FORGOT PASSWORD] Request origin:`,
-            typeof req.headers.get === 'function' ? req.headers.get('Origin') : req.headers.origin,
-          )
+          if (isHeadersObject(req.headers)) {
+            console.log(`[FORGOT PASSWORD] Request host:`, req.headers.get('host'))
+            console.log(`[FORGOT PASSWORD] Request origin:`, req.headers.get('Origin'))
+          } else if (isPlainObject(req.headers)) {
+            console.log(`[FORGOT PASSWORD] Request host:`, req.headers.host)
+            console.log(`[FORGOT PASSWORD] Request origin:`, req.headers.origin)
+          }
         }
         console.log(`[FORGOT PASSWORD] baseURL ที่ใช้ในการสร้าง URL = ${baseURL}`)
         console.log(`[FORGOT PASSWORD] resetPasswordURL ที่ถูกสร้าง = ${resetPasswordURL}`)
