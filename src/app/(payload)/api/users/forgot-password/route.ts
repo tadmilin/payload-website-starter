@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import payload from 'payload'
 import { initPayload } from '@/lib/payload'
+import { corsHeaders } from '@/lib/cors'
 import type { BasePayload } from 'payload'
 
 // ขยาย type ให้ global object เพื่อรองรับ payload
@@ -73,10 +74,39 @@ async function getPayloadClient() {
   return cached.client
 }
 
+// เพิ่ม GET handler เพื่อแก้ไขปัญหา 404
+export async function GET(_req: Request) {
+  console.log(`[FORGOT PASSWORD] Received GET request at ${new Date().toISOString()}`)
+
+  // ตอบกลับด้วย 200 OK พร้อม CORS headers
+  return new NextResponse(
+    JSON.stringify({
+      message: 'Forgot password API endpoint is active',
+      note: 'Please use POST method to request password reset',
+    }),
+    {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        ...corsHeaders,
+      },
+    },
+  )
+}
+
+// เพิ่มฟังก์ชัน OPTIONS เพื่อรองรับ CORS preflight requests
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: corsHeaders,
+  })
+}
+
 export async function POST(req: Request) {
   // --- Log จุดเริ่มต้น ---
   console.log(`[FORGOT PASSWORD] Received POST request at ${new Date().toISOString()}`)
   console.log(`[FORGOT PASSWORD] Request URL: ${req.url}`)
+  console.log(`[FORGOT PASSWORD] Request Headers Origin: ${req.headers.get('Origin')}`)
   // --- สิ้นสุด Log จุดเริ่มต้น ---
 
   try {
@@ -87,7 +117,7 @@ export async function POST(req: Request) {
     if (!email) {
       return NextResponse.json(
         { message: 'กรุณาระบุอีเมลที่ต้องการรีเซ็ตรหัสผ่าน' },
-        { status: 400 },
+        { status: 400, headers: corsHeaders },
       )
     }
 
@@ -113,7 +143,7 @@ export async function POST(req: Request) {
         {
           message: 'หากมีบัญชีอยู่ในระบบ เราจะส่งลิงก์รีเซ็ตรหัสผ่านไปยังอีเมลของคุณ',
         },
-        { status: 200 },
+        { status: 200, headers: corsHeaders },
       )
     }
 
@@ -133,18 +163,21 @@ export async function POST(req: Request) {
         message: 'หากมีบัญชีอยู่ในระบบ เราจะส่งลิงก์รีเซ็ตรหัสผ่านไปยังอีเมลของคุณ',
         success: true,
       },
-      { status: 200 },
+      { status: 200, headers: corsHeaders },
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[FORGOT PASSWORD] เกิดข้อผิดพลาดในการส่งอีเมลรีเซ็ตรหัสผ่าน:', error)
 
     // ไม่ควรเปิดเผยข้อผิดพลาดที่เกิดขึ้นจริง เพื่อความปลอดภัย
     return NextResponse.json(
       {
         message: 'เกิดข้อผิดพลาดในการส่งอีเมลรีเซ็ตรหัสผ่าน กรุณาลองใหม่ในภายหลัง',
-        error: error.message || 'ไม่สามารถส่งอีเมลรีเซ็ตรหัสผ่านได้ในขณะนี้',
+        error:
+          typeof error === 'object' && error !== null && 'message' in error
+            ? (error as { message: string }).message
+            : 'ไม่สามารถส่งอีเมลรีเซ็ตรหัสผ่านได้ในขณะนี้',
       },
-      { status: 500 },
+      { status: 500, headers: corsHeaders },
     )
   }
 }

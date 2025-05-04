@@ -10,12 +10,29 @@ export function middleware(request: NextRequest) {
   if (request.nextUrl.pathname === '/') {
     return NextResponse.redirect(new URL('/home', request.url))
   }
-  
+
+  // ดักจับเฉพาะ request ที่มีปลายทางเป็น API
+  if (request.nextUrl.pathname.startsWith('/api/')) {
+    // สร้าง response object เพื่อเตรียม modify headers
+    const response = NextResponse.next()
+
+    // เพิ่ม CORS headers
+    response.headers.set('Access-Control-Allow-Origin', '*')
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+    response.headers.set(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization, X-Requested-With',
+    )
+    response.headers.set('Access-Control-Max-Age', '86400')
+
+    return response
+  }
+
   // มิฉะนั้น ปล่อยให้เป็นไปตามปกติ
   return NextResponse.next()
 }
 
 // กำหนดว่าจะใช้ middleware กับ route ไหนบ้าง
 export const config = {
-  matcher: ['/'],
+  matcher: ['/', '/api/:path*'],
 }

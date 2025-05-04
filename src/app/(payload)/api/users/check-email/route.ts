@@ -1,12 +1,24 @@
 import { NextResponse } from 'next/server'
 import payload from 'payload'
 import { initPayload } from '@/lib/payload'
+import type { BasePayload } from 'payload'
 
 // เตรียม Payload client สำหรับใช้งาน
-let cached = (global as any).payload
+type PayloadCache = {
+  client: BasePayload | null
+  promise: Promise<BasePayload> | null
+}
+
+// ขยาย type ให้ global object เพื่อรองรับ payload
+declare global {
+  // eslint-disable-next-line no-var
+  var payload: PayloadCache | undefined
+}
+
+let cached = global.payload
 
 if (!cached) {
-  cached = (global as any).payload = { client: null, promise: null }
+  cached = global.payload = { client: null, promise: null }
 }
 
 // ฟังก์ชันเพื่อให้มั่นใจว่าเรามี payload instance ที่พร้อมใช้งาน
@@ -84,13 +96,16 @@ export async function POST(req: Request) {
       },
       { status: 200 },
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('เกิดข้อผิดพลาดในการตรวจสอบอีเมล:', error)
 
     return NextResponse.json(
       {
         message: 'เกิดข้อผิดพลาดในการตรวจสอบอีเมล',
-        error: error.message || 'ไม่สามารถตรวจสอบอีเมลได้ในขณะนี้',
+        error:
+          typeof error === 'object' && error !== null && 'message' in error
+            ? (error as { message: string }).message
+            : 'ไม่สามารถตรวจสอบอีเมลได้ในขณะนี้',
       },
       { status: 500 },
     )

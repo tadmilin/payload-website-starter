@@ -69,6 +69,7 @@
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.378.0",
     "next": "15.3.0",
+    "next-cors": "^1.0.0",
     "next-i18next": "^15.4.2",
     "next-sitemap": "^4.2.3",
     "payload": "3.35.1",

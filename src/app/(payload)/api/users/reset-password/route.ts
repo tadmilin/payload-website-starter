@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import payload from 'payload'
 import { initPayload } from '@/lib/payload'
+import { corsHeaders } from '@/lib/cors'
 import type { BasePayload } from 'payload'
 
 // ขยาย type ให้ global object เพื่อรองรับ payload
@@ -79,16 +80,31 @@ function isErrorWithMessage(error: unknown): error is { message: string; stack?:
   return typeof error === 'object' && error !== null && 'message' in error
 }
 
+// เพิ่ม GET handler เพื่อแก้ไขปัญหา 404
+export async function GET(_req: Request) {
+  console.log(`[RESET PASSWORD] Received GET request at ${new Date().toISOString()}`)
+
+  // ตอบกลับด้วย 200 OK พร้อม CORS headers
+  return new NextResponse(
+    JSON.stringify({
+      message: 'Reset password API endpoint is active',
+      note: 'Please use POST method to reset password',
+    }),
+    {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        ...corsHeaders,
+      },
+    },
+  )
+}
+
 // เพิ่มฟังก์ชัน OPTIONS เพื่อรองรับ CORS preflight requests
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
-      'Access-Control-Max-Age': '86400',
-    },
+    headers: corsHeaders,
   })
 }
 
@@ -101,13 +117,6 @@ export async function POST(req: Request) {
   // --- สิ้นสุด Log จุดเริ่มต้น ---
 
   console.log('[RESET PASSWORD] เริ่มต้นกระบวนการรีเซ็ตรหัสผ่าน')
-
-  // เตรียม response headers สำหรับ CORS
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
-  }
 
   try {
     // รับค่า token และ password จากคำขอ
@@ -298,26 +307,4 @@ export async function POST(req: Request) {
       { status: 500, headers: corsHeaders },
     )
   }
-}
-
-// เพิ่ม GET handler เพื่อแก้ไขปัญหา 404
-export async function GET(req: Request) {
-  console.log(`[RESET PASSWORD] Received GET request at ${new Date().toISOString()}`)
-
-  // ตอบกลับด้วย 200 OK พร้อม CORS headers
-  return new NextResponse(
-    JSON.stringify({
-      message: 'Reset password API endpoint is active',
-      note: 'Please use POST method to reset password',
-    }),
-    {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
-      },
-    },
-  )
 }
