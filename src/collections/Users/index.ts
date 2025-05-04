@@ -34,7 +34,7 @@ export const Users: CollectionConfig = {
         let baseURL = process.env.NEXT_PUBLIC_SERVER_URL
 
         if (!baseURL && req) {
-          const protocol = req.headers.referer?.startsWith('https') ? 'https' : 'http'
+          const protocol = 'https'
           baseURL = `${protocol}://${req.headers.host}`
         }
 
@@ -46,9 +46,6 @@ export const Users: CollectionConfig = {
 
         console.log(`[FORGOT PASSWORD] baseURL ที่ใช้ในการสร้าง URL = ${baseURL}`)
         console.log(`[FORGOT PASSWORD] req.headers.host (ถ้ามี) = ${req?.headers?.host || 'ไม่มี'}`)
-        console.log(
-          `[FORGOT PASSWORD] req.headers.referer (ถ้ามี) = ${req?.headers?.referer || 'ไม่มี'}`,
-        )
         console.log(`[FORGOT PASSWORD] resetPasswordURL ที่ถูกสร้าง = ${resetPasswordURL}`)
         console.log(`[FORGOT PASSWORD] token length = ${token.length}`)
         console.log(`[FORGOT PASSWORD] โปรดตรวจสอบว่า baseURL ถูกต้องเป็น URL ปัจจุบันของเว็บไซต์`)
