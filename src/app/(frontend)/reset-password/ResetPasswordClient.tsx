@@ -78,8 +78,8 @@ export default function ResetPasswordClient() {
     try {
       console.log('กำลังส่งคำขอรีเซ็ตรหัสผ่าน...')
 
-      // ใช้ URL แบบเต็มโดยใช้ค่าจาก env หรือ host ปัจจุบัน
-      const baseURL = process.env.NEXT_PUBLIC_SERVER_URL || window.location.origin
+      // ใช้ window.location.origin เพื่อให้ตรงกับโดเมนปัจจุบัน
+      const baseURL = window.location.origin
       const resetPasswordURL = `${baseURL}/api/users/reset-password`
 
       console.log('RESET PASSWORD ข้อมูลสำคัญ:')
@@ -93,11 +93,15 @@ export default function ResetPasswordClient() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+          Accept: 'application/json',
         },
         body: JSON.stringify({
           token: token,
           password: newPassword,
         }),
+        mode: 'cors',
+        credentials: 'same-origin',
         cache: 'no-store',
       })
 

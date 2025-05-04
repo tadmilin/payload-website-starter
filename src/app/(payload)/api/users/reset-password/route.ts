@@ -85,8 +85,9 @@ export async function OPTIONS() {
     status: 200,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+      'Access-Control-Max-Age': '86400',
     },
   })
 }
@@ -96,6 +97,7 @@ export async function POST(req: Request) {
   console.log(`[RESET PASSWORD] Received POST request at ${new Date().toISOString()}`)
   console.log(`[RESET PASSWORD] Request URL: ${req.url}`)
   console.log(`[RESET PASSWORD] Request Headers Content-Type: ${req.headers.get('Content-Type')}`)
+  console.log(`[RESET PASSWORD] Request Headers Origin: ${req.headers.get('Origin')}`)
   // --- สิ้นสุด Log จุดเริ่มต้น ---
 
   console.log('[RESET PASSWORD] เริ่มต้นกระบวนการรีเซ็ตรหัสผ่าน')
@@ -103,8 +105,8 @@ export async function POST(req: Request) {
   // เตรียม response headers สำหรับ CORS
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
   }
 
   try {
@@ -296,4 +298,26 @@ export async function POST(req: Request) {
       { status: 500, headers: corsHeaders },
     )
   }
+}
+
+// เพิ่ม GET handler เพื่อแก้ไขปัญหา 404
+export async function GET(req: Request) {
+  console.log(`[RESET PASSWORD] Received GET request at ${new Date().toISOString()}`)
+
+  // ตอบกลับด้วย 200 OK พร้อม CORS headers
+  return new NextResponse(
+    JSON.stringify({
+      message: 'Reset password API endpoint is active',
+      note: 'Please use POST method to reset password',
+    }),
+    {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+      },
+    },
+  )
 }
