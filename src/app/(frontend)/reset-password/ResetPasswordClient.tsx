@@ -78,8 +78,8 @@ export default function ResetPasswordClient() {
     try {
       console.log('กำลังส่งคำขอรีเซ็ตรหัสผ่าน...')
 
-      // ส่ง API request ไปยังเส้นทางที่ถูกต้อง - ใช้เส้นทางสัมพัทธ์
-      const resetPasswordURL = '/api/users/reset-password'
+      // ใช้ payload API โดยตรงแทนที่จะใช้ API route ที่สร้างขึ้นเอง
+      const resetPasswordURL = '/api/payload/users/reset-password'
 
       console.log('RESET PASSWORD ข้อมูลสำคัญ:')
       console.log('- API URL:', resetPasswordURL)
@@ -97,14 +97,11 @@ export default function ResetPasswordClient() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
           },
           body: JSON.stringify({
             token: token,
             password: newPassword,
           }),
-          mode: 'cors', // เพิ่ม mode cors เพื่อรองรับการเรียกข้ามโดเมน
-          credentials: 'include', // เปลี่ยนเป็น include แทน same-origin
           cache: 'no-store',
           signal: controller.signal,
         })

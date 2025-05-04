@@ -118,7 +118,7 @@ export default buildConfig({
   editor: defaultLexical,
   db: dbAdapter,
   collections: [Users, Media, Pages, Posts, Categories, Consultations],
-  cors: ['*'], // อนุญาตให้เข้าถึงจากทุก domain
+  cors: '*', // อนุญาตให้เข้าถึงจากทุก domain
   globals: [
     // ...globals, // Ensure this is still commented out or './globals' exports empty array
   ],
@@ -137,6 +137,13 @@ export default buildConfig({
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
+
+  // กำหนด API endpoint base path
+  routes: {
+    admin: '/admin', // แยก admin route ออกมา
+    api: '/api/payload', // กำหนด API path ที่ถูกต้อง
+  },
+
   jobs: {
     access: {
       run: ({ req }: { req: PayloadRequest }): boolean => {
@@ -155,8 +162,5 @@ export default buildConfig({
   graphQL: {
     disable: false,
     schemaOutputFile: path.resolve(dirname, 'generated-schema.graphql'),
-  },
-  routes: {
-    admin: '/admin', // แยก admin route ออกมา
   },
 })
