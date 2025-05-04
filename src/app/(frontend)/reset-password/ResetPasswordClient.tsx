@@ -80,6 +80,8 @@ export default function ResetPasswordClient() {
 
       // ใช้ window.location.origin เพื่อให้ตรงกับโดเมนปัจจุบัน
       const baseURL = window.location.origin
+
+      // แก้ไข endpoint URL ให้ถูกต้องตามโครงสร้างของ Next.js App Router
       const resetPasswordURL = `${baseURL}/api/users/reset-password`
 
       console.log('RESET PASSWORD ข้อมูลสำคัญ:')
@@ -95,12 +97,12 @@ export default function ResetPasswordClient() {
           'Content-Type': 'application/json',
           'X-Requested-With': 'XMLHttpRequest',
           Accept: 'application/json',
+          Origin: window.location.origin,
         },
         body: JSON.stringify({
           token: token,
           password: newPassword,
         }),
-        mode: 'cors',
         credentials: 'same-origin',
         cache: 'no-store',
       })

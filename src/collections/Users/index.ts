@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { authenticated } from '../../access/authenticated'
 import { isAdmin } from '../../access/isAdmin'
+import { getClientSideURL, getServerSideURL } from '../../utilities/getURL'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -31,16 +32,19 @@ export const Users: CollectionConfig = {
     },
     forgotPassword: {
       generateEmailHTML: ({ req, token, user }) => {
-        let baseURL =
-          process.env.NEXT_PUBLIC_SERVER_URL ||
-          'https://payload-solarlaa-website-diovzlur7-tadmilins-projects.vercel.app'
+        let baseURL = req?.headers?.origin || getServerSideURL()
 
         if (!baseURL) {
-          baseURL = 'http://localhost:3000'
+          baseURL = process.env.NEXT_PUBLIC_SERVER_URL || process.env.PAYLOAD_PUBLIC_SERVER_URL
+        }
+
+        if (!baseURL) {
+          baseURL = 'https://payload-solarlaa-website-bn41g7wrt-tadmilins-projects.vercel.app'
         }
 
         const resetPasswordURL = `${baseURL}/reset-password?token=${token}`
 
+        console.log(`[FORGOT PASSWORD] Request Origin = ${req?.headers?.origin || 'ไม่มี'}`)
         console.log(`[FORGOT PASSWORD] baseURL ที่ใช้ในการสร้าง URL = ${baseURL}`)
         console.log(`[FORGOT PASSWORD] resetPasswordURL ที่ถูกสร้าง = ${resetPasswordURL}`)
         console.log(`[FORGOT PASSWORD] token length = ${token.length}`)
