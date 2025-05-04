@@ -1,87 +1,82 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
+import { handleOptionsRequest, createJsonResponse, createErrorResponse } from '@/lib/cors'
 
-// CORS headers ที่ต้องการ
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With, Accept',
-  'Access-Control-Max-Age': '86400',
+// จัดการกับ OPTIONS request (CORS preflight)
+export function OPTIONS() {
+  console.log('[PROXY RESET-PASSWORD] Handling OPTIONS request')
+  return handleOptionsRequest()
 }
 
-// สำหรับ OPTIONS requests (CORS preflight)
-export async function OPTIONS() {
-  return new Response(null, {
-    status: 200,
-    headers: corsHeaders,
-  })
+// สำหรับ GET request (debug purposes)
+export function GET() {
+  console.log('[PROXY RESET-PASSWORD] Handling GET request')
+  return createJsonResponse({ message: 'Reset password endpoint is active' })
 }
 
-// สำหรับ GET requests (debug purposes)
-export async function GET() {
-  return NextResponse.json(
-    { message: 'Reset password endpoint is active. Use POST to reset password.' },
-    { headers: corsHeaders },
-  )
-}
-
-// ฟังก์ชัน proxy สำหรับ POST requests
+// ฟังก์ชันหลักสำหรับการรีเซ็ตรหัสผ่าน
 export async function POST(req: NextRequest) {
-  console.log('[PROXY] Received reset password request')
+  console.log('[PROXY RESET-PASSWORD] Received POST request at', new Date().toISOString())
 
   try {
+    // ตรวจสอบว่ามี Content-Type เป็น application/json
+    const contentType = req.headers.get('Content-Type')
+    if (!contentType || !contentType.includes('application/json')) {
+      console.error('[PROXY RESET-PASSWORD] Invalid Content-Type:', contentType)
+      return createErrorResponse('Content-Type must be application/json', 400)
+    }
+
     // อ่านข้อมูลจาก request
     const body = await req.json()
     const { token, password } = body
 
+    console.log('[PROXY RESET-PASSWORD] Token provided:', !!token)
+    console.log('[PROXY RESET-PASSWORD] Password provided:', !!password)
+
     if (!token || !password) {
-      return NextResponse.json(
-        { error: 'Token และ password จำเป็นต้องระบุ' },
-        { status: 400, headers: corsHeaders },
-      )
+      console.error('[PROXY RESET-PASSWORD] Missing token or password')
+      return createErrorResponse('Token และ password จำเป็นต้องระบุ', 400)
     }
 
-    console.log('[PROXY] Token length:', token.length)
-    console.log('[PROXY] Password provided:', !!password)
+    // สร้าง request ไปยัง Payload API โดยตรง
+    console.log('[PROXY RESET-PASSWORD] Preparing request to Payload API')
 
-    // ส่งคำขอต่อไปยัง Payload CMS
-    // ใช้ URL แบบเต็มรูปแบบเนื่องจากนี่เป็น server-side code
-    const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
-    const payloadApiUrl = `${baseUrl}/api/payload/users/reset-password`
-    console.log('[PROXY] Forwarding to:', payloadApiUrl)
+    const payload = JSON.stringify({ token, password })
+    console.log('[PROXY RESET-PASSWORD] Request payload created')
 
-    const payloadResponse = await fetch(payloadApiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token, password }),
-    })
+    try {
+      // ใช้เส้นทางสัมพัทธ์เพื่อความเรียบง่าย
+      const response = await fetch('/api/payload/users/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: payload,
+      })
 
-    // อ่านข้อมูลการตอบกลับจาก Payload
-    console.log('[PROXY] Payload response status:', payloadResponse.status)
-    const contentType = payloadResponse.headers.get('Content-Type')
-    let responseData
+      console.log('[PROXY RESET-PASSWORD] Payload API response status:', response.status)
 
-    // ถ้าเป็น JSON, อ่านเป็น JSON
-    if (contentType && contentType.includes('application/json')) {
-      responseData = await payloadResponse.json()
-    } else {
-      // ถ้าไม่ใช่ JSON, อ่านเป็น text
-      responseData = {
-        message: await payloadResponse.text(),
+      // อ่านข้อมูลตอบกลับ
+      const responseText = await response.text()
+      console.log('[PROXY RESET-PASSWORD] Payload API response received')
+
+      // แปลงเป็น JSON ถ้าเป็นไปได้
+      let responseData
+      try {
+        responseData = JSON.parse(responseText)
+      } catch (e) {
+        responseData = { message: responseText }
       }
-    }
 
-    // ส่งการตอบกลับไปยังผู้ใช้พร้อมด้วย CORS headers
-    return NextResponse.json(responseData, {
-      status: payloadResponse.status,
-      headers: corsHeaders,
-    })
+      // ส่งการตอบกลับไปยังไคลเอนต์
+      return createJsonResponse(responseData, response.status)
+    } catch (apiError) {
+      console.error('[PROXY RESET-PASSWORD] API request error:', apiError)
+      return createErrorResponse('ไม่สามารถเชื่อมต่อกับ API ได้ กรุณาลองใหม่ภายหลัง', 502)
+    }
   } catch (error) {
-    console.error('[PROXY] Error processing request:', error)
-    return NextResponse.json(
-      { error: 'เกิดข้อผิดพลาดในการประมวลผลคำขอ' },
-      { status: 500, headers: corsHeaders },
-    )
+    // จัดการข้อผิดพลาดที่อาจเกิดขึ้น
+    console.error('[PROXY RESET-PASSWORD] Error:', error)
+
+    return createErrorResponse('เกิดข้อผิดพลาดในการประมวลผลคำขอ', 500)
   }
 }

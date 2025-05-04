@@ -78,7 +78,7 @@ export default function ResetPasswordClient() {
     try {
       console.log('กำลังส่งคำขอรีเซ็ตรหัสผ่าน...')
 
-      // ใช้ endpoint ใหม่ที่เป็น proxy ที่เราสร้างไว้
+      // กำหนดเส้นทาง API ที่จะใช้รีเซ็ตรหัสผ่าน
       const resetPasswordURL = '/api/reset-password'
 
       console.log('RESET PASSWORD ข้อมูลสำคัญ:')
@@ -92,16 +92,22 @@ export default function ResetPasswordClient() {
       const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 วินาที timeout
 
       try {
-        // ส่งคำขอเพื่อรีเซ็ตรหัสผ่าน
+        // สร้าง request body ที่ตรงไปตรงมา
+        const requestBody = JSON.stringify({
+          token: token,
+          password: newPassword,
+        })
+
+        console.log('- Request body:', requestBody)
+
+        // ส่งคำขอเพื่อรีเซ็ตรหัสผ่าน ตั้งค่าให้มั่นใจว่าไม่เกิด CORS error
         const response = await fetch(resetPasswordURL, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            Accept: 'application/json',
           },
-          body: JSON.stringify({
-            token: token,
-            password: newPassword,
-          }),
+          body: requestBody,
           cache: 'no-store',
           signal: controller.signal,
         })
