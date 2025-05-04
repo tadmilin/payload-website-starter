@@ -32,7 +32,14 @@ export const Users: CollectionConfig = {
     },
     forgotPassword: {
       generateEmailHTML: ({ req, token, user }) => {
-        let baseURL = req?.headers?.origin || getServerSideURL()
+        let baseURL = getServerSideURL()
+
+        if (req && req.headers && typeof req.headers.get === 'function') {
+          const origin = req.headers.get('Origin')
+          if (origin) {
+            baseURL = origin
+          }
+        }
 
         if (!baseURL) {
           baseURL = process.env.NEXT_PUBLIC_SERVER_URL || process.env.PAYLOAD_PUBLIC_SERVER_URL
@@ -44,7 +51,9 @@ export const Users: CollectionConfig = {
 
         const resetPasswordURL = `${baseURL}/reset-password?token=${token}`
 
-        console.log(`[FORGOT PASSWORD] Request Origin = ${req?.headers?.origin || 'ไม่มี'}`)
+        console.log(
+          `[FORGOT PASSWORD] Request Origin = ${req?.headers ? 'headers exist' : 'no headers'}`,
+        )
         console.log(`[FORGOT PASSWORD] baseURL ที่ใช้ในการสร้าง URL = ${baseURL}`)
         console.log(`[FORGOT PASSWORD] resetPasswordURL ที่ถูกสร้าง = ${resetPasswordURL}`)
         console.log(`[FORGOT PASSWORD] token length = ${token.length}`)
