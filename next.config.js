@@ -88,13 +88,17 @@ const nextConfig = {
         headers: [
           { key: 'Access-Control-Allow-Credentials', value: 'true' },
           { key: 'Access-Control-Allow-Origin', value: '*' },
-          { key: 'Access-Control-Allow-Methods', value: 'GET,POST,PUT,DELETE,OPTIONS' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,POST,PUT,DELETE,OPTIONS,PATCH' },
           {
             key: 'Access-Control-Allow-Headers',
             value:
-              'X-CSRF-Token,X-Requested-With,Accept,Accept-Version,Content-Length,Content-Type,Date,X-Api-Version,Authorization,Origin,X-Api-Key',
+              'X-CSRF-Token,X-Requested-With,Accept,Accept-Version,Content-Length,Content-Type,Date,X-Api-Version,Authorization,Origin,X-Api-Key,Cache-Control,Pragma,Expires,X-Auth-Token',
           },
           { key: 'Access-Control-Max-Age', value: '86400' },
+          { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate' },
+          { key: 'Pragma', value: 'no-cache' },
+          { key: 'Expires', value: '0' },
+          { key: 'Surrogate-Control', value: 'no-store' },
         ],
       },
       {
@@ -103,13 +107,36 @@ const nextConfig = {
         headers: [
           { key: 'Access-Control-Allow-Credentials', value: 'true' },
           { key: 'Access-Control-Allow-Origin', value: '*' },
-          { key: 'Access-Control-Allow-Methods', value: 'GET,POST,PUT,DELETE,OPTIONS' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,POST,PUT,DELETE,OPTIONS,PATCH' },
           {
             key: 'Access-Control-Allow-Headers',
             value:
-              'X-CSRF-Token,X-Requested-With,Accept,Accept-Version,Content-Length,Content-Type,Date,X-Api-Version,Authorization,Origin,X-Api-Key',
+              'X-CSRF-Token,X-Requested-With,Accept,Accept-Version,Content-Length,Content-Type,Date,X-Api-Version,Authorization,Origin,X-Api-Key,Cache-Control,Pragma,Expires,X-Auth-Token',
           },
           { key: 'Access-Control-Max-Age', value: '86400' },
+          { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate' },
+          { key: 'Pragma', value: 'no-cache' },
+          { key: 'Expires', value: '0' },
+          { key: 'Surrogate-Control', value: 'no-store' },
+        ],
+      },
+      {
+        // CORS headers สำหรับ API reset-password โดยเฉพาะ
+        source: '/api/reset-password',
+        headers: [
+          { key: 'Access-Control-Allow-Credentials', value: 'true' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET,POST,PUT,DELETE,OPTIONS,PATCH' },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value:
+              'X-CSRF-Token,X-Requested-With,Accept,Accept-Version,Content-Length,Content-Type,Date,X-Api-Version,Authorization,Origin,X-Api-Key,Cache-Control,Pragma,Expires,X-Auth-Token',
+          },
+          { key: 'Access-Control-Max-Age', value: '86400' },
+          { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate, proxy-revalidate' },
+          { key: 'Pragma', value: 'no-cache' },
+          { key: 'Expires', value: '0' },
+          { key: 'Surrogate-Control', value: 'no-store' },
         ],
       },
     ]

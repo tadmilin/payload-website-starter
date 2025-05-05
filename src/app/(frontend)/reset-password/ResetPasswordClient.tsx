@@ -17,7 +17,7 @@ export default function ResetPasswordClient() {
   useEffect(() => {
     try {
       // ดึง token จาก URL
-      const tokenFromUrl = searchParams.get('token')
+      const tokenFromUrl = searchParams?.get('token')
       if (tokenFromUrl) {
         // ไม่ต้อง decode token อีก เพราะจะทำให้เกิดการ double-decode
         setToken(tokenFromUrl)
@@ -79,9 +79,11 @@ export default function ResetPasswordClient() {
       console.log('กำลังส่งคำขอรีเซ็ตรหัสผ่าน...')
 
       // กำหนดเส้นทาง API ที่จะใช้รีเซ็ตรหัสผ่าน
-      const resetPasswordURL = '/api/reset-password'
+      const baseUrl = window.location.origin
+      const resetPasswordURL = `${baseUrl}/api/reset-password`
 
       console.log('RESET PASSWORD ข้อมูลสำคัญ:')
+      console.log('- Origin:', window.location.origin)
       console.log('- API URL:', resetPasswordURL)
       console.log('- Window Location:', window.location.href)
       console.log('- Token length:', token.length)
@@ -98,7 +100,7 @@ export default function ResetPasswordClient() {
           password: newPassword,
         })
 
-        console.log('- Request body:', requestBody)
+        console.log('- Request body created (length):', requestBody.length)
 
         // ส่งคำขอเพื่อรีเซ็ตรหัสผ่าน ตั้งค่าให้มั่นใจว่าไม่เกิด CORS error
         const response = await fetch(resetPasswordURL, {
@@ -106,7 +108,11 @@ export default function ResetPasswordClient() {
           headers: {
             'Content-Type': 'application/json',
             Accept: 'application/json',
+            'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
+            Pragma: 'no-cache',
           },
+          credentials: 'same-origin', // สำคัญสำหรับ cookies/session
+          mode: 'cors', // ใช้ CORS mode ให้ชัดเจน
           body: requestBody,
           cache: 'no-store',
           signal: controller.signal,
@@ -129,9 +135,21 @@ export default function ResetPasswordClient() {
 
           if (!response.ok) {
             console.error('เกิดข้อผิดพลาด:', data)
-            throw new Error(data.message || data.error || 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน')
+
+            // ตรวจสอบข้อความ error ที่เฉพาะเจาะจง
+            if (data.error && data.error.includes('token')) {
+              throw new Error('รหัสยืนยันไม่ถูกต้องหรือหมดอายุแล้ว กรุณาขอรีเซ็ตรหัสผ่านใหม่')
+            } else if (data.error) {
+              throw new Error(data.error)
+            } else if (data.message) {
+              throw new Error(data.message)
+            } else {
+              throw new Error('เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน กรุณาลองใหม่อีกครั้ง')
+            }
           }
 
+          // บันทึกข้อมูลสำเร็จ
+          console.log('รีเซ็ตรหัสผ่านสำเร็จ!')
           // แสดงข้อความสำเร็จ
           setSuccess(true)
 

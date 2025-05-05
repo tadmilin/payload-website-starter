@@ -3,11 +3,16 @@ import type { NextRequest, NextResponse } from 'next/server'
 // CORS headers ที่ครบถ้วนสำหรับการใช้งานทั่วไป
 export const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, PATCH',
   'Access-Control-Allow-Headers':
-    'Content-Type, Authorization, X-Requested-With, Accept, Origin, X-Api-Key',
+    'Content-Type, Authorization, X-Requested-With, Accept, Origin, X-Api-Key, X-CSRF-Token, X-Auth-Token, Cache-Control, Pragma',
   'Access-Control-Max-Age': '86400',
   'Access-Control-Allow-Credentials': 'true',
+  // เพิ่ม headers เพื่อป้องกันการถูก cache โดย browsers
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+  Pragma: 'no-cache',
+  Expires: '0',
+  'Surrogate-Control': 'no-store',
 }
 
 // ฟังก์ชันสำหรับเพิ่ม CORS headers ใน response
@@ -26,7 +31,7 @@ export function addCorsHeaders(response: Response): Response {
 // ฟังก์ชันสร้าง response สำหรับ OPTIONS request (CORS preflight)
 export function handleOptionsRequest(): Response {
   return new Response(null, {
-    status: 200,
+    status: 204, // No Content คือสถานะที่เหมาะสมสำหรับ OPTIONS response
     headers: corsHeaders,
   })
 }
