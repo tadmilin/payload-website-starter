@@ -1,205 +1,183 @@
-'use client'
+'use client';
 
-import React, { useState, useEffect } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
-import Link from 'next/link'
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function ResetPasswordClient() {
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const [token, setToken] = useState<string | null>(null)
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [token, setToken] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     try {
       // ดึง token จาก URL
-      const tokenFromUrl = searchParams?.get('token')
+      const tokenFromUrl = searchParams?.get('token');
       if (tokenFromUrl) {
-        // ไม่ต้อง decode token อีก เพราะจะทำให้เกิดการ double-decode
-        setToken(tokenFromUrl)
-        console.log('RESET PASSWORD: token from URL =', tokenFromUrl)
-        console.log('RESET PASSWORD: token length =', tokenFromUrl.length)
+        setToken(tokenFromUrl);
+        console.log('[RESET PASSWORD] Token from URL:', tokenFromUrl.substring(0, 10) + '...');
+        console.log('[RESET PASSWORD] Token length:', tokenFromUrl.length);
       } else {
-        setError('ไม่พบรหัสสำหรับรีเซ็ตรหัสผ่าน โปรดตรวจสอบลิงก์ในอีเมลของคุณอีกครั้ง')
+        setError('ไม่พบรหัสสำหรับรีเซ็ตรหัสผ่าน โปรดตรวจสอบลิงก์ในอีเมลของคุณอีกครั้ง');
       }
     } catch (e) {
-      setError('เกิดข้อผิดพลาดในการอ่าน token โปรดลองใหม่หรือติดต่อผู้ดูแลระบบ')
-      console.error('Error processing token:', e)
+      setError('เกิดข้อผิดพลาดในการอ่าน token โปรดลองใหม่หรือติดต่อผู้ดูแลระบบ');
+      console.error('[RESET PASSWORD] Error processing token:', e);
     }
-  }, [searchParams])
+  }, [searchParams]);
 
   const validatePassword = (password: string): string | true => {
     if (password.length < 8) {
-      return 'รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร'
+      return 'รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร';
     }
     if (!/[A-Z]/.test(password)) {
-      return 'รหัสผ่านต้องมีตัวพิมพ์ใหญ่อย่างน้อย 1 ตัว'
+      return 'รหัสผ่านต้องมีตัวพิมพ์ใหญ่อย่างน้อย 1 ตัว';
     }
     if (!/[a-z]/.test(password)) {
-      return 'รหัสผ่านต้องมีตัวพิมพ์เล็กอย่างน้อย 1 ตัว'
+      return 'รหัสผ่านต้องมีตัวพิมพ์เล็กอย่างน้อย 1 ตัว';
     }
     if (!/[0-9]/.test(password)) {
-      return 'รหัสผ่านต้องมีตัวเลขอย่างน้อย 1 ตัว'
+      return 'รหัสผ่านต้องมีตัวเลขอย่างน้อย 1 ตัว';
     }
-    return true
-  }
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      return 'รหัสผ่านต้องมีอักขระพิเศษอย่างน้อย 1 ตัว';
+    }
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setLoading(true)
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
 
     // ตรวจสอบว่ามี token หรือไม่
     if (!token) {
-      setError('ไม่พบรหัสสำหรับรีเซ็ตรหัสผ่าน')
-      setLoading(false)
-      return
+      setError('ไม่พบรหัสสำหรับรีเซ็ตรหัสผ่าน');
+      setLoading(false);
+      return;
     }
 
     // ตรวจสอบความซับซ้อนของรหัสผ่าน
-    const passwordValidation = validatePassword(newPassword)
+    const passwordValidation = validatePassword(newPassword);
     if (passwordValidation !== true) {
-      setError(passwordValidation)
-      setLoading(false)
-      return
+      setError(passwordValidation);
+      setLoading(false);
+      return;
     }
 
     // ตรวจสอบว่ารหัสผ่านตรงกันหรือไม่
     if (newPassword !== confirmPassword) {
-      setError('รหัสผ่านไม่ตรงกัน')
-      setLoading(false)
-      return
+      setError('รหัสผ่านไม่ตรงกัน');
+      setLoading(false);
+      return;
     }
 
     try {
-      console.log('กำลังส่งคำขอรีเซ็ตรหัสผ่าน...')
+      console.log('[RESET PASSWORD] กำลังส่งคำขอรีเซ็ตรหัสผ่าน...');
 
       // กำหนดเส้นทาง API ที่จะใช้รีเซ็ตรหัสผ่าน
-      const baseUrl = window.location.origin
-      const resetPasswordURL = `${baseUrl}/api/reset-password`
+      const baseUrl = window.location.origin;
+      const resetPasswordURL = `${baseUrl}/api/reset-password`;
 
-      console.log('RESET PASSWORD ข้อมูลสำคัญ:')
-      console.log('- Origin:', window.location.origin)
-      console.log('- API URL:', resetPasswordURL)
-      console.log('- Window Location:', window.location.href)
-      console.log('- Token length:', token.length)
-      console.log('- Token (10 chars):', token.substring(0, 10) + '...')
+      console.log('[RESET PASSWORD] ข้อมูลสำคัญ:');
+      console.log('- Origin:', window.location.origin);
+      console.log('- API URL:', resetPasswordURL);
+      console.log('- Token length:', token.length);
 
       // สร้าง AbortController สำหรับยกเลิก request หากใช้เวลานานเกินไป
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 30000) // 30 วินาที timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 วินาที timeout
 
       try {
-        // สร้าง request body ที่ตรงไปตรงมา
+        // สร้าง request body
         const requestBody = JSON.stringify({
           token: token,
           password: newPassword,
-        })
+        });
 
-        console.log('- Request body created (length):', requestBody.length)
+        console.log('[RESET PASSWORD] กำลังส่งคำขอไปยังเซิร์ฟเวอร์...');
 
-        // ส่งคำขอเพื่อรีเซ็ตรหัสผ่าน ตั้งค่าให้มั่นใจว่าไม่เกิด CORS error
+        // ส่งคำขอไปยัง API endpoint
         const response = await fetch(resetPasswordURL, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             Accept: 'application/json',
-            'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate',
-            Pragma: 'no-cache',
+            'Cache-Control': 'no-cache',
           },
-          credentials: 'same-origin', // สำคัญสำหรับ cookies/session
-          mode: 'cors', // ใช้ CORS mode ให้ชัดเจน
           body: requestBody,
+          credentials: 'same-origin',
           cache: 'no-store',
           signal: controller.signal,
-        })
+        });
 
-        clearTimeout(timeoutId)
+        clearTimeout(timeoutId);
 
-        // ล็อกค่า response และข้อมูลที่ได้รับกลับมา
-        console.log('RESET PASSWORD Response:')
-        console.log('- Status:', response.status)
-        console.log('- Status Text:', response.statusText)
-        console.log('- Headers:', [...response.headers.entries()])
+        console.log('[RESET PASSWORD] ได้รับการตอบกลับจากเซิร์ฟเวอร์:', {
+          status: response.status,
+          statusText: response.statusText,
+          contentType: response.headers.get('Content-Type'),
+        });
 
-        const contentType = response.headers.get('Content-Type')
-        console.log('- Content-Type:', contentType)
+        // แปลง response เป็น JSON
+        const responseData = await response.json().catch((err) => {
+          console.error('[RESET PASSWORD] ไม่สามารถแปลง response เป็น JSON:', err);
+          return null;
+        });
 
-        try {
-          const data = await response.json()
-          console.log('- Response data:', data)
+        console.log('[RESET PASSWORD] ข้อมูล response:', responseData);
 
-          if (!response.ok) {
-            console.error('เกิดข้อผิดพลาด:', data)
+        // ตรวจสอบสถานะการตอบกลับ
+        if (!response.ok) {
+          console.error('[RESET PASSWORD] การรีเซ็ตรหัสผ่านล้มเหลว:', responseData);
 
-            // ตรวจสอบข้อความ error ที่เฉพาะเจาะจง
-            if (data.error && data.error.includes('token')) {
-              throw new Error('รหัสยืนยันไม่ถูกต้องหรือหมดอายุแล้ว กรุณาขอรีเซ็ตรหัสผ่านใหม่')
-            } else if (data.error) {
-              throw new Error(data.error)
-            } else if (data.message) {
-              throw new Error(data.message)
-            } else {
-              throw new Error('เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน กรุณาลองใหม่อีกครั้ง')
-            }
+          if (responseData?.message) {
+            throw new Error(responseData.message);
+          } else {
+            throw new Error('เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน กรุณาลองใหม่อีกครั้ง');
           }
-
-          // บันทึกข้อมูลสำเร็จ
-          console.log('รีเซ็ตรหัสผ่านสำเร็จ!')
-          // แสดงข้อความสำเร็จ
-          setSuccess(true)
-
-          // นำผู้ใช้ไปยังหน้าล็อกอินหลังจาก 3 วินาที
-          setTimeout(() => {
-            router.push('/login')
-          }, 3000)
-        } catch (jsonError) {
-          console.error('เกิดข้อผิดพลาดในการอ่านข้อมูล response:', jsonError)
-
-          // กรณี response.json() ล้มเหลว ให้พยายามอ่านเป็น text
-          const textData = await response.text().catch(() => 'ไม่สามารถอ่านข้อมูล text ได้')
-          console.log('- Response text:', textData)
-
-          // ถ้าได้ response แต่ parse ไม่ได้ และ status เป็น 200 ให้ถือว่าสำเร็จ
-          if (response.ok) {
-            setSuccess(true)
-            setTimeout(() => {
-              router.push('/login')
-            }, 3000)
-            return
-          }
-
-          throw new Error(`เกิดข้อผิดพลาดในการประมวลผลคำตอบจากเซิร์ฟเวอร์: ${jsonError.message}`)
         }
+
+        // รีเซ็ตรหัสผ่านสำเร็จ
+        console.log('[RESET PASSWORD] รีเซ็ตรหัสผ่านสำเร็จ');
+        setSuccess(true);
+
+        // นำผู้ใช้ไปยังหน้าล็อกอินหลังจาก 3 วินาที
+        setTimeout(() => {
+          router.push('/login');
+        }, 3000);
       } catch (fetchError: any) {
-        clearTimeout(timeoutId)
+        clearTimeout(timeoutId);
 
         // ตรวจสอบว่าเป็น timeout หรือไม่
         if (fetchError.name === 'AbortError') {
-          throw new Error('การเชื่อมต่อใช้เวลานานเกินไป กรุณาลองใหม่อีกครั้ง')
+          throw new Error('การเชื่อมต่อใช้เวลานานเกินไป กรุณาลองใหม่อีกครั้ง');
         }
 
-        throw fetchError
+        throw fetchError;
       }
     } catch (error: any) {
-      console.error('Error details:', error)
+      console.error('[RESET PASSWORD] Error:', error);
 
       // จัดการข้อความ error ที่เฉพาะเจาะจงมากขึ้น
       if (error.message.includes('fetch') || error.message.includes('network')) {
         setError(
           'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตและลองใหม่อีกครั้ง',
-        )
+        );
+      } else if (error.message.includes('token') || error.message.includes('หมดอายุ')) {
+        setError('รหัสยืนยันไม่ถูกต้องหรือหมดอายุแล้ว กรุณาขอรีเซ็ตรหัสผ่านใหม่');
       } else {
-        setError(error.message || 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน')
+        setError(error.message || 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน');
       }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-[#01121f] flex flex-col items-center justify-center px-4">
@@ -249,16 +227,18 @@ export default function ResetPasswordClient() {
               </label>
               <input
                 id="newPassword"
+                name="newPassword"
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
-                placeholder="••••••••"
-                className="w-full px-4 py-3 bg-[#162431] border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-white"
+                minLength={8}
+                className="w-full px-3 py-2 bg-[#162736] border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                placeholder="รหัสผ่านใหม่ของคุณ"
               />
               <p className="text-xs text-gray-400 mt-1">
-                รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร ประกอบด้วยตัวพิมพ์ใหญ่ ตัวพิมพ์เล็ก
-                และตัวเลข
+                รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร และประกอบด้วยตัวพิมพ์ใหญ่ ตัวพิมพ์เล็ก
+                ตัวเลข และอักขระพิเศษ
               </p>
             </div>
 
@@ -268,29 +248,33 @@ export default function ResetPasswordClient() {
               </label>
               <input
                 id="confirmPassword"
+                name="confirmPassword"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                placeholder="••••••••"
-                className="w-full px-4 py-3 bg-[#162431] border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-500 text-white"
+                className="w-full px-3 py-2 bg-[#162736] border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                placeholder="ยืนยันรหัสผ่านใหม่ของคุณ"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className={`w-full rounded-md py-3 px-4 text-white font-medium transition duration-300 ${
+              className={`w-full py-2 px-4 ${
                 loading
-                  ? 'bg-blue-600/50 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-[#0a1925]'
-              }`}
+                  ? 'bg-gray-500 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
+              } text-white rounded-md font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition`}
             >
               {loading ? 'กำลังดำเนินการ...' : 'รีเซ็ตรหัสผ่าน'}
             </button>
 
-            <div className="text-center mt-6">
-              <Link href="/login" className="text-sm text-blue-400 hover:text-blue-300">
+            <div className="flex items-center justify-center mt-5">
+              <Link
+                href="/login"
+                className="text-sm text-blue-400 hover:text-blue-300 focus:outline-none focus:underline transition"
+              >
                 กลับไปยังหน้าเข้าสู่ระบบ
               </Link>
             </div>
@@ -298,5 +282,5 @@ export default function ResetPasswordClient() {
         )}
       </div>
     </div>
-  )
+  );
 }
