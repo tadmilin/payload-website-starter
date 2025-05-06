@@ -8,11 +8,13 @@ export default function ResetPasswordClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
+  const [manualToken, setManualToken] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showManualInput, setShowManualInput] = useState(false);
 
   useEffect(() => {
     try {
@@ -23,7 +25,9 @@ export default function ResetPasswordClient() {
         console.log('[RESET PASSWORD] Token from URL:', tokenFromUrl.substring(0, 10) + '...');
         console.log('[RESET PASSWORD] Token length:', tokenFromUrl.length);
       } else {
-        setError('ไม่พบรหัสสำหรับรีเซ็ตรหัสผ่าน โปรดตรวจสอบลิงก์ในอีเมลของคุณอีกครั้ง');
+        // ไม่พบ token ใน URL ให้แสดงช่องสำหรับป้อน token โดยตรง
+        setShowManualInput(true);
+        setError('ไม่พบรหัสสำหรับรีเซ็ตรหัสผ่านในลิงก์ กรุณาป้อน token โดยตรง');
       }
     } catch (e) {
       setError('เกิดข้อผิดพลาดในการอ่าน token โปรดลองใหม่หรือติดต่อผู้ดูแลระบบ');
@@ -55,9 +59,12 @@ export default function ResetPasswordClient() {
     setError(null);
     setLoading(true);
 
+    // หากไม่มี token จาก URL และไม่ได้ป้อน token โดยตรง
+    const tokenToUse = token || manualToken;
+
     // ตรวจสอบว่ามี token หรือไม่
-    if (!token) {
-      setError('ไม่พบรหัสสำหรับรีเซ็ตรหัสผ่าน');
+    if (!tokenToUse) {
+      setError('กรุณาป้อนรหัสสำหรับรีเซ็ตรหัสผ่าน');
       setLoading(false);
       return;
     }
@@ -87,7 +94,8 @@ export default function ResetPasswordClient() {
       console.log('[RESET PASSWORD] ข้อมูลสำคัญ:');
       console.log('- Origin:', window.location.origin);
       console.log('- API URL:', resetPasswordURL);
-      console.log('- Token length:', token.length);
+      console.log('- Token length:', tokenToUse.length);
+      console.log('- Token prefix:', tokenToUse.substring(0, 10) + '...');
 
       // สร้าง AbortController สำหรับยกเลิก request หากใช้เวลานานเกินไป
       const controller = new AbortController();
@@ -96,13 +104,13 @@ export default function ResetPasswordClient() {
       try {
         // สร้าง request body
         const requestBody = JSON.stringify({
-          token: token,
+          token: tokenToUse,
           password: newPassword,
         });
 
         console.log('[RESET PASSWORD] กำลังส่งคำขอไปยังเซิร์ฟเวอร์...');
 
-        // ส่งคำขอไปยัง API endpoint
+        // ส่งคำขอไปยัง API endpoint ด้วยการตั้งค่าที่แก้ไขปัญหา CORS
         const response = await fetch(resetPasswordURL, {
           method: 'POST',
           headers: {
@@ -111,9 +119,10 @@ export default function ResetPasswordClient() {
             'Cache-Control': 'no-cache',
           },
           body: requestBody,
-          credentials: 'same-origin',
+          credentials: 'include', // ใช้ include แทน same-origin
           cache: 'no-store',
           signal: controller.signal,
+          mode: 'cors', // เพิ่ม mode: 'cors' เพื่อให้แน่ใจว่าใช้ CORS
         });
 
         clearTimeout(timeoutId);
@@ -124,13 +133,26 @@ export default function ResetPasswordClient() {
           contentType: response.headers.get('Content-Type'),
         });
 
-        // แปลง response เป็น JSON
-        const responseData = await response.json().catch((err) => {
-          console.error('[RESET PASSWORD] ไม่สามารถแปลง response เป็น JSON:', err);
-          return null;
-        });
+        // พยายามแปลง response เป็น JSON ก่อน
+        let responseData;
+        try {
+          responseData = await response.json();
+          console.log('[RESET PASSWORD] ข้อมูล response:', responseData);
+        } catch (jsonError) {
+          console.error('[RESET PASSWORD] ไม่สามารถแปลง response เป็น JSON:', jsonError);
 
-        console.log('[RESET PASSWORD] ข้อมูล response:', responseData);
+          // หากไม่สามารถแปลงเป็น JSON ได้ ให้ใช้ text response
+          const textResponse = await response.text();
+          console.log('[RESET PASSWORD] Text response:', textResponse);
+
+          // สร้าง object จาก text ถ้าเป็นไปได้
+          try {
+            responseData = JSON.parse(textResponse);
+          } catch (e) {
+            // ถ้าไม่สามารถแปลงเป็น JSON ได้ ให้ใช้เป็น object ธรรมดา
+            responseData = { message: textResponse || 'ไม่มีข้อความจากเซิร์ฟเวอร์' };
+          }
+        }
 
         // ตรวจสอบสถานะการตอบกลับ
         if (!response.ok) {
@@ -169,7 +191,11 @@ export default function ResetPasswordClient() {
         setError(
           'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตและลองใหม่อีกครั้ง',
         );
-      } else if (error.message.includes('token') || error.message.includes('หมดอายุ')) {
+      } else if (
+        error.message.includes('token') ||
+        error.message.includes('หมดอายุ') ||
+        error.message.includes('ไม่ถูกต้อง')
+      ) {
         setError('รหัสยืนยันไม่ถูกต้องหรือหมดอายุแล้ว กรุณาขอรีเซ็ตรหัสผ่านใหม่');
       } else {
         setError(error.message || 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน');
@@ -218,6 +244,26 @@ export default function ResetPasswordClient() {
                     </div>
                   </div>
                 ) : null}
+              </div>
+            )}
+
+            {showManualInput && (
+              <div className="space-y-2">
+                <label htmlFor="manualToken" className="block text-sm font-medium text-white/90">
+                  รหัสยืนยัน (Token)
+                </label>
+                <input
+                  id="manualToken"
+                  name="manualToken"
+                  type="text"
+                  value={manualToken}
+                  onChange={(e) => setManualToken(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#162736] border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                  placeholder="ป้อนรหัสยืนยันที่ได้รับทางอีเมล"
+                />
+                <p className="text-xs text-gray-400">
+                  คุณสามารถคัดลอกรหัสยืนยันจากอีเมลที่ได้รับและวางลงในช่องนี้
+                </p>
               </div>
             )}
 

@@ -7,6 +7,15 @@ import configPromise from '@payload-config';
 import { withCors } from '@/lib/cors';
 import { ApiError } from '@/lib/api-helpers';
 
+// ตั้งค่า CORS headers สำหรับใช้งานโดยตรง (เฉพาะกรณีที่ middleware ไม่ทำงาน)
+export const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, Accept, Origin, X-Requested-With',
+  'Access-Control-Allow-Credentials': 'true',
+  'Access-Control-Max-Age': '86400',
+};
+
 /**
  * สำหรับตรวจสอบว่ารหัสผ่านใหม่ถูกต้องตามหลักเกณฑ์หรือไม่
  */
@@ -35,6 +44,11 @@ function validatePassword(password: string): boolean {
 export const POST = withCors(async (request: NextRequest) => {
   try {
     console.log('[RESET PASSWORD] ได้รับคำขอรีเซ็ตรหัสผ่าน');
+    console.log('[RESET PASSWORD] Headers:', {
+      contentType: request.headers.get('Content-Type'),
+      origin: request.headers.get('Origin'),
+      host: request.headers.get('Host'),
+    });
 
     // อ่านข้อมูล JSON จาก request
     let requestData;
@@ -48,13 +62,30 @@ export const POST = withCors(async (request: NextRequest) => {
       });
     } catch (jsonError) {
       console.error('[RESET PASSWORD] ไม่สามารถอ่านข้อมูล JSON จาก request:', jsonError);
-      return Response.json(
-        {
-          success: false,
-          message: 'ไม่สามารถอ่านข้อมูล JSON จาก request ได้',
-        },
-        { status: 400 },
-      );
+
+      // ลองอ่าน request แบบ text ถ้าการอ่าน JSON ล้มเหลว
+      try {
+        const text = await request.text();
+        console.log('[RESET PASSWORD] ข้อมูล text ที่ได้รับ:', text.substring(0, 100) + '...');
+
+        // พยายามแปลง text เป็น JSON
+        requestData = JSON.parse(text);
+      } catch (textError) {
+        console.error('[RESET PASSWORD] ไม่สามารถอ่านข้อมูล text จาก request:', textError);
+        return new Response(
+          JSON.stringify({
+            success: false,
+            message: 'ไม่สามารถอ่านข้อมูล request ได้',
+          }),
+          {
+            status: 400,
+            headers: {
+              'Content-Type': 'application/json',
+              ...corsHeaders,
+            },
+          },
+        );
+      }
     }
 
     const { token, password } = requestData;
@@ -65,25 +96,37 @@ export const POST = withCors(async (request: NextRequest) => {
         hasToken: !!token,
         hasPassword: !!password,
       });
-      return Response.json(
-        {
+      return new Response(
+        JSON.stringify({
           success: false,
           message: 'Token และรหัสผ่านใหม่จำเป็นต้องระบุ',
+        }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
         },
-        { status: 400 },
       );
     }
 
     // ตรวจสอบรหัสผ่านใหม่
     if (!validatePassword(password)) {
       console.warn('[RESET PASSWORD] รหัสผ่านไม่ตรงตามเงื่อนไข');
-      return Response.json(
-        {
+      return new Response(
+        JSON.stringify({
           success: false,
           message:
             'รหัสผ่านต้องมีความยาวอย่างน้อย 8 ตัวอักษร และประกอบด้วยตัวพิมพ์ใหญ่ ตัวพิมพ์เล็ก ตัวเลข และอักขระพิเศษ',
+        }),
+        {
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
         },
-        { status: 400 },
       );
     }
 
@@ -95,6 +138,7 @@ export const POST = withCors(async (request: NextRequest) => {
     // ดำเนินการรีเซ็ตรหัสผ่าน
     try {
       console.log('[RESET PASSWORD] เริ่มกระบวนการรีเซ็ตรหัสผ่าน');
+      console.log('[RESET PASSWORD] Token length:', token.length);
 
       await payload.resetPassword({
         collection: 'users',
@@ -107,12 +151,18 @@ export const POST = withCors(async (request: NextRequest) => {
 
       console.log('[RESET PASSWORD] รีเซ็ตรหัสผ่านสำเร็จ');
 
-      return Response.json(
-        {
+      return new Response(
+        JSON.stringify({
           success: true,
           message: 'รีเซ็ตรหัสผ่านสำเร็จ',
+        }),
+        {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
         },
-        { status: 200 },
       );
     } catch (payloadError) {
       console.error('[RESET PASSWORD] เกิดข้อผิดพลาดจาก Payload:', payloadError);
@@ -128,66 +178,105 @@ export const POST = withCors(async (request: NextRequest) => {
           errorMessage.includes('invalid') ||
           errorMessage.includes('expired')
         ) {
-          return Response.json(
-            {
+          return new Response(
+            JSON.stringify({
               success: false,
               message: 'รหัสยืนยันไม่ถูกต้องหรือหมดอายุแล้ว กรุณาขอรีเซ็ตรหัสผ่านใหม่',
+            }),
+            {
+              status: 400,
+              headers: {
+                'Content-Type': 'application/json',
+                ...corsHeaders,
+              },
             },
-            { status: 400 },
           );
         }
 
-        return Response.json(
-          {
+        return new Response(
+          JSON.stringify({
             success: false,
             message: errorMessage,
+          }),
+          {
+            status: 400,
+            headers: {
+              'Content-Type': 'application/json',
+              ...corsHeaders,
+            },
           },
-          { status: 400 },
         );
       }
 
-      return Response.json(
-        {
+      return new Response(
+        JSON.stringify({
           success: false,
           message: 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุในการรีเซ็ตรหัสผ่าน',
+        }),
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
         },
-        { status: 500 },
       );
     }
   } catch (error) {
     console.error('[RESET PASSWORD] เกิดข้อผิดพลาดทั่วไป:', error);
 
     if (error instanceof ApiError) {
-      return Response.json(
-        {
+      return new Response(
+        JSON.stringify({
           success: false,
           message: error.message,
+        }),
+        {
+          status: error.status,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
         },
-        { status: error.status },
       );
     }
 
-    return Response.json(
-      {
+    return new Response(
+      JSON.stringify({
         success: false,
         message: 'เกิดข้อผิดพลาดที่ไม่คาดคิด',
+      }),
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          ...corsHeaders,
+        },
       },
-      { status: 500 },
     );
   }
 });
 
 // สำหรับ GET request
 export const GET = withCors(async (request: NextRequest) => {
-  return Response.json(
-    {
+  return new Response(
+    JSON.stringify({
       message: 'Endpoint นี้รองรับเฉพาะ POST method สำหรับการรีเซ็ตรหัสผ่าน',
+    }),
+    {
+      status: 405,
+      headers: {
+        'Content-Type': 'application/json',
+        ...corsHeaders,
+      },
     },
-    { status: 405 },
   );
 });
 
 // Export handler สำหรับ OPTIONS request (preflight)
-export const OPTIONS = withCors((request: NextRequest) => {
-  return new Response(null, { status: 204 });
-});
+export const OPTIONS = (request: NextRequest) => {
+  return new Response(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+};
