@@ -42,16 +42,10 @@ export async function generateStaticParams() {
   }
 }
 
-type Args = {
-  params: Promise<{
-    slug?: string
-  }>
-}
-
-export default async function Post({ params: paramsPromise }: Args) {
+export default async function Post({ params }: { params: { slug?: string } }) {
   try {
     const { isEnabled: draft } = await draftMode()
-    const { slug = '' } = await paramsPromise
+    const { slug = '' } = params
     const url = '/posts/' + slug
     const post = await queryPostBySlug({ slug })
 
@@ -97,8 +91,12 @@ export default async function Post({ params: paramsPromise }: Args) {
   }
 }
 
-export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
-  const { slug = '' } = await paramsPromise
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug?: string }
+}): Promise<Metadata> {
+  const { slug = '' } = params
   const post = await queryPostBySlug({ slug })
 
   return generateMeta({ doc: post })

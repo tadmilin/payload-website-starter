@@ -5,7 +5,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "prebuild": "npm rebuild && cross-env SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install --platform=linux --arch=x64 sharp",
+    "prebuild": "npm rebuild",
     "build": "next build",
     "postbuild": "next-sitemap --config next-sitemap.config.cjs",
     "ci": "npm run build",
@@ -17,7 +17,17 @@
     "lint:fix": "next lint --fix",
     "payload": "payload",
     "reinstall": "rm -rf node_modules && rm package-lock.json && npm install",
-    "start": "next start"
+    "start": "next start",
+    "vercel-build": "next build",
+    "fix-unused-vars": "node scripts/fix-unused-vars.js",
+    "fix-dependencies": "node scripts/fix-dependencies.cjs",
+    "repair": "node scripts/fix-dependencies.cjs && rimraf .next && npm run build",
+    "prettier": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
+    "format": "npm run prettier && npm run lint:fix",
+    "types:check": "tsc --noEmit",
+    "prepare": "npm run generate:types",
+    "clean": "rimraf .next out node_modules/.cache",
+    "check-all": "npm run lint && npm run types:check && npm run build"
   },
   "babel": {
     "presets": [
@@ -28,9 +38,9 @@
   "dependencies": {
     "@babel/runtime": "^7.27.0",
     "@payloadcms/admin-bar": "3.35.1",
-    "@payloadcms/db-postgres": "^3.35.1",
+    "@payloadcms/db-postgres": "3.35.1",
     "@payloadcms/db-vercel-postgres": "3.35.1",
-    "@payloadcms/email-nodemailer": "^3.35.1",
+    "@payloadcms/email-nodemailer": "3.35.1",
     "@payloadcms/live-preview-react": "3.35.1",
     "@payloadcms/next": "3.35.1",
     "@payloadcms/payload-cloud": "3.35.1",
@@ -40,7 +50,7 @@
     "@payloadcms/plugin-search": "3.35.1",
     "@payloadcms/plugin-seo": "3.35.1",
     "@payloadcms/richtext-lexical": "3.35.1",
-    "@payloadcms/storage-vercel-blob": "^3.35.1",
+    "@payloadcms/storage-vercel-blob": "3.35.1",
     "@payloadcms/ui": "3.35.1",
     "@radix-ui/react-checkbox": "^1.0.4",
     "@radix-ui/react-label": "^2.0.2",
@@ -83,7 +93,7 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "7.45.4",
     "react-i18next": "^13.5.0",
-    "sharp": "^0.32.6",
+    "sharp": "^0.33.3",
     "suncalc": "^1.9.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss": "^3.4.3",
@@ -98,11 +108,13 @@
     "@babel/plugin-transform-runtime": "^7.26.10",
     "@eslint/eslintrc": "^3.2.0",
     "copyfiles": "^2.4.1",
+    "critters": "0.0.23",
     "cross-env": "^7.0.3",
     "eslint": "^9.26.0",
     "eslint-config-next": "15.3.0",
     "patch-package": "^8.0.0",
-    "prettier": "^3.4.2"
+    "prettier": "^3.4.2",
+    "rimraf": "6.0.1"
   },
   "packageManager": "npm",
   "engines": {

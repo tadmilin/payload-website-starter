@@ -1,23 +1,12 @@
-'use client'
+'use client';
 
-import React, { useEffect, useState } from 'react'
-import Script from 'next/script'
+import React from 'react';
+import Script from 'next/script';
 
 export default function FrontendClientScripts() {
-  const [hydrated, setHydrated] = useState(false)
-  
-  useEffect(() => {
-    setHydrated(true)
-  }, [])
-
-  // We avoid hydration mismatch by only showing once client-side hydration is complete
-  if (!hydrated) {
-    return null
-  }
-
   return (
     <>
-      <Script 
+      <Script
         id="clarity-script"
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{
@@ -27,7 +16,7 @@ export default function FrontendClientScripts() {
               t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
               y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
             })(window, document, "clarity", "script", "${process.env.NEXT_PUBLIC_CLARITY_ID || ''}");
-          `
+          `,
         }}
       />
       <Script
@@ -44,11 +33,11 @@ export default function FrontendClientScripts() {
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', '${process.env.NEXT_PUBLIC_GA_ID || ''}');
-          `
+          `,
         }}
       />
     </>
-  )
+  );
 }
 
 // Custom hook for handling language
@@ -69,7 +58,8 @@ export function useLanguage() {
       try {
         localStorage.setItem('language', lang);
         document.documentElement.setAttribute('data-lang', lang);
-        
+        document.documentElement.lang = lang;
+
         // Set cookies for Next.js
         document.cookie = `locale=${lang};path=/;max-age=31536000`;
         document.cookie = `NEXT_LOCALE=${lang};path=/;max-age=31536000`;
@@ -81,6 +71,6 @@ export function useLanguage() {
 
   return {
     currentLang: getCurrentLang(),
-    setLanguage
+    setLanguage,
   };
-} 
+}

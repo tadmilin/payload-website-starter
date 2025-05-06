@@ -10,9 +10,15 @@ const compat = new FlatCompat({
 })
 
 const eslintConfig = [
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+  ...compat.extends(
+    'next/core-web-vitals',
+    'next/typescript',
+    'plugin:import/recommended',
+    'plugin:import/typescript',
+  ),
   {
     rules: {
+      // TypeScript
       '@typescript-eslint/ban-ts-comment': 'warn',
       '@typescript-eslint/no-empty-object-type': 'warn',
       '@typescript-eslint/no-explicit-any': 'warn',
@@ -28,10 +34,60 @@ const eslintConfig = [
           caughtErrorsIgnorePattern: '^(_|ignore)',
         },
       ],
+      '@typescript-eslint/consistent-type-imports': [
+        'warn',
+        {
+          prefer: 'type-imports',
+          disallowTypeAnnotations: false,
+        },
+      ],
+      '@typescript-eslint/no-misused-promises': 'warn',
+
+      // React
+      'react-hooks/exhaustive-deps': 'warn',
+      'react/jsx-no-useless-fragment': 'warn',
+      'react/no-array-index-key': 'warn',
+      'react/jsx-sort-props': [
+        'warn',
+        {
+          callbacksLast: true,
+          shorthandFirst: true,
+          ignoreCase: true,
+          reservedFirst: true,
+        },
+      ],
+
+      // Next.js
+      '@next/next/no-img-element': 'off',
+      '@next/next/no-html-link-for-pages': 'warn',
+
+      // Import
+      'import/no-anonymous-default-export': 'off',
+      'import/order': [
+        'warn',
+        {
+          'newlines-between': 'always',
+          alphabetize: { order: 'asc', caseInsensitive: true },
+          groups: [
+            'builtin',
+            'external',
+            'internal',
+            'parent',
+            'sibling',
+            'index',
+            'object',
+            'type',
+          ],
+        },
+      ],
+
+      // ทั่วไป
+      'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
+      camelcase: ['warn', { properties: 'never' }],
     },
   },
   {
-    ignores: ['.next/'],
+    ignores: ['.next/', 'dist/', 'build/', 'node_modules/'],
   },
 ]
 

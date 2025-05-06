@@ -8,13 +8,8 @@ import { Search } from '@/search/Component'
 import PageClient from './page.client'
 import { CardPostData } from '@/components/Card'
 
-type Args = {
-  searchParams: Promise<{
-    q: string
-  }>
-}
-export default async function Page({ searchParams: searchParamsPromise }: Args) {
-  const { q: query } = await searchParamsPromise
+export default async function Page({ searchParams }: { searchParams: { q: string } }) {
+  const { q: query } = searchParams
   const payload = await getPayload({ config: configPromise })
 
   const posts = await payload.find({
@@ -60,20 +55,22 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
   })
 
   // แปลงข้อมูล posts.docs ให้เป็นรูปแบบที่ถูกต้องตาม CardPostData
-  const formattedPosts = posts.docs.map(post => {
+  const formattedPosts = posts.docs.map((post) => {
     return {
       title: post.title,
       slug: post.slug,
       meta: post.meta,
-      categories: post.categories ? post.categories.map(cat => {
-        if (typeof cat === 'object' && cat !== null) {
-          return {
-            id: cat.id || '',
-            title: cat.title || '',
-          }
-        }
-        return cat
-      }) : []
+      categories: post.categories
+        ? post.categories.map((cat) => {
+            if (typeof cat === 'object' && cat !== null) {
+              return {
+                id: cat.id || '',
+                title: cat.title || '',
+              }
+            }
+            return cat
+          })
+        : [],
     }
   })
 

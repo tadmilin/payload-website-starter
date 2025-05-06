@@ -11,14 +11,8 @@ import { notFound } from 'next/navigation'
 
 export const revalidate = 600
 
-type Args = {
-  params: Promise<{
-    pageNumber: string
-  }>
-}
-
-export default async function Page({ params: paramsPromise }: Args) {
-  const { pageNumber } = await paramsPromise
+export default async function Page({ params }: { params: { pageNumber: string } }) {
+  const { pageNumber } = params
   const payload = await getPayload({ config: configPromise })
 
   const sanitizedPageNumber = Number(pageNumber)
@@ -77,8 +71,12 @@ export default async function Page({ params: paramsPromise }: Args) {
   }
 }
 
-export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
-  const { pageNumber } = await paramsPromise
+export async function generateMetadata({
+  params,
+}: {
+  params: { pageNumber: string }
+}): Promise<Metadata> {
+  const { pageNumber } = params
   return {
     title: `Payload Website Template Posts Page ${pageNumber || ''}`,
   }

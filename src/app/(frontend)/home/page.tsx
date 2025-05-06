@@ -1,76 +1,74 @@
-'use client'
+'use client';
 
-import React, { useState, useRef, useEffect } from 'react'
-import Link from 'next/link'
-import { useTranslation } from 'react-i18next'
+import React, { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 
 export default function HomePage() {
-  const [isLoaded, setIsLoaded] = useState(false)
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [currentLang, setCurrentLang] = useState('')
-  const [userName, setUserName] = useState('')
-  const menuRef = useRef(null)
-  const { t } = useTranslation()
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [currentLang, setCurrentLang] = useState('');
+  const [userName, setUserName] = useState('');
+  const [mounted, setMounted] = useState(false);
+  const menuRef = useRef(null);
+  const { t } = useTranslation();
 
   const getCurrentLanguage = () => {
-    return currentLang || 'en'
-  }
+    return currentLang || 'en';
+  };
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoaded(true)
-      let initLang
-      try {
-        initLang = localStorage.getItem('language') || 'en'
-      } catch (e) {
-        initLang = 'en'
-      }
-      document.documentElement.setAttribute('data-lang', initLang)
-      setCurrentLang(initLang)
+    setMounted(true);
+    let initLang;
+    try {
+      initLang = localStorage.getItem('language') || 'en';
+    } catch (e) {
+      initLang = 'en';
+    }
+    document.documentElement.setAttribute('data-lang', initLang);
+    document.documentElement.lang = initLang;
+    setCurrentLang(initLang);
 
-      try {
-        const userStr = localStorage.getItem('user')
-        if (userStr) {
-          const user = JSON.parse(userStr)
-          setUserName(`${user.firstName || ''} ${user.lastName || ''}`.trim())
-        }
-      } catch (e) {
-        console.error('ไม่สามารถอ่านข้อมูลผู้ใช้ได้:', e)
+    try {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        setUserName(`${user.firstName || ''} ${user.lastName || ''}`.trim());
       }
-    }, 0)
-
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setIsMenuOpen(false)
-      }
+    } catch (e) {
+      console.error('ไม่สามารถอ่านข้อมูลผู้ใช้ได้:', e);
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !(menuRef.current as HTMLElement).contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      clearTimeout(timer)
-    }
-  }, [])
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen)
-  }
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   const handleLanguageToggle = () => {
-    const newLang = currentLang === 'en' ? 'th' : 'en'
+    const newLang = currentLang === 'en' ? 'th' : 'en';
     try {
-      localStorage.setItem('language', newLang)
+      localStorage.setItem('language', newLang);
     } catch (e) {
-      console.error('Failed to save language to localStorage:', e)
+      console.error('Failed to save language to localStorage:', e);
     }
-    document.documentElement.setAttribute('data-lang', newLang)
-    setCurrentLang(newLang)
-    document.cookie = `locale=${newLang};path=/;max-age=31536000`
-    document.cookie = `NEXT_LOCALE=${newLang};path=/;max-age=31536000`
-    const event = new CustomEvent('toggle-language', { detail: { language: newLang } })
-    document.dispatchEvent(event)
-    setIsMenuOpen(false)
-  }
+    document.documentElement.setAttribute('data-lang', newLang);
+    setCurrentLang(newLang);
+    document.cookie = `locale=${newLang};path=/;max-age=31536000`;
+    document.cookie = `NEXT_LOCALE=${newLang};path=/;max-age=31536000`;
+    const event = new CustomEvent('toggle-language', { detail: { language: newLang } });
+    document.dispatchEvent(event);
+    setIsMenuOpen(false);
+  };
 
   const translations = {
     th: {
@@ -131,16 +129,19 @@ export default function HomePage() {
       admin: 'Admin',
       logout: 'Logout',
     },
-  }
+  };
 
   const tr = (key) => {
-    const lang = getCurrentLanguage()
-    return translations[lang]?.[key] || translations.en[key] || key
-  }
+    const lang = getCurrentLanguage();
+    return translations[lang]?.[key] || translations.en[key] || key;
+  };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#01121f] text-white overflow-hidden">
-      <div className="fixed top-0 left-0 w-full z-50">
+    <main
+      className="flex flex-col min-h-screen bg-[#01121f] text-white overflow-hidden"
+      suppressHydrationWarning
+    >
+      <div className="fixed top-0 left-0 w-full z-50" suppressHydrationWarning>
         <div className="px-4 py-3 flex justify-between items-center">
           <div className="text-white font-bold">
             <Link href="/" className="flex items-center">
@@ -149,7 +150,7 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="flex items-center">
-            {userName && (
+            {mounted && userName && (
               <Link href="/profile" passHref>
                 <div className="mr-3 text-sm text-white/90 bg-[#233544] px-3 py-1.5 rounded-sm cursor-pointer hover:bg-[#344554] transition-colors">
                   {userName}
@@ -165,7 +166,7 @@ export default function HomePage() {
                 {tr('menu')}
               </button>
 
-              {isMenuOpen && (
+              {mounted && isMenuOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-[#233544] rounded-sm shadow-lg z-50 py-1">
                   <Link
                     href="/"
@@ -238,14 +239,14 @@ export default function HomePage() {
                       className="block w-full text-left px-4 py-2 text-sm text-white hover:bg-[#344554]"
                       onClick={() => {
                         try {
-                          localStorage.removeItem('user')
-                          localStorage.removeItem('payloadToken')
+                          localStorage.removeItem('user');
+                          localStorage.removeItem('payloadToken');
                         } catch (e) {
-                          console.error('Failed removing items from localStorage:', e)
+                          console.error('Failed removing items from localStorage:', e);
                         }
-                        setUserName('')
-                        setIsMenuOpen(false)
-                        window.location.reload()
+                        setUserName('');
+                        setIsMenuOpen(false);
+                        window.location.reload();
                       }}
                     >
                       {tr('logout')}
@@ -267,9 +268,7 @@ export default function HomePage() {
       </div>
 
       <div className="flex flex-col">
-        <section
-          className={`relative h-screen w-full transition-all duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-        >
+        <section className="relative h-screen w-full">
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
@@ -282,13 +281,13 @@ export default function HomePage() {
           <div className="relative z-10 h-full flex flex-col items-center justify-between text-center px-6">
             <div className="mt-32">
               <h1
-                className={`font-semibold mb-2 transition-all duration-1000 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
+                className="font-semibold mb-2"
                 style={{ width: '390px', height: '48px', fontSize: '40px', lineHeight: '1.2' }}
               >
                 {tr('solarMadeSimple')}
               </h1>
               <p
-                className={`text-white/90 transition-all duration-1000 delay-300 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
+                className="text-white/90"
                 style={{ width: '390px', height: '22px', fontSize: '18px', lineHeight: '1.2' }}
               >
                 {tr('fastCalculation')}
@@ -305,9 +304,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section
-          className={`relative h-screen w-full transition-all duration-1000 delay-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-        >
+        <section className="relative h-screen w-full">
           <div
             className="absolute inset-0 bg-cover"
             style={{
@@ -351,9 +348,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section
-          className={`relative h-screen w-full transition-all duration-1000 delay-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-        >
+        <section className="relative h-screen w-full">
           <div
             className="absolute inset-0 bg-cover"
             style={{
@@ -391,9 +386,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section
-          className={`relative h-screen w-full transition-all duration-1000 delay-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-        >
+        <section className="relative h-screen w-full">
           <div
             className="absolute inset-0 bg-cover"
             style={{
@@ -433,9 +426,7 @@ export default function HomePage() {
         </section>
       </div>
 
-      <footer
-        className={`text-center text-white/70 text-xs py-4 border-t border-white/10 transition-all duration-1000 delay-700 ${isLoaded ? 'opacity-100' : 'opacity-0'} mt-auto`}
-      >
+      <footer className="text-center text-white/70 text-xs py-4 border-t border-white/10 mt-auto">
         <p className="mb-4">SOLARLAA. {tr('allRightsReserved')} © 2025</p>
         <div className="px-6">
           <Link
@@ -446,6 +437,6 @@ export default function HomePage() {
           </Link>
         </div>
       </footer>
-    </div>
-  )
+    </main>
+  );
 }

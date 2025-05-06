@@ -1,36 +1,44 @@
-import type { Metadata } from 'next'
+import type { Metadata } from 'next';
 
-import React from 'react'
-import { ClientProviders } from '@/app/providers'
-import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
-import { draftMode } from 'next/headers'
-import { Jost } from 'next/font/google'
+import React from 'react';
+import { ClientProviders } from '@/app/providers';
+import { mergeOpenGraph } from '@/utilities/mergeOpenGraph';
+import { draftMode } from 'next/headers';
+import { Jost } from 'next/font/google';
 // import { Navbar } from '@/components/layout/Navbar'
-import { getServerSideURL } from '@/utilities/getURL'
-import '@/patch-i18next.js'
-import FrontendClientScripts from './frontend-client'
-import './globals.css'
+import { getServerSideURL } from '@/utilities/getURL';
+import '@/patch-i18next.js';
+import FrontendClientScripts from './frontend-client';
+import './globals.css';
 
 const jost = Jost({
   subsets: ['latin'],
   variable: '--font-jost',
   weight: ['400', '700'],
-})
+  display: 'swap',
+  fallback: [
+    '-apple-system',
+    'BlinkMacSystemFont',
+    'Segoe UI',
+    'Roboto',
+    'Helvetica Neue',
+    'Arial',
+    'sans-serif',
+  ],
+});
 
 export default async function FrontendLayout({ children }: { children: React.ReactNode }) {
-  const { isEnabled } = await draftMode()
+  const { isEnabled } = await draftMode();
 
   return (
-    <html lang="en" className={jost.variable} suppressHydrationWarning>
-      <body>
-        <FrontendClientScripts />
-        <ClientProviders>
-          {/* <Navbar /> */}
-          <main>{children}</main>
-        </ClientProviders>
-      </body>
-    </html>
-  )
+    <div className={jost.variable} suppressHydrationWarning>
+      <FrontendClientScripts />
+      <ClientProviders>
+        {/* <Navbar /> */}
+        <main suppressHydrationWarning>{children}</main>
+      </ClientProviders>
+    </div>
+  );
 }
 
 export const metadata: Metadata = {
@@ -40,4 +48,4 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     creator: '@payloadcms',
   },
-}
+};

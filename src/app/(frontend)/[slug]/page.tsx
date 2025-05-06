@@ -1,19 +1,24 @@
 import type { Metadata } from 'next'
+import type { SlugParams } from '@/types/app-router'
+import type { RequiredDataFromCollectionSlug } from 'payload'
 
-import { PayloadRedirects } from '@/components/PayloadRedirects'
-import configPromise from '@payload-config'
-import { getPayload, type RequiredDataFromCollectionSlug } from 'payload'
-import { draftMode } from 'next/headers'
 import React, { cache } from 'react'
-import { homeStatic } from '@/endpoints/seed/home-static'
+import { draftMode } from 'next/headers'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
 import { RenderHero } from '@/heros/RenderHero'
+import { LivePreviewListener } from '@/components/LivePreviewListener'
+import { PayloadRedirects } from '@/components/PayloadRedirects'
+import { homeStatic } from '@/endpoints/seed/home-static'
+import configPromise from '@payload-config'
+import { getPayload } from 'payload'
 import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
-import { LivePreviewListener } from '@/components/LivePreviewListener'
 
-export async function generateStaticParams() {
+/**
+ * สร้าง static paths สำหรับหน้าต่างๆ
+ */
+export async function generateStaticParams(): Promise<{ slug: string }[]> {
   try {
     const payload = await getPayload({ config: configPromise })
     const pages = await payload.find({
@@ -27,6 +32,7 @@ export async function generateStaticParams() {
       },
     })
 
+    // กรองเฉพาะหน้าที่มี slug และไม่ใช่หน้า home
     const params = pages.docs
       ?.filter((doc) => {
         return doc.slug !== 'home' && doc.slug !== undefined && doc.slug !== null
@@ -42,40 +48,39 @@ export async function generateStaticParams() {
   }
 }
 
-type Args = {
-  params: Promise<{
-    slug?: string
-  }>
-}
-
-export default async function Page({ params: paramsPromise }: Args) {
-  const { isEnabled: draft } = await draftMode()
-  const { slug = 'home' } = await paramsPromise
+/**
+ * Component สำหรับแสดงหน้าตาม slug
+ */
+export default async function Page({ params }: { params: SlugParams }): Promise<JSX.Element> {
+  const draft = (await draftMode()).isEnabled === true
+  const { slug = 'home' } = params
   const url = '/' + slug
 
-  let page: RequiredDataFromCollectionSlug<'pages'> | null
+  let page: RequiredDataFromCollectionSlug<'pages'> | null = null
 
+  // ดึงข้อมูลหน้าจาก Payload CMS
   page = await queryPageBySlug({
     slug,
   })
 
-  // Remove this code once your website is seeded
+  // สำหรับการพัฒนา: ใช้ข้อมูลตัวอย่างถ้าไม่พบหน้า home
   if (!page && slug === 'home') {
     page = homeStatic
   }
 
+  // ถ้าไม่พบหน้า ให้แสดง redirects
   if (!page) {
     return <PayloadRedirects url={url} />
   }
 
-  // แก้ไขเพื่อตรวจสอบว่า hero และ layout มีอยู่ใน page หรือไม่
+  // แยกข้อมูล hero และ layout จากหน้า
   const hero = 'hero' in page ? page.hero : undefined
   const layout = 'layout' in page && Array.isArray(page.layout) ? page.layout : []
 
   return (
     <article className="pt-16 pb-24">
       <PageClient />
-      {/* Allows redirects for valid pages too */}
+      {/* สนับสนุนการ redirect สำหรับหน้าที่ถูกต้อง */}
       <PayloadRedirects disableNotFound url={url} />
 
       {draft && <LivePreviewListener />}
@@ -86,8 +91,11 @@ export default async function Page({ params: paramsPromise }: Args) {
   )
 }
 
-export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
-  const { slug = 'home' } = await paramsPromise
+/**
+ * สร้าง metadata สำหรับหน้า
+ */
+export async function generateMetadata({ params }: { params: SlugParams }): Promise<Metadata> {
+  const { slug = 'home' } = params
   const page = await queryPageBySlug({
     slug,
   })
@@ -95,6 +103,9 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   return generateMeta({ doc: page })
 }
 
+/**
+ * ฟังก์ชัน cache สำหรับดึงข้อมูลหน้าจาก slug
+ */
 const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
   const { isEnabled: draft } = await draftMode()
 
